@@ -136,6 +136,10 @@ async function requestClose(): Promise<void> {
     if (asking) return; // подтверждение уже на экране (второй Esc)
     asking = true;
     try {
+        // Модалка закрывается по pointerup на оверлее, а mouseup и click того же нажатия приходят следом. Если диалог
+        // уже стоит под курсором, этот click попадает в его фон, и confirm отвечает «нет» и тут же исчезает.
+        // Поэтому открываем диалог только после того, как жест закончился.
+        await new Promise<void>((resolve) => setTimeout(resolve, 0));
         const discard = await confirm(t('tasks.form.discard.title'))
             .message(t('tasks.form.discard.message'))
             .ok(t('tasks.form.discard.ok'))

@@ -45,7 +45,7 @@ async function type(el: HTMLInputElement | HTMLTextAreaElement, value: string) {
 const blur = async (el: HTMLElement) => { el.dispatchEvent(new Event('blur')); await nextTick(); };
 const enter = async (el: HTMLElement) => { el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true })); await nextTick(); };
 const click = async (el: HTMLElement) => { el.click(); await nextTick(); };
-const settle = async () => { for (let i = 0; i < 5; i++) await Promise.resolve(); await nextTick(); };
+const settle = async () => { await vi.advanceTimersByTimeAsync(0); for (let i = 0; i < 5; i++) await Promise.resolve(); await nextTick(); };
 
 interface Mounted {
     w: VueWrapper;
@@ -122,6 +122,21 @@ describe('форма задачи', () => {
             await settle();
             expect(mocks.asked).toHaveLength(1);
             expect(open()).toBe(true);
+            w.unmount();
+        });
+
+        it('клик мимо: диалог появляется только после окончания жеста, иначе click по его фону сразу отменил бы его', async () => {
+            const { w, open } = mountForm();
+            await type(noteInput(), 'черновик');
+            const overlay = q<HTMLElement>('.tao-modal-overlay');
+            overlay.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
+            overlay.dispatchEvent(new MouseEvent('pointerup', { bubbles: true }));
+            await nextTick();
+            expect(mocks.asked).toEqual([]); // mouseup и click этого же нажатия ещё впереди
+
+            await settle();
+            expect(mocks.asked).toEqual(['Закрыть без сохранения?']);
+            expect(open()).toBe(false);
             w.unmount();
         });
 
