@@ -54,16 +54,16 @@ const devMode = computed(() => open.value && detectDevMode());
             <TaoSpoiler class="fine-tune" :title="t('settings.fontSize.title')">
                 <div class="font-rows">
                     <div>
+                        <p class="row-label">{{ t('settings.fontSize.header') }}</p>
+                        <FontSizePicker :model-value="settings.headerScale" :label="t('settings.fontSize.header')" @update:model-value="settings.setHeaderScale" />
+                    </div>
+                    <div>
                         <p class="row-label">{{ t('settings.fontSize.note') }}</p>
                         <FontSizePicker :model-value="settings.noteScale" :label="t('settings.fontSize.note')" @update:model-value="settings.setNoteScale" />
                     </div>
                     <div>
                         <p class="row-label">{{ t('settings.fontSize.items') }}</p>
                         <FontSizePicker :model-value="settings.itemScale" :label="t('settings.fontSize.items')" @update:model-value="settings.setItemScale" />
-                    </div>
-                    <div>
-                        <p class="row-label">{{ t('settings.fontSize.header') }}</p>
-                        <FontSizePicker :model-value="settings.headerScale" :label="t('settings.fontSize.header')" @update:model-value="settings.setHeaderScale" />
                     </div>
                 </div>
             </TaoSpoiler>
