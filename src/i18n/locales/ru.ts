@@ -33,6 +33,12 @@ export default {
             mini: 'Мини',
             hint: 'Авто — на всю ширину окна.',
         },
+        fontSize: {
+            title: 'Размер текста',
+            note: 'Заметка',
+            items: 'Пункты списка',
+            header: 'Заголовок (дата)',
+        },
         removeAll: 'Удалить всё',
         export: 'Экспорт',
         import: 'Импорт',

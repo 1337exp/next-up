@@ -1,7 +1,7 @@
 import { computed, ref, watch } from 'vue';
 import { defineStore } from 'pinia';
 import { applyLocale, detectLocale, type LocaleCode } from '@/i18n';
-import { parseSettings, type Settings, type WidthMode } from '@/domain/settings';
+import { parseSettings, type FontScale, type Settings, type WidthMode } from '@/domain/settings';
 import { createBrowserJsonStorage, KEYS } from '@/storage/local';
 import { isAllowedEndpoint } from '@/sync';
 
@@ -12,6 +12,9 @@ export const useSettingsStore = defineStore('settings', () => {
     const locale = computed(() => state.value.locale);
     /** Язык ещё не выбран: показываем экран первого запуска. */
     const widthMode = computed(() => state.value.width);
+    const noteScale = computed(() => state.value.noteScale);
+    const itemScale = computed(() => state.value.itemScale);
+    const headerScale = computed(() => state.value.headerScale);
     const hideFarTasks = computed(() => state.value.hideFarTasks);
     const confirmUncheck = computed(() => state.value.confirmUncheck);
     const syncEndpoint = computed(() => state.value.sync.endpoint);
@@ -33,6 +36,21 @@ export const useSettingsStore = defineStore('settings', () => {
 
     function setWidthMode(mode: WidthMode): void {
         state.value.width = mode;
+        save();
+    }
+
+    function setNoteScale(scale: FontScale): void {
+        state.value.noteScale = scale;
+        save();
+    }
+
+    function setItemScale(scale: FontScale): void {
+        state.value.itemScale = scale;
+        save();
+    }
+
+    function setHeaderScale(scale: FontScale): void {
+        state.value.headerScale = scale;
         save();
     }
 
@@ -61,12 +79,18 @@ export const useSettingsStore = defineStore('settings', () => {
         needsLanguage,
         effectiveLocale,
         widthMode,
+        noteScale,
+        itemScale,
+        headerScale,
         hideFarTasks,
         confirmUncheck,
         syncEndpoint,
         persistent: storage.persistent,
         setLocale,
         setWidthMode,
+        setNoteScale,
+        setItemScale,
+        setHeaderScale,
         setHideFarTasks,
         setConfirmUncheck,
         setSyncEndpoint,

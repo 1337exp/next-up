@@ -7,6 +7,14 @@ export const WIDTH_MODES = ['auto', 'mini'] as const;
 export type WidthMode = (typeof WIDTH_MODES)[number];
 export const MINI_WIDTH_PX = 400;
 
+/** Масштаб шрифта в процентах: 100 — как задумано в теме, остальные — для мелкого экрана или для глаз. */
+export const FONT_SCALES = [90, 100, 120, 140] as const;
+export type FontScale = (typeof FONT_SCALES)[number];
+
+export function isFontScale(value: unknown): value is FontScale {
+    return typeof value === 'number' && (FONT_SCALES as readonly number[]).includes(value);
+}
+
 export function isWidthMode(value: unknown): value is WidthMode {
     return typeof value === 'string' && (WIDTH_MODES as readonly string[]).includes(value);
 }
@@ -16,6 +24,12 @@ export interface Settings {
     /** `null` — язык ещё не выбран (показываем экран первого запуска). */
     locale: LocaleCode | null;
     width: WidthMode;
+    /** Размер текста заметки, %. */
+    noteScale: FontScale;
+    /** Размер пунктов списка (подпись и время отметки), %. */
+    itemScale: FontScale;
+    /** Размер заголовка карточки (бейджи и дата), %. */
+    headerScale: FontScale;
     /** Сворачивать содержимое задач, до которых больше 21 дня (старый autoHide). */
     hideFarTasks: boolean;
     /** Спрашивать подтверждение при снятии отметки с пункта: снятие стирает время отметки. */
@@ -29,6 +43,9 @@ export function defaultSettings(): Settings {
         schemaVersion: SETTINGS_SCHEMA_VERSION,
         locale: null,
         width: 'mini',
+        noteScale: 100,
+        itemScale: 100,
+        headerScale: 100,
         hideFarTasks: false,
         confirmUncheck: true,
         sync: { endpoint: '' },
@@ -46,6 +63,9 @@ export function parseSettings(raw: unknown): Settings {
 
     if (isLocaleCode(raw.locale)) result.locale = raw.locale;
     if (isWidthMode(raw.width)) result.width = raw.width;
+    if (isFontScale(raw.noteScale)) result.noteScale = raw.noteScale;
+    if (isFontScale(raw.itemScale)) result.itemScale = raw.itemScale;
+    if (isFontScale(raw.headerScale)) result.headerScale = raw.headerScale;
     if (typeof raw.hideFarTasks === 'boolean') result.hideFarTasks = raw.hideFarTasks;
     if (typeof raw.confirmUncheck === 'boolean') result.confirmUncheck = raw.confirmUncheck;
     if (isRecord(raw.sync) && typeof raw.sync.endpoint === 'string') result.sync.endpoint = raw.sync.endpoint;

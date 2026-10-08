@@ -37,6 +37,12 @@ export default {
             mini: 'Mini',
             hint: 'Auto fills the whole window.',
         },
+        fontSize: {
+            title: 'Text size',
+            note: 'Note',
+            items: 'List items',
+            header: 'Header (date)',
+        },
         removeAll: 'Delete all',
         export: 'Export',
         import: 'Import',

@@ -208,7 +208,7 @@ function onAction(id: string): void {
     align-items: center;
     justify-content: space-between;
     gap: var(--tao-space-2, 8px);
-    font-size: var(--tao-font-size-xs);
+    font-size: calc(var(--tao-font-size-xs) * var(--nextup-header-scale, 1));
 }
 
 .meta {
@@ -222,8 +222,13 @@ function onAction(id: string): void {
     padding: 2px 5px;
 }
 
+/* у бейджа свой размер шрифта в теме, поэтому селектор длиннее простого .tag */
+.meta .tag {
+    font-size: calc(var(--tao-font-size-xs) * var(--nextup-header-scale, 1));
+}
+
 .date-line {
-    font-size: 11px;
+    font-size: calc(11px * var(--nextup-header-scale, 1));
     color: var(--tao-color-text-muted);
 }
 
@@ -242,6 +247,6 @@ function onAction(id: string): void {
 }
 
 .body {
-    font-size: var(--tao-font-size-sm);
+    font-size: calc(var(--tao-font-size-sm) * var(--nextup-note-scale, 1));
 }
 </style>

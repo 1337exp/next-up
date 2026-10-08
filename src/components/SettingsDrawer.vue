@@ -2,6 +2,7 @@
 import { computed, defineAsyncComponent, ref } from 'vue';
 import { TaoDrawer, TaoFormField, TaoInput, TaoSwitch } from '@1337exp/taoui';
 import DataSection from '@/components/DataSection.vue';
+import FontSizePicker from '@/components/FontSizePicker.vue';
 import LanguagePicker from '@/components/LanguagePicker.vue';
 import WidthPicker from '@/components/WidthPicker.vue';
 import { FAR_TASK_DAYS } from '@/domain/constants';
@@ -45,6 +46,24 @@ const devMode = computed(() => open.value && detectDevMode());
         </section>
 
         <section class="section">
+            <h2 class="section-title">{{ t('settings.fontSize.title') }}</h2>
+            <div class="font-rows">
+                <div>
+                    <p class="row-label">{{ t('settings.fontSize.note') }}</p>
+                    <FontSizePicker :model-value="settings.noteScale" :label="t('settings.fontSize.note')" @update:model-value="settings.setNoteScale" />
+                </div>
+                <div>
+                    <p class="row-label">{{ t('settings.fontSize.items') }}</p>
+                    <FontSizePicker :model-value="settings.itemScale" :label="t('settings.fontSize.items')" @update:model-value="settings.setItemScale" />
+                </div>
+                <div>
+                    <p class="row-label">{{ t('settings.fontSize.header') }}</p>
+                    <FontSizePicker :model-value="settings.headerScale" :label="t('settings.fontSize.header')" @update:model-value="settings.setHeaderScale" />
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
             <div class="switches">
                 <TaoSwitch :model-value="settings.hideFarTasks" :label="t('settings.autoHide', [FAR_TASK_DAYS])" @update:model-value="settings.setHideFarTasks" />
                 <TaoSwitch :model-value="settings.confirmUncheck" :label="t('settings.confirmUncheck')" @update:model-value="settings.setConfirmUncheck" />
@@ -82,6 +101,18 @@ const devMode = computed(() => open.value && detectDevMode());
     font-size: var(--tao-font-size-md);
     font-weight: 500;
     color: var(--tao-color-text-strong);
+}
+
+.font-rows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tao-space-3, 12px);
+}
+
+.row-label {
+    margin: 0 0 var(--tao-space-1, 4px);
+    font-size: var(--tao-font-size-sm);
+    color: var(--tao-color-text-subtle);
 }
 
 .switches {

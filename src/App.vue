@@ -11,7 +11,13 @@ const settings = useSettingsStore();
 const { t } = useI18n();
 
 // Ширину ограничиваем у корня приложения, а не у <html>: так оно не трогает страницу-хозяина при встраивании.
-const rootStyle = computed(() => (settings.widthMode === 'mini' ? { '--nextup-max-width': `${MINI_WIDTH_PX}px` } : undefined));
+// Размеры шрифта тоже переменными: карточки читают их через calc(), не зная про настройки.
+const rootStyle = computed(() => ({
+    ...(settings.widthMode === 'mini' ? { '--nextup-max-width': `${MINI_WIDTH_PX}px` } : {}),
+    '--nextup-note-scale': settings.noteScale / 100,
+    '--nextup-item-scale': settings.itemScale / 100,
+    '--nextup-header-scale': settings.headerScale / 100,
+}));
 </script>
 
 <template>

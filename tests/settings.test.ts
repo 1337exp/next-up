@@ -105,6 +105,35 @@ describe('settings store', () => {
     });
 });
 
+describe('размер шрифта', () => {
+    beforeEach(() => {
+        localStorage.clear();
+        setActivePinia(createPinia());
+    });
+
+    it('по умолчанию 100%; неизвестные значения заменяются, остальные поля не страдают', () => {
+        expect(defaultSettings().noteScale).toBe(100);
+        expect(defaultSettings().headerScale).toBe(100);
+        expect(defaultSettings().itemScale).toBe(100);
+        const parsed = parseSettings({ noteScale: 130, headerScale: '120', width: 'auto' });
+        expect([parsed.noteScale, parsed.headerScale, parsed.width]).toEqual([100, 100, 'auto']);
+        expect(parseSettings({ noteScale: 140, headerScale: 90 })).toMatchObject({ noteScale: 140, headerScale: 90 });
+    });
+
+    it('размеры независимы, сохраняются и переживают перезапуск', () => {
+        const s = useSettingsStore();
+        s.setNoteScale(120);
+        s.setItemScale(140);
+        s.setHeaderScale(90);
+        const saved = JSON.parse(localStorage.getItem('nextup-settings') ?? '{}');
+        expect([saved.noteScale, saved.itemScale, saved.headerScale]).toEqual([120, 140, 90]);
+
+        setActivePinia(createPinia());
+        const again = useSettingsStore();
+        expect([again.noteScale, again.itemScale, again.headerScale]).toEqual([120, 140, 90]);
+    });
+});
+
 describe('ширина интерфейса', () => {
     beforeEach(() => {
         localStorage.clear();
