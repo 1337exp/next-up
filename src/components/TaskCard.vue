@@ -49,7 +49,7 @@ const inArchive = computed(() => props.task.done || left.value < 0);
 
 const actions = computed<TaoDropdownAction[]>(() => {
     const list: TaoDropdownAction[] = [];
-    if (!inArchive.value) list.push({ id: 'done', ico: 'login', name: t('ui.button.done') });
+    if (!inArchive.value) list.push({ id: 'done', ico: 'ok', name: t('ui.button.done') });
     else if (left.value >= 0) list.push({ id: 'reopen', ico: 'logout', name: t('ui.button.inProgress') });
     if (props.canEdit) {
         list.push({ id: 'edit', ico: 'pencil', name: t('ui.button.change') });
@@ -64,7 +64,6 @@ const actions = computed<TaoDropdownAction[]>(() => {
 const swipeOpen = ref(false);
 const SWIPE_BUTTON_PX = 44;
 const SWIPE_ORDER = ['edit', 'done', 'reopen'];
-const SWIPE_ICONS: Record<string, string> = { edit: 'pencil', done: 'ok', reopen: 'logout' };
 const swipeActions = computed(() => SWIPE_ORDER.map((id) => actions.value.find((action) => action.id === id)).filter((action): action is TaoDropdownAction => !!action));
 
 function onSwipeAction(id: string): void {
@@ -114,7 +113,14 @@ function onAction(id: string): void {
                     >
                         <TaoIcon :name="expanded ? 'eye-off' : 'eye'" />
                     </TaoButton>
-                    <TaoDropdownMenu :actions="actions" :menu-label="t('tasks.menu')" @selected="onAction" />
+                    <TaoDropdownMenu :actions="actions" :menu-label="t('tasks.menu')" @selected="onAction">
+                        <template #item="{ id, ico, text }">
+                            <span class="menu-item" :class="{ 'menu-item--danger': id === 'remove' }">
+                                <TaoIcon v-if="ico" :name="ico" class="menu-icon" />
+                                {{ text }}
+                            </span>
+                        </template>
+                    </TaoDropdownMenu>
                 </div>
             </header>
 
@@ -139,13 +145,28 @@ function onAction(id: string): void {
                 :title="action.name"
                 @click="onSwipeAction(action.id)"
             >
-                <TaoIcon :name="SWIPE_ICONS[action.id] ?? 'ok'" />
+                <TaoIcon :name="action.ico ?? 'ok'" />
             </button>
         </template>
     </SwipeReveal>
 </template>
 
 <style scoped>
+.menu-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.menu-icon {
+    width: 1.2em;
+    text-align: center;
+}
+
+.menu-item--danger {
+    color: var(--tao-color-danger);
+}
+
 .swipe-button {
     flex: 1 1 0;
     min-height: 0;
