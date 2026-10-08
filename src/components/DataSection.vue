@@ -64,8 +64,8 @@ async function onFiles(files: File[]): Promise<void> {
 <template>
     <div class="data">
         <div class="actions">
-            <TaoButton variant="secondary" class="export" @click="onExport"><TaoIcon name="download" /> {{ t('settings.export') }}</TaoButton>
-            <TaoButton variant="danger" class="remove-all" @click="onRemoveAll"><TaoIcon name="trash-1" /> {{ t('settings.removeAll') }}</TaoButton>
+            <TaoButton size="small" variant="secondary" class="export" @click="onExport"><TaoIcon name="download" /> {{ t('settings.export') }}</TaoButton>
+            <TaoButton size="small" variant="danger" class="remove-all" @click="onRemoveAll"><TaoIcon name="trash-1" /> {{ t('settings.removeAll') }}</TaoButton>
         </div>
 
         <TaoFileDrop class="import" :model-value="[]" accept=".json,application/json,text/plain" :multiple="false" @files="onFiles">
