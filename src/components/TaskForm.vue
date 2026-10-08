@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive, ref, useId, watch } from 'vue';
-import { TaoButton, TaoDropdownMenu, TaoFormField, TaoIcon, TaoInput, TaoModal, TaoTextarea, type TaoDropdownAction } from '@1337exp/taoui';
+import { confirm, TaoButton, TaoDropdownMenu, TaoFormField, TaoIcon, TaoInput, TaoModal, TaoTextarea, type TaoDropdownAction } from '@1337exp/taoui';
 import { RETENTION_DAYS } from '@/domain/constants';
 import { draftFromClone, draftFromTask, draftToInput, newDraft, normalizeDateText, QUICK_SHIFT_DAYS, shiftDateText, withNewItem, type TaskDraft } from '@/domain/draft';
 import { formatUserDate } from '@/domain/date';
@@ -27,6 +27,10 @@ const draft = reactive<TaskDraft>(newDraft(tasks.today));
 const newItemText = ref('');
 const error = ref<TaskError | null>(null);
 
+// Что было в форме при открытии: по нему видно, ввёл ли пользователь что-то, что пропадёт при закрытии.
+let initialDraft = '';
+const isDirty = (): boolean => newItemText.value.trim() !== '' || JSON.stringify(draft) !== initialDraft;
+
 function buildDraft(): TaskDraft {
     if (props.task && props.mode === 'edit') return draftFromTask(props.task);
     if (props.task && props.mode === 'clone') return draftFromClone(props.task);
@@ -39,6 +43,7 @@ watch(
     (isOpen) => {
         if (!isOpen) return;
         Object.assign(draft, buildDraft());
+        initialDraft = JSON.stringify(draft);
         newItemText.value = '';
         error.value = null;
     },
@@ -119,6 +124,34 @@ function onRepeatSelected(id: string): void {
     if (isRecurrence(id)) draft.recurrence = id;
 }
 
+// Закрытие без сохранения (Esc, клик мимо, крестик, «Отменить»): если что-то введено, сначала спрашиваем.
+// Сохранение закрывает форму напрямую и сюда не попадает.
+let asking = false;
+
+async function requestClose(): Promise<void> {
+    if (!isDirty()) {
+        open.value = false;
+        return;
+    }
+    if (asking) return; // подтверждение уже на экране (второй Esc)
+    asking = true;
+    try {
+        const discard = await confirm(t('tasks.form.discard.title'))
+            .message(t('tasks.form.discard.message'))
+            .ok(t('tasks.form.discard.ok'))
+            .cancel(t('tasks.form.discard.keep'))
+            .danger();
+        if (discard) open.value = false;
+    } finally {
+        asking = false;
+    }
+}
+
+function onModalUpdate(value: boolean): void {
+    if (value) open.value = true;
+    else void requestClose();
+}
+
 function submit(): void {
     // текст, который не успели добавить кнопкой «+», не теряем
     if (newItemText.value.trim() !== '') pushPendingItem();
@@ -143,7 +176,7 @@ function submit(): void {
 </script>
 
 <template>
-    <TaoModal v-model="open" :title="title" :close-label="t('ui.button.close')">
+    <TaoModal :model-value="open" :title="title" :close-label="t('ui.button.close')" @update:model-value="onModalUpdate">
         <div class="form">
             <TaoFormField :error="dateError">
                 <div class="date-row">
@@ -233,7 +266,7 @@ function submit(): void {
 
         <template #footer>
             <div class="footer">
-                <TaoButton variant="ghost" @click="open = false">{{ t('ui.button.cancel') }}</TaoButton>
+                <TaoButton variant="ghost" @click="requestClose">{{ t('ui.button.cancel') }}</TaoButton>
                 <TaoButton variant="primary" class="submit" @click="submit">{{ submitLabel }}</TaoButton>
             </div>
         </template>

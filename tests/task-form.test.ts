@@ -11,6 +11,20 @@ import { useTasksStore } from '@/stores/tasks';
 import type { Task } from '@/domain/types';
 import { makeTask } from './helpers';
 
+// confirm() подменяем: настоящий монтирует свой хост в body
+const mocks = vi.hoisted(() => ({ answer: true, asked: [] as string[] }));
+
+vi.mock('@1337exp/taoui', async (importOriginal) => {
+    const original = await importOriginal<typeof import('@1337exp/taoui')>();
+    const confirm = (title: string) => {
+        mocks.asked.push(title);
+        const builder: Record<string, unknown> = { then: (resolve: (value: boolean) => void) => resolve(mocks.answer) };
+        for (const name of ['message', 'ok', 'cancel', 'danger']) builder[name] = () => builder;
+        return builder;
+    };
+    return { ...original, confirm };
+});
+
 // ---------------------------------------------------------------- помощники
 
 const q = <T extends Element>(selector: string) => document.body.querySelector<T>(selector)!;
@@ -31,6 +45,7 @@ async function type(el: HTMLInputElement | HTMLTextAreaElement, value: string) {
 const blur = async (el: HTMLElement) => { el.dispatchEvent(new Event('blur')); await nextTick(); };
 const enter = async (el: HTMLElement) => { el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true })); await nextTick(); };
 const click = async (el: HTMLElement) => { el.click(); await nextTick(); };
+const settle = async () => { for (let i = 0; i < 5; i++) await Promise.resolve(); await nextTick(); };
 
 interface Mounted {
     w: VueWrapper;
@@ -62,6 +77,90 @@ describe('форма задачи', () => {
         vi.setSystemTime(new Date(2026, 9, 6, 12, 0, 0));
     });
     afterEach(() => vi.useRealTimers());
+
+    describe('закрытие без сохранения', () => {
+        beforeEach(() => {
+            mocks.answer = true;
+            mocks.asked.length = 0;
+        });
+
+        it('пустая форма закрывается сразу, без вопроса', async () => {
+            const { w, open } = mountForm();
+            await click(cancelButton());
+            await settle();
+            expect(mocks.asked).toEqual([]);
+            expect(open()).toBe(false);
+            w.unmount();
+        });
+
+        it('если что-то введено, «Отменить» спрашивает; «Закрыть» закрывает, данные пропадают', async () => {
+            const { w, open } = mountForm();
+            await type(noteInput(), 'черновик');
+            await click(cancelButton());
+            await settle();
+            expect(mocks.asked).toEqual(['Закрыть без сохранения?']);
+            expect(open()).toBe(false);
+            w.unmount();
+        });
+
+        it('«Продолжить» оставляет форму открытой и ничего не теряет', async () => {
+            mocks.answer = false;
+            const { w, open } = mountForm();
+            await type(noteInput(), 'черновик');
+            await click(cancelButton());
+            await settle();
+            expect(open()).toBe(true);
+            expect(noteInput().value).toBe('черновик');
+            w.unmount();
+        });
+
+        it('вопрос задаёт и крестик с Escape: любое закрытие, не только кнопка', async () => {
+            mocks.answer = false;
+            const { w, open } = mountForm();
+            await type(noteInput(), 'черновик');
+            await click(q<HTMLButtonElement>('.tao-modal__close'));
+            await settle();
+            expect(mocks.asked).toHaveLength(1);
+            expect(open()).toBe(true);
+            w.unmount();
+        });
+
+        it('текст в поле нового пункта, который не успели добавить, тоже считается вводом', async () => {
+            const { w } = mountForm();
+            await type(addItemInput(), 'хлеб');
+            await click(cancelButton());
+            await settle();
+            expect(mocks.asked).toHaveLength(1);
+            w.unmount();
+        });
+
+        it('при изменении без правок вопроса нет, после правки есть', async () => {
+            const task = makeTask({ id: 'a', date: '2026-10-20', note: 'старая' });
+            const { w, open } = mountForm('edit', task, [task]);
+            await click(cancelButton());
+            await settle();
+            expect(mocks.asked).toEqual([]);
+            expect(open()).toBe(false);
+            w.unmount();
+
+            const again = mountForm('edit', task, [task]);
+            await type(noteInput(), 'новая');
+            await click(cancelButton());
+            await settle();
+            expect(mocks.asked).toHaveLength(1);
+            again.w.unmount();
+        });
+
+        it('сохранение закрывает форму без вопроса', async () => {
+            const { w, open } = mountForm();
+            await type(noteInput(), 'заметка');
+            await click(submitButton());
+            await settle();
+            expect(mocks.asked).toEqual([]);
+            expect(open()).toBe(false);
+            w.unmount();
+        });
+    });
 
     describe('создание', () => {
         it('открывается с сегодняшней датой и пустыми полями', () => {
@@ -309,7 +408,7 @@ describe('форма задачи', () => {
             const { w, store, open } = mountForm('edit', task, [task]);
             await type(noteInput(), 'не сохранится');
             await click(cancelButton());
-            await nextTick();
+            await settle();
 
             expect(open()).toBe(false);
             expect(store.tasks[0]!.note).toBe('старая');
@@ -356,7 +455,7 @@ describe('форма задачи', () => {
         const { w } = mountForm();
         await type(noteInput(), 'черновик');
         await click(cancelButton());
-        await nextTick();
+        await settle();
 
         await w.setProps({ modelValue: true });
         await nextTick();

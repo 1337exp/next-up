@@ -117,6 +117,7 @@ export default {
             title: { create: 'New note', clone: 'Clone note' },
             date: { label: 'Date', placeholder: 'dd.mm.yyyy', prev: 'Previous day', next: 'Next day', addDays: 'Add days: {0}', useToday: "Use today's date" },
             note: { label: 'Note', placeholder: 'Enter note text' },
+            discard: { title: 'Close without saving?', message: 'What you entered will be lost.', ok: 'Close', keep: 'Keep editing' },
             checklist: { label: 'List of tasks', placeholder: 'Enter task text', add: 'Add item', remove: 'Remove item' },
             error: {
                 empty: 'Enter the note text or add at least one list item',
