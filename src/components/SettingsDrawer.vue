@@ -4,7 +4,6 @@ import { TaoDrawer, TaoFormField, TaoInput, TaoSwitch } from '@1337exp/taoui';
 import DataSection from '@/components/DataSection.vue';
 import LanguagePicker from '@/components/LanguagePicker.vue';
 import WidthPicker from '@/components/WidthPicker.vue';
-import { MINI_WIDTH_PX } from '@/domain/settings';
 import { FAR_TASK_DAYS } from '@/domain/constants';
 import { FEATURES } from '@/features';
 import { useI18n } from '@/i18n';
@@ -38,7 +37,7 @@ const DevTools = import.meta.env.DEV ? defineAsyncComponent(() => import('@/dev/
         <section class="section">
             <h2 class="section-title">{{ t('settings.width.title') }}</h2>
             <WidthPicker :model-value="settings.widthMode" @update:model-value="settings.setWidthMode" />
-            <p class="hint">{{ t('settings.width.hint', [MINI_WIDTH_PX]) }}</p>
+            <p class="hint">{{ t('settings.width.hint') }}</p>
         </section>
 
         <section class="section">

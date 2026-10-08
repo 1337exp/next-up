@@ -76,8 +76,8 @@ describe('первый запуск и язык', () => {
         localStorage.setItem('nextup-settings', JSON.stringify({ schemaVersion: 1, locale: 'en' }));
         const w = mountApp();
         const root = w.find('.app');
-        expect(root.attributes('data-width')).toBe('auto');
-        expect(root.attributes('style') ?? '').not.toContain('--nextup-max-width');
+        expect(root.attributes('data-width')).toBe('mini'); // по умолчанию «Мини»
+        expect(root.attributes('style')).toContain('--nextup-max-width: 400px');
 
         await w.find('button[aria-label="Settings"]').trigger('click');
         await nextTick();
@@ -89,14 +89,14 @@ describe('первый запуск и язык', () => {
             await nextTick();
         };
 
-        await pick('mini');
-        expect(root.attributes('data-width')).toBe('mini');
-        expect(root.attributes('style')).toContain('--nextup-max-width: 400px');
-        expect(JSON.parse(localStorage.getItem('nextup-settings') ?? '{}').width).toBe('mini');
-
         await pick('auto');
         expect(root.attributes('data-width')).toBe('auto');
         expect(root.attributes('style') ?? '').not.toContain('--nextup-max-width');
+        expect(JSON.parse(localStorage.getItem('nextup-settings') ?? '{}').width).toBe('auto');
+
+        await pick('mini');
+        expect(root.attributes('data-width')).toBe('mini');
+        expect(root.attributes('style')).toContain('--nextup-max-width: 400px');
         w.unmount();
     });
 });

@@ -28,9 +28,9 @@ export function defaultSettings(): Settings {
     return {
         schemaVersion: SETTINGS_SCHEMA_VERSION,
         locale: null,
-        width: 'auto',
+        width: 'mini',
         hideFarTasks: false,
-        confirmUncheck: false,
+        confirmUncheck: true,
         sync: { endpoint: '' },
     };
 }

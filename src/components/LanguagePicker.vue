@@ -13,7 +13,7 @@ function onUpdate(value: unknown): void {
 </script>
 
 <template>
-    <TaoSegmented :model-value="modelValue" :legend="t('language.title')" block @update:model-value="onUpdate">
+    <TaoSegmented :model-value="modelValue" :aria-label="t('language.title')" block @update:model-value="onUpdate">
         <TaoSegmentedOption v-for="code in LOCALE_CODES" :key="code" :value="code">
             {{ LOCALE_NAMES[code] }}
         </TaoSegmentedOption>

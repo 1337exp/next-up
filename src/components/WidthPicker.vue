@@ -14,7 +14,7 @@ function onUpdate(value: unknown): void {
 </script>
 
 <template>
-    <TaoSegmented :model-value="modelValue" :legend="t('settings.width.title')" block @update:model-value="onUpdate">
+    <TaoSegmented :model-value="modelValue" :aria-label="t('settings.width.title')" block @update:model-value="onUpdate">
         <TaoSegmentedOption v-for="mode in WIDTH_MODES" :key="mode" :value="mode">
             {{ t(`settings.width.${mode}`) }}
         </TaoSegmentedOption>

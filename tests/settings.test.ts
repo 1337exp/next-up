@@ -111,10 +111,11 @@ describe('ширина интерфейса', () => {
         setActivePinia(createPinia());
     });
 
-    it('по умолчанию «Авто»; неизвестное значение заменяется на «Авто»', () => {
-        expect(defaultSettings().width).toBe('auto');
-        expect(parseSettings({ width: 'huge' }).width).toBe('auto');
-        expect(parseSettings({ width: 'mini' }).width).toBe('mini');
+    it('по умолчанию «Мини»; неизвестное значение заменяется на «Мини»', () => {
+        expect(defaultSettings().width).toBe('mini');
+        expect(parseSettings({ width: 'huge' }).width).toBe('mini');
+        expect(parseSettings({ width: 'auto' }).width).toBe('auto');
+        expect(defaultSettings().confirmUncheck).toBe(true);
     });
 
     it('выбор сохраняется и переживает перезапуск', () => {

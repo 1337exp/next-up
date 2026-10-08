@@ -449,8 +449,8 @@ describe('панель: вкладки-бейджи, поиск, «Наверх�
             makeTask({ id: 'a', date: '2026-10-20', checklist: [{ text: 'Хлеб', done, changedAt: done ? '2026-10-01T10:00:00.000Z' : null }] }),
         ];
         const checkbox = (w: ReturnType<typeof mountApp>) => w.find('.list input[type="checkbox"]');
-        it('по умолчанию выключено: снятие отметки сразу применяется и время стирается', async () => {
-            const w = mountApp(withItem(true));
+        it('выключено: снятие отметки сразу применяется и время стирается', async () => {
+            const w = mountApp(withItem(true), 'ru', { confirmUncheck: false });
             await checkbox(w).setValue(false);
             await vi.waitFor(() => expect(stored()[0]!.checklist[0]).toEqual({ text: 'Хлеб', done: false, changedAt: null }));
             expect(mocks.asked).toEqual([]);
@@ -491,8 +491,15 @@ describe('панель: вкладки-бейджи, поиск, «Наверх�
             w.unmount();
         });
 
-        it('переключатель в настройках включает подтверждение и сохраняется', async () => {
+        it('по умолчанию включено', async () => {
             const w = mountApp(withItem(true));
+            await checkbox(w).setValue(false);
+            await vi.waitFor(() => expect(mocks.asked).toHaveLength(2));
+            w.unmount();
+        });
+
+        it('переключатель в настройках включает подтверждение и сохраняется', async () => {
+            const w = mountApp(withItem(true), 'ru', { confirmUncheck: false });
             await w.find('button[aria-label="Настройки"]').trigger('click');
             await nextTick();
 
@@ -502,7 +509,7 @@ describe('панель: вкладки-бейджи, поиск, «Наверх�
             await nextTick();
 
             expect(JSON.parse(localStorage.getItem('nextup-settings') ?? '{}').confirmUncheck).toBe(true);
-            expect(document.body.textContent).toContain('Подтверждать снятие отметки с пункта');
+            expect(document.body.textContent).toContain('Подтверждать снятие отметки с задачи');
 
             await checkbox(w).setValue(false);
             await vi.waitFor(() => expect(mocks.asked).toHaveLength(2)); // настройка подействовала сразу, без перезагрузки

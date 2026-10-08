@@ -30,8 +30,14 @@ const rootStyle = computed(() => (settings.widthMode === 'mini' ? { '--nextup-ma
     container: nextup / inline-size;
     box-sizing: border-box;
     width: 100%;
-    max-width: var(--nextup-max-width, none);
     min-height: 100%;
     margin: 0 auto;
+}
+
+/* на телефоне «Мини» не нужен: колонка и так на всю ширину, а лишние поля только съедают место */
+@media (min-width: 451px) {
+    .app {
+        max-width: var(--nextup-max-width, none);
+    }
 }
 </style>
