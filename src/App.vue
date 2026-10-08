@@ -3,12 +3,15 @@ import { computed, watchEffect } from 'vue';
 import { TaoScrollTop } from '@1337exp/taoui';
 import LanguageGate from '@/views/LanguageGate.vue';
 import TasksView from '@/views/TasksView.vue';
+import { useDayNotifier } from '@/composables/dayNotifier';
 import { MINI_WIDTH_PX } from '@/domain/settings';
 import { useI18n } from '@/i18n';
 import { useSettingsStore } from '@/stores/settings';
 
 const settings = useSettingsStore();
 const { t } = useI18n();
+
+useDayNotifier();
 
 // Ширину ограничиваем у корня приложения, а не у <html>: так оно не трогает страницу-хозяина при встраивании.
 // Общий масштаб кладём на <html>: модалки, панель настроек и уведомления выводятся в <body>, вне .app, и иначе

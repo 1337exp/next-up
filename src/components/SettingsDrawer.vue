@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, ref } from 'vue';
-import { TaoDrawer, TaoFormField, TaoInput, TaoSpoiler, TaoSwitch } from '@1337exp/taoui';
+import { TaoDrawer, TaoFormField, TaoInput, TaoSpoiler, TaoSwitch, toast } from '@1337exp/taoui';
 import DataSection from '@/components/DataSection.vue';
 import FontSizePicker from '@/components/FontSizePicker.vue';
 import LanguagePicker from '@/components/LanguagePicker.vue';
@@ -8,6 +8,7 @@ import WidthPicker from '@/components/WidthPicker.vue';
 import { FAR_TASK_DAYS } from '@/domain/constants';
 import { detectDevMode } from '@/dev/mode';
 import { FEATURES } from '@/features';
+import { notifySupport, requestNotifications } from '@/lib/notifications';
 import { useI18n } from '@/i18n';
 import { useSettingsStore } from '@/stores/settings';
 
@@ -15,6 +16,22 @@ const open = defineModel<boolean>({ required: true });
 
 const { t } = useI18n();
 const settings = useSettingsStore();
+
+// Оповещения: состояние берём при каждом открытии настроек (разрешение могли изменить в самом браузере)
+const notifyState = computed(() => (open.value ? notifySupport() : 'default'));
+const notifyHint = computed(() => {
+    if (notifyState.value === 'unsupported') return t('settings.notify.unsupported');
+    if (notifyState.value === 'denied') return t('settings.notify.denied');
+    return t('settings.notify.hint');
+});
+
+// разрешение просим только по действию пользователя; не дали — переключатель остаётся выключенным
+async function onNotifyToggle(value: boolean): Promise<void> {
+    if (!value) return settings.setNotifyToday(false);
+    const result = await requestNotifications();
+    settings.setNotifyToday(result === 'granted');
+    if (result !== 'granted') toast.warning(t(result === 'denied' ? 'settings.notify.denied' : 'settings.notify.unsupported'));
+}
 
 // Адрес синхронизации: поле скрыто, пока синхронизации нет (FEATURES.sync)
 const endpoint = ref(settings.syncEndpoint);
@@ -73,6 +90,15 @@ const devMode = computed(() => open.value && detectDevMode());
             <div class="switches">
                 <TaoSwitch :model-value="settings.hideFarTasks" :label="t('settings.autoHide', [FAR_TASK_DAYS])" @update:model-value="settings.setHideFarTasks" />
                 <TaoSwitch :model-value="settings.confirmUncheck" :label="t('settings.confirmUncheck')" @update:model-value="settings.setConfirmUncheck" />
+                <div>
+                    <TaoSwitch
+                        :model-value="settings.notifyToday"
+                        :disabled="notifyState === 'unsupported' || notifyState === 'denied'"
+                        :label="t('settings.notify.label')"
+                        @update:model-value="onNotifyToggle"
+                    />
+                    <p class="hint">{{ notifyHint }}</p>
+                </div>
             </div>
         </section>
 

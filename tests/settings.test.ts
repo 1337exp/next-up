@@ -123,6 +123,12 @@ describe('размер шрифта', () => {
         expect(parseSettings({ noteScale: 140, headerScale: 90 })).toMatchObject({ noteScale: 140, headerScale: 90 });
     });
 
+    it('оповещения: по умолчанию выключены; дата последнего оповещения принимается только в формате yyyy-mm-dd', () => {
+        expect(defaultSettings()).toMatchObject({ notifyToday: false, lastNotified: '' });
+        expect(parseSettings({ notifyToday: true, lastNotified: '2026-10-08' })).toMatchObject({ notifyToday: true, lastNotified: '2026-10-08' });
+        expect(parseSettings({ notifyToday: 'yes', lastNotified: '08.10.2026' })).toMatchObject({ notifyToday: false, lastNotified: '' });
+    });
+
     it('размеры независимы, сохраняются и переживают перезапуск', () => {
         const s = useSettingsStore();
         s.setNoteScale(120);

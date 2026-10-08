@@ -18,6 +18,8 @@ export const useSettingsStore = defineStore('settings', () => {
     const headerScale = computed(() => state.value.headerScale);
     const hideFarTasks = computed(() => state.value.hideFarTasks);
     const confirmUncheck = computed(() => state.value.confirmUncheck);
+    const notifyToday = computed(() => state.value.notifyToday);
+    const lastNotified = computed(() => state.value.lastNotified);
     const syncEndpoint = computed(() => state.value.sync.endpoint);
     const needsLanguage = computed(() => state.value.locale === null);
     /** Язык, который реально применён: выбранный или предложенный по языку браузера. */
@@ -70,6 +72,16 @@ export const useSettingsStore = defineStore('settings', () => {
         save();
     }
 
+    function setNotifyToday(value: boolean): void {
+        state.value.notifyToday = value;
+        save();
+    }
+
+    function setLastNotified(date: string): void {
+        state.value.lastNotified = date;
+        save();
+    }
+
     /** Адрес синхронизации (пока скрыт за FEATURES.sync). Небезопасный адрес не принимается. */
     function setSyncEndpoint(value: string): boolean {
         const endpoint = value.trim();
@@ -91,6 +103,8 @@ export const useSettingsStore = defineStore('settings', () => {
         headerScale,
         hideFarTasks,
         confirmUncheck,
+        notifyToday,
+        lastNotified,
         syncEndpoint,
         persistent: storage.persistent,
         setLocale,
@@ -101,6 +115,8 @@ export const useSettingsStore = defineStore('settings', () => {
         setHeaderScale,
         setHideFarTasks,
         setConfirmUncheck,
+        setNotifyToday,
+        setLastNotified,
         setSyncEndpoint,
     };
 });

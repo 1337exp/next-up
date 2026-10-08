@@ -36,6 +36,10 @@ export interface Settings {
     hideFarTasks: boolean;
     /** Спрашивать подтверждение при снятии отметки с пункта: снятие стирает время отметки. */
     confirmUncheck: boolean;
+    /** Раз в день, когда сменилась дата, оповещать о задачах на сегодня (нужно разрешение браузера). */
+    notifyToday: boolean;
+    /** Дата (`yyyy-mm-dd`), за которую оповещение уже обработано; `''` — ни за какую. */
+    lastNotified: string;
     /** Точка расширения для синхронизации; пустая строка — выключено. */
     sync: { endpoint: string };
 }
@@ -51,6 +55,8 @@ export function defaultSettings(): Settings {
         headerScale: 100,
         hideFarTasks: false,
         confirmUncheck: true,
+        notifyToday: false,
+        lastNotified: '',
         sync: { endpoint: '' },
     };
 }
@@ -72,6 +78,8 @@ export function parseSettings(raw: unknown): Settings {
     if (isFontScale(raw.headerScale)) result.headerScale = raw.headerScale;
     if (typeof raw.hideFarTasks === 'boolean') result.hideFarTasks = raw.hideFarTasks;
     if (typeof raw.confirmUncheck === 'boolean') result.confirmUncheck = raw.confirmUncheck;
+    if (typeof raw.notifyToday === 'boolean') result.notifyToday = raw.notifyToday;
+    if (typeof raw.lastNotified === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(raw.lastNotified)) result.lastNotified = raw.lastNotified;
     if (isRecord(raw.sync) && typeof raw.sync.endpoint === 'string') result.sync.endpoint = raw.sync.endpoint;
 
     return result;

@@ -52,6 +52,12 @@ export default {
         import: 'Import',
         autoHide: 'Hide tasks for more than {0} days',
         confirmUncheck: 'Confirm unchecking a task',
+        notify: {
+            label: "Notify about today's tasks",
+            hint: 'Once a day when the date changes, if the tab is in the background.',
+            denied: 'Notifications are blocked in the browser settings.',
+            unsupported: 'This browser does not support notifications (https or localhost is required).',
+        },
         data: {
             title: 'Data',
             dropHint: 'Export file: drop it here or click to choose',

@@ -523,7 +523,7 @@ describe('панель: вкладки-бейджи, поиск, «Наверх�
             await nextTick();
 
             const switches = [...document.body.querySelectorAll<HTMLElement>('[role="switch"]')];
-            expect(switches).toHaveLength(2);
+            expect(switches).toHaveLength(3); // скрывать далёкие, подтверждать снятие, оповещения
             switches[1]!.click();
             await nextTick();
 
