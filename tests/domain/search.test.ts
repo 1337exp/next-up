@@ -88,6 +88,14 @@ describe('быстрый поиск', () => {
         expect(filterByQuery([makeTask({ note: 'молоко' })], 'молко', { exact: true })).toHaveLength(0);
     });
 
+    it('запрос с # — это хештег: ищется как есть, без поправки на опечатки и без слова без решётки', () => {
+        const tagged = makeTask({ note: 'Позвонить #работа завтра' });
+        expect(matchesQuery(tagged, '#работа')).toBe(true);
+        expect(matchesQuery(tagged, '#раб')).toBe(true); // пока набирается
+        expect(matchesQuery(tagged, '#рабата')).toBe(false); // опечатка в теге не прощается
+        expect(matchesQuery(makeTask({ note: 'Много работы' }), '#работа')).toBe(false);
+    });
+
     it('normalizeForSearch', () => {
         expect(normalizeForSearch('ЁЖИК Ёлка')).toBe('ежик елка');
     });

@@ -3,14 +3,21 @@ import { computed } from 'vue';
 import { renderMarkdown } from '@/lib/markdown';
 
 const props = defineProps<{ text: string }>();
+const emit = defineEmits<{ tag: [tag: string] }>();
 
 // безопасно: сырой HTML в renderMarkdown отключён
 const html = computed(() => renderMarkdown(props.text));
+
+// хештеги выводятся кнопками внутри v-html, поэтому слушаем клик на корне
+function onClick(e: MouseEvent): void {
+    const el = (e.target as HTMLElement).closest<HTMLElement>('[data-tag]');
+    if (el?.dataset.tag) emit('tag', `#${el.dataset.tag}`);
+}
 </script>
 
 <template>
     <!-- eslint-disable-next-line vue/no-v-html -->
-    <div class="markdown" v-html="html" />
+    <div class="markdown" v-html="html" @click="onClick" />
 </template>
 
 <style scoped>
@@ -39,6 +46,19 @@ const html = computed(() => renderMarkdown(props.text));
 
 .markdown :deep(a) {
     color: var(--tao-color-accent, inherit);
+}
+
+.markdown :deep(.hashtag) {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--tao-color-accent, inherit);
+    font: inherit;
+    cursor: pointer;
+}
+
+.markdown :deep(.hashtag:hover) {
+    text-decoration: underline;
 }
 
 .markdown :deep(code) {

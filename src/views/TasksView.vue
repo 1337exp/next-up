@@ -7,7 +7,7 @@ import TaskForm, { type TaskFormMode } from '@/components/TaskForm.vue';
 import { isoParts } from '@/domain/date';
 import { groupByMonth, isArchived } from '@/domain/lifecycle';
 import { useCollapseHooks } from '@/lib/collapse';
-import { filterByQuery, isSearchable } from '@/domain/search';
+import { filterByQuery, isSearchable, normalizeForSearch } from '@/domain/search';
 import { taskTitle } from '@/domain/tasks';
 import type { Task } from '@/domain/types';
 import { monthName, useI18n } from '@/i18n';
@@ -86,6 +86,11 @@ function withLeaveAnimation(action: () => void): void {
     void nextTick(() => setTimeout(() => (animateLeave.value = false), 400));
 }
 
+// клик по хештегу в заметке ищет по нему; повторный клик по тому же тегу снимает поиск
+function onTag(tag: string): void {
+    query.value = normalizeForSearch(query.value.trim()) === normalizeForSearch(tag) ? '' : tag;
+}
+
 async function onRemove(task: Task): Promise<void> {
     const ok = await confirm(t('tasks.notify.remove.title'))
         .message(t('tasks.notify.remove.message', [taskTitle(task)]))
@@ -161,6 +166,7 @@ watch(
                         @edit="openForm('edit', $event)"
                         @clone="openForm('clone', $event)"
                         @remove="onRemove"
+                        @tag="onTag"
                         @toggle-item="(_, index) => tasks.toggleChecklistItem(task.id, index)"
                     />
                 </TransitionGroup>

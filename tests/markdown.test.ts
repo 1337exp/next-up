@@ -31,6 +31,29 @@ describe('Markdown в заметках', () => {
         }
     });
 
+    it('хештег становится кнопкой с названием в data-tag', () => {
+        const html = renderMarkdown('Купить #молоко и #хлеб-2');
+        expect(html).toContain('<button type="button" class="hashtag" data-tag="молоко">#молоко</button>');
+        expect(html).toContain('data-tag="хлеб-2"');
+        expect(renderMarkdown('#работа в начале')).toContain('data-tag="работа"');
+        expect(renderMarkdown('(#скобки)')).toContain('data-tag="скобки"');
+    });
+
+    it('не хештеги: номера, якоря ссылок, слова без пробела перед #, заголовки', () => {
+        for (const text of ['задача #12', 'ссылка https://example.com/page#top', 'a#b', 'просто # и ##', '#']) {
+            expect(renderMarkdown(text), text).not.toContain('hashtag');
+        }
+        expect(renderMarkdown('# Заголовок')).toContain('<h1>');
+        expect(renderMarkdown('# Заголовок')).not.toContain('hashtag');
+    });
+
+    it('хештег внутри кода остаётся текстом, а имя экранируется', () => {
+        expect(renderMarkdown('`#код`')).not.toContain('hashtag');
+        const html = renderMarkdown('#a"onclick=x');
+        expect(html).toContain('data-tag="a"'); // имя тега кончается на кавычке
+        expect(html).toContain('&quot;onclick=x'); // остаток — безобидный текст, кавычка экранирована
+    });
+
     it('картинки не загружаются: заметка не делает сетевых запросов', () => {
         const html = renderMarkdown('![alt](https://tracker.example/pixel.png)');
         expect(html).not.toContain('<img');

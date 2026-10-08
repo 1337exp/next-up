@@ -67,7 +67,7 @@ export function matchesQuery(task: Pick<Task, 'note' | 'checklist' | 'date'>, qu
     let tokens: string[] | null = null; // считаем лениво: при точном совпадении не нужны
     return words.every((word) => {
         if (haystack.includes(word)) return true;
-        if (exact) return false;
+        if (exact || word.startsWith('#')) return false; // хештег ищем как есть: «#работа» не должно находить просто «работу»
         tokens ??= haystack.split(/[^\p{L}\p{N}]+/u).filter(Boolean);
         return fuzzyHas(tokens, word);
     });

@@ -27,6 +27,8 @@ const emit = defineEmits<{
     clone: [task: Task];
     remove: [task: Task];
     toggleItem: [task: Task, index: number];
+    /** Клик по хештегу в заметке: `#работа`. */
+    tag: [tag: string];
 }>();
 
 const TONES = { past: 'neutral', today: 'success', soon: 'danger', later: 'neutral' } as const;
@@ -125,7 +127,7 @@ function onAction(id: string): void {
             </header>
 
             <div v-if="expanded && task.note" class="body">
-                <MarkdownText class="note" :text="task.note" />
+                <MarkdownText class="note" :text="task.note" @tag="emit('tag', $event)" />
             </div>
 
             <footer v-if="expanded && task.checklist.length" class="footer">

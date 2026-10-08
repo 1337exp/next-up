@@ -381,6 +381,25 @@ describe('панель: вкладки-бейджи, поиск, «Наверх�
             w.unmount();
         });
 
+        it('клик по хештегу в заметке ищет по нему, повторный клик снимает поиск', async () => {
+            const tasksWithTag = [
+                makeTask({ id: 'a', date: '2026-10-20', note: 'Позвонить #работа' }),
+                makeTask({ id: 'b', date: '2026-10-21', note: 'Купить хлеб' }),
+            ];
+            const w = mountApp(tasksWithTag);
+            const input = () => w.find('.search input').element as HTMLInputElement;
+            expect(w.findAllComponents(TaskCard)).toHaveLength(2);
+
+            await w.find('.hashtag').trigger('click');
+            expect(input().value).toBe('#работа');
+            expect(w.findAllComponents(TaskCard)).toHaveLength(1);
+
+            await w.find('.hashtag').trigger('click');
+            expect(input().value).toBe('');
+            expect(w.findAllComponents(TaskCard)).toHaveLength(2);
+            w.unmount();
+        });
+
         it('кнопка очистки появляется только при вводе и возвращает весь список', async () => {
             const w = mountApp(sample());
             expect(w.find('.search-clear').exists()).toBe(false);
