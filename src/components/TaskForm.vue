@@ -6,6 +6,7 @@ import { draftFromClone, draftFromTask, draftToInput, newDraft, normalizeDateTex
 import { formatUserDate } from '@/domain/date';
 import { isRecurrence, RECURRENCES, type Task } from '@/domain/types';
 import type { TaskError } from '@/domain/tasks';
+import { afterPointerGesture } from '@/lib/gesture';
 import { useI18n } from '@/i18n';
 import { useTasksStore } from '@/stores/tasks';
 
@@ -136,10 +137,9 @@ async function requestClose(): Promise<void> {
     if (asking) return; // подтверждение уже на экране (второй Esc)
     asking = true;
     try {
-        // Модалка закрывается по pointerup на оверлее, а mouseup и click того же нажатия приходят следом. Если диалог
-        // уже стоит под курсором, этот click попадает в его фон, и confirm отвечает «нет» и тут же исчезает.
-        // Поэтому открываем диалог только после того, как жест закончился.
-        await new Promise<void>((resolve) => setTimeout(resolve, 0));
+        // Модалка закрывается по pointerup на оверлее, а click того же нажатия приходит следом. Если диалог уже стоит
+        // под пальцем, этот click попадает в его фон, и confirm отвечает «нет» и тут же исчезает (см. lib/gesture.ts).
+        await afterPointerGesture();
         const discard = await confirm(t('tasks.form.discard.title'))
             .message(t('tasks.form.discard.message'))
             .ok(t('tasks.form.discard.ok'))

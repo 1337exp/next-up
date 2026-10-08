@@ -125,18 +125,34 @@ describe('форма задачи', () => {
             w.unmount();
         });
 
-        it('клик мимо: диалог появляется только после окончания жеста, иначе click по его фону сразу отменил бы его', async () => {
+        it('клик мимо: диалог появляется только после click этого нажатия, иначе click по его фону сразу отменил бы его', async () => {
             const { w, open } = mountForm();
             await type(noteInput(), 'черновик');
             const overlay = q<HTMLElement>('.tao-modal-overlay');
             overlay.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
             overlay.dispatchEvent(new MouseEvent('pointerup', { bubbles: true }));
-            await nextTick();
-            expect(mocks.asked).toEqual([]); // mouseup и click этого же нажатия ещё впереди
+            await settle();
+            expect(mocks.asked).toEqual([]); // click этого же нажатия ещё впереди (на тачскрине он может прийти поздно)
 
+            overlay.dispatchEvent(new MouseEvent('click', { bubbles: true }));
             await settle();
             expect(mocks.asked).toEqual(['Закрыть без сохранения?']);
             expect(open()).toBe(false);
+            w.unmount();
+        });
+
+        it('если click так и не пришёл (жест оборвался), диалог всё равно появляется по таймеру', async () => {
+            const { w } = mountForm();
+            await type(noteInput(), 'черновик');
+            const overlay = q<HTMLElement>('.tao-modal-overlay');
+            overlay.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
+            overlay.dispatchEvent(new MouseEvent('pointerup', { bubbles: true }));
+            await vi.advanceTimersByTimeAsync(399);
+            expect(mocks.asked).toEqual([]);
+
+            await vi.advanceTimersByTimeAsync(5);
+            await settle();
+            expect(mocks.asked).toHaveLength(1);
             w.unmount();
         });
 
