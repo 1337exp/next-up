@@ -25,11 +25,17 @@ describe('TaskCard', () => {
             expect(mountCard(makeTask({ date: '2026-11-20' })).text()).toContain('Дней: 45');
         });
 
-        it('цвет: сегодня — success, до 7 дней — danger, дальше — neutral', () => {
-            const tone = (date: string) => mountCard(makeTask({ date })).findAll('.tag')[0]!.html();
-            expect(tone(today)).toMatch(/success/);
-            expect(tone('2026-10-13')).toMatch(/danger/);
-            expect(tone('2026-10-14')).not.toMatch(/danger|success/);
+        it('цвет: сегодня — зелёный, до 7 дней — красный, дальше — без цвета (правила и цвета из старого приложения)', () => {
+            const tag = (date: string) => mountCard(makeTask({ date })).findAll('.tag')[0]!;
+            expect(tag(today).classes()).toContain('tag--green');
+            expect(tag('2026-10-13').classes()).toContain('tag--red');
+            expect(tag('2026-10-14').classes().filter((name) => name.startsWith('tag--'))).toEqual([]);
+        });
+
+        it('это нейтральный тег TaoUi, окрашенный локально: встроенные цвета success/danger не используются', () => {
+            const html = mountCard(makeTask({ date: today })).findAll('.tag')[0]!.html();
+            expect(html).toContain('tao-tag--neutral');
+            expect(html).not.toMatch(/tao-tag--(success|danger)/);
         });
 
         it('у задач с прошедшим сроком бейджа дней нет, а завершённая заранее его сохраняет (как в старом приложении)', () => {

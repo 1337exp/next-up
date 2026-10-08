@@ -33,7 +33,8 @@ const emit = defineEmits<{
     tag: [tag: string];
 }>();
 
-const TONES = { past: 'neutral', today: 'success', soon: 'danger', later: 'neutral' } as const;
+// Цвет бейджа срока: нейтральный тег TaoUi, окрашенный нашими цветами из старого приложения (см. styles/theme.css)
+const TONES = { past: 'neutral', today: 'green', soon: 'red', later: 'neutral' } as const;
 
 const { t, locale } = useI18n();
 
@@ -101,7 +102,7 @@ function onAction(id: string): void {
         <div class="content">
             <header class="header">
                 <div class="meta">
-                    <TaoTag v-if="left >= 0" class="tag" :type="tone">
+                    <TaoTag v-if="left >= 0" class="tag" :class="tone !== 'neutral' && `tag--${tone}`" type="neutral">
                         {{ left === 0 ? t('tasks.date.today') : t('tasks.date.daysLeft', [left]) }}
                     </TaoTag>
                     <TaoTag class="tag" type="neutral">{{ weekdayShort(locale, task.date) }}</TaoTag>
@@ -177,6 +178,23 @@ function onAction(id: string): void {
 
 .menu-item--danger {
     color: var(--tao-color-danger);
+}
+
+/* срок: сегодня — зелёный, не больше 7 дней — «красный» (оранжевый), как в старом приложении:
+   подложка и рамка одного тона, цвет текста обычный. Нейтральным (и день недели) в старом коде достаётся
+   тусклая рамка */
+.meta .tag {
+    border-color: var(--nextup-tag-neutral-border);
+}
+
+.meta .tag--green {
+    background: var(--nextup-tag-green);
+    border-color: var(--nextup-tag-green);
+}
+
+.meta .tag--red {
+    background: var(--nextup-tag-red);
+    border-color: var(--nextup-tag-red);
 }
 
 .swipe-button {
