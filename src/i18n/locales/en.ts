@@ -41,6 +41,26 @@ export default {
         export: 'Export',
         import: 'Import',
         autoHide: 'Hide tasks for more than {0} days',
+        confirmUncheck: 'Confirm unchecking a list item',
+        data: {
+            title: 'Data',
+            dropHint: 'Export file: drop it here or click to choose',
+        },
+        sync: {
+            title: 'Sync address',
+            placeholder: 'https://example.com/sync',
+            invalid: 'Only https:// (or http://localhost) is allowed',
+        },
+    },
+
+    transfer: {
+        done: 'Import finished. Added: {0}, updated: {1}, skipped: {2}.',
+        invalid: 'Damaged entries: {0}.',
+        expired: 'Older than a year, not imported: {0}.',
+        unknownFormat: 'The file was not recognized: it must be JSON saved by this app or its previous version.',
+        notJson: 'The file does not look like JSON.',
+        tooLarge: 'The file is too large (over {0} MB).',
+        readError: 'Could not read the file.',
     },
 
     storage: {
@@ -55,6 +75,13 @@ export default {
         create: 'Create',
         empty: 'No entries',
         menu: 'Actions',
+        scrollTop: 'Back to top',
+        search: {
+            placeholder: 'Search',
+            clear: 'Clear search',
+            exact: 'Exact match',
+            empty: 'Nothing found',
+        },
         expand: 'Expand',
         collapse: 'Collapse',
 
@@ -72,13 +99,19 @@ export default {
 
         hint: {
             dateFormat: 'Date format:',
+            today: "Today's date:",
             mdSupport: 'The text of the note supports Markdown:',
         },
 
         form: {
-            date: { label: 'Date', placeholder: 'dd.mm.yyyy' },
+            title: { create: 'New note', clone: 'Clone note' },
+            date: { label: 'Date', placeholder: 'dd.mm.yyyy', prev: 'Previous day', next: 'Next day', addDays: 'Add days: {0}', useToday: "Use today's date" },
             note: { label: 'Note', placeholder: 'Enter note text' },
-            checklist: { label: 'List of tasks', placeholder: 'Enter task text' },
+            checklist: { label: 'List of tasks', placeholder: 'Enter task text', add: 'Add item', remove: 'Remove item' },
+            error: {
+                empty: 'Enter the note text or add at least one list item',
+                tooOld: 'The date cannot be earlier than {0} days ago',
+            },
             repeat: {
                 label: 'Repeat',
                 none: 'Do not repeat',
@@ -99,6 +132,10 @@ export default {
             remove: {
                 title: 'Confirm the action',
                 message: 'Are you sure you want to delete entry: "{0}"?',
+            },
+            uncheck: {
+                title: 'Confirm the action',
+                message: 'Uncheck the item "{0}"? The time of the check mark will be reset.',
             },
             removeAll: {
                 title: 'Confirm the action',

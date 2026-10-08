@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from 'vue';
-import { TaoDrawer, TaoSwitch } from '@1337exp/taoui';
+import { defineAsyncComponent, ref } from 'vue';
+import { TaoDrawer, TaoFormField, TaoInput, TaoSwitch } from '@1337exp/taoui';
+import DataSection from '@/components/DataSection.vue';
 import LanguagePicker from '@/components/LanguagePicker.vue';
 import WidthPicker from '@/components/WidthPicker.vue';
 import { MINI_WIDTH_PX } from '@/domain/settings';
 import { FAR_TASK_DAYS } from '@/domain/constants';
+import { FEATURES } from '@/features';
 import { useI18n } from '@/i18n';
 import { useSettingsStore } from '@/stores/settings';
 
@@ -12,6 +14,15 @@ const open = defineModel<boolean>({ required: true });
 
 const { t } = useI18n();
 const settings = useSettingsStore();
+
+// Адрес синхронизации: поле скрыто, пока синхронизации нет (FEATURES.sync)
+const endpoint = ref(settings.syncEndpoint);
+const endpointInvalid = ref(false);
+
+function applyEndpoint(): void {
+    endpointInvalid.value = !settings.setSyncEndpoint(endpoint.value);
+    if (!endpointInvalid.value) endpoint.value = settings.syncEndpoint;
+}
 
 // Инструменты разработчика: в рабочей сборке условие превращается в `null`, и модуль не включается в бандл.
 const DevTools = import.meta.env.DEV ? defineAsyncComponent(() => import('@/dev/DevTools.vue')) : null;
@@ -31,7 +42,22 @@ const DevTools = import.meta.env.DEV ? defineAsyncComponent(() => import('@/dev/
         </section>
 
         <section class="section">
-            <TaoSwitch :model-value="settings.hideFarTasks" :label="t('settings.autoHide', [FAR_TASK_DAYS])" @update:model-value="settings.setHideFarTasks" />
+            <div class="switches">
+                <TaoSwitch :model-value="settings.hideFarTasks" :label="t('settings.autoHide', [FAR_TASK_DAYS])" @update:model-value="settings.setHideFarTasks" />
+                <TaoSwitch :model-value="settings.confirmUncheck" :label="t('settings.confirmUncheck')" @update:model-value="settings.setConfirmUncheck" />
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">{{ t('settings.data.title') }}</h2>
+            <DataSection />
+        </section>
+
+        <section v-if="FEATURES.sync" class="section">
+            <h2 class="section-title">{{ t('settings.sync.title') }}</h2>
+            <TaoFormField :error="endpointInvalid ? t('settings.sync.invalid') : ''">
+                <TaoInput v-model="endpoint" :placeholder="t('settings.sync.placeholder')" :error="endpointInvalid" @blur="applyEndpoint" />
+            </TaoFormField>
         </section>
 
         <section v-if="DevTools" class="section">
@@ -50,6 +76,12 @@ const DevTools = import.meta.env.DEV ? defineAsyncComponent(() => import('@/dev/
     font-size: var(--tao-font-size-md);
     font-weight: 500;
     color: var(--tao-color-text-strong);
+}
+
+.switches {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tao-space-3, 12px);
 }
 
 .hint {

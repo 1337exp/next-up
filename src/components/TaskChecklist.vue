@@ -1,18 +1,48 @@
 <script setup lang="ts">
-import { TaoCheckbox } from '@1337exp/taoui';
+import { ref } from 'vue';
+import { confirm, TaoCheckbox } from '@1337exp/taoui';
 import type { ChecklistItem } from '@/domain/types';
 import { formatDateTime, useI18n } from '@/i18n';
 
-defineProps<{ items: readonly ChecklistItem[]; disabled?: boolean }>();
+const props = defineProps<{
+    items: readonly ChecklistItem[];
+    disabled?: boolean;
+    /** Просить подтверждение, когда с пункта снимают отметку (снятие стирает время отметки). */
+    confirmUncheck?: boolean;
+}>();
 const emit = defineEmits<{ toggle: [index: number] }>();
 
-const { locale } = useI18n();
+const { t, locale } = useI18n();
+
+// Если пользователь отказался, нативный чекбокс уже переключился, а состояние пункта не изменилось,
+// и Vue ничего не перерисует. Смена ключа пересоздаёт чекбоксы и возвращает их в исходное положение.
+const revision = ref(0);
+
+async function onToggle(index: number): Promise<void> {
+    const item = props.items[index];
+    if (!item) return;
+
+    if (item.done && props.confirmUncheck) {
+        const ok = await confirm(t('tasks.notify.uncheck.title'))
+            .message(t('tasks.notify.uncheck.message', [item.text]))
+            .ok(t('ui.confirm.yes'))
+            .cancel(t('ui.confirm.no'))
+            .danger();
+
+        if (!ok) {
+            revision.value++;
+            return;
+        }
+    }
+
+    emit('toggle', index);
+}
 </script>
 
 <template>
     <ul class="checklist">
-        <li v-for="(item, index) in items" :key="index" class="item">
-            <TaoCheckbox :model-value="item.done" :label="item.text" :disabled="disabled" @update:model-value="emit('toggle', index)" />
+        <li v-for="(item, index) in items" :key="`${revision}-${index}`" class="item">
+            <TaoCheckbox :model-value="item.done" :label="item.text" :disabled="disabled" @update:model-value="onToggle(index)" />
             <div v-if="item.done && item.changedAt" class="changed">{{ formatDateTime(item.changedAt, locale) }}</div>
         </li>
     </ul>

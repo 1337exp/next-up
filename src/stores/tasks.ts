@@ -3,8 +3,11 @@ import { defineStore } from 'pinia';
 import { createTodayClock } from '@/composables/today';
 import { normalizeTasks } from '@/domain/normalize';
 import { splitTasks } from '@/domain/lifecycle';
-import { setDone as setTaskDone, toggleChecklistItem } from '@/domain/tasks';
-import type { Task } from '@/domain/types';
+import { exportSnapshot, parseImport, type ImportReport, type MergeStrategy } from '@/domain/snapshot';
+import { createTask, setDone as setTaskDone, toggleChecklistItem, updateTask, type TaskResult } from '@/domain/tasks';
+import { exportFileName, importFromText, mergeIncoming, serializeExport, type ImportResult } from '@/domain/transfer';
+import type { Snapshot, Task, TaskInput } from '@/domain/types';
+import { onLocalChange, onSyncStart } from '@/sync';
 import { createBrowserJsonStorage } from '@/storage/local';
 import { loadTasks, saveTasks, type LoadStatus } from '@/storage/tasks';
 
@@ -31,6 +34,7 @@ export const useTasksStore = defineStore('tasks', () => {
     function persist(): void {
         if (!loaded.writable) return; // данные новой версии не перезаписываем
         saveFailed.value = !saveTasks(storage, tasks.value);
+        onLocalChange();
     }
 
     /** Приводит список к состоянию «на сегодня» (повторы, архив, чистка) и сохраняет, если что-то изменилось. */
@@ -56,6 +60,7 @@ export const useTasksStore = defineStore('tasks', () => {
     clock.start();
     onScopeDispose(clock.stop);
     normalize();
+    onSyncStart();
 
     const lists = computed(() => splitTasks(tasks.value, today.value));
 
@@ -70,8 +75,46 @@ export const useTasksStore = defineStore('tasks', () => {
 
         toggleChecklistItem: (id: string, index: number) => update(id, (task) => toggleChecklistItem(task, index, Date.now())),
         setDone: (id: string, done: boolean) => update(id, (task) => setTaskDone(task, done, Date.now())),
+        /** Создать задачу из данных формы. При ошибке проверки список не меняется. */
+        addTask(input: TaskInput): TaskResult {
+            const result = createTask(input, today.value, Date.now());
+            if (result.ok) commit([...tasks.value, result.task]);
+            return result;
+        },
+        /** Изменить задачу. `notFound` — её успели удалить (например, чистка старых). */
+        updateTaskById(id: string, input: TaskInput): TaskResult | { ok: false; error: 'notFound' } {
+            const current = tasks.value.find((task) => task.id === id);
+            if (!current) return { ok: false, error: 'notFound' };
+
+            const result = updateTask(current, input, today.value, Date.now());
+            if (result.ok) commit(tasks.value.map((task) => (task.id === id ? result.task : task)));
+            return result;
+        },
         remove: (id: string) => commit(tasks.value.filter((task) => task.id !== id)),
-        /** Заменить весь список (импорт, тестовые данные). */
+        /** Заменить весь список (тестовые данные). */
         replaceAll: (next: Task[]) => commit(next),
+        removeAll: () => commit([]),
+
+        // --- обмен данными: файл экспорта и (позже) синхронизация ---
+
+        /** Снимок для экспорта и синхронизации. */
+        exportSnapshot: (): Snapshot => exportSnapshot(tasks.value, Date.now()),
+        /** Содержимое файла экспорта и его имя. */
+        exportFile: () => ({ name: exportFileName(today.value), text: serializeExport(tasks.value, Date.now()) }),
+        /** Импорт из текста файла: свой формат или экспорт старого приложения. Список меняется только при успехе. */
+        importText(text: string): ImportResult {
+            const result = importFromText(text, tasks.value, today.value);
+            if (result.ok) commit(result.tasks);
+            return result;
+        },
+        /** Вход для синхронизации: слить внешний снимок по `updatedAt`. */
+        importSnapshot(snapshot: Snapshot, strategy: MergeStrategy = 'merge-by-updated-at'): ImportReport | null {
+            const parsed = parseImport(snapshot);
+            if (!parsed) return null;
+
+            const { tasks: merged, report } = mergeIncoming(tasks.value, parsed, today.value, strategy);
+            commit(merged);
+            return report;
+        },
     };
 });

@@ -1,0 +1,381 @@
+[
+  {
+    "id": "a1-internet0001",
+    "date": "15.10.2026",
+    "note": "Оплатить интернет",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 0,
+    "markProc": 0,
+    "daysCountdown": 14,
+    "changedMonth": false
+  },
+  {
+    "id": "k9p34y6n3wd25",
+    "date": "05.10.2026",
+    "note": "**Поход в магазин**\n\n- молоко\n- хлеб",
+    "checkList": [
+      {
+        "state": true,
+        "text": "Хлеб",
+        "lastChange": "Tue Sep 29 2026 18:42:11 GMT+0200 (Central European Summer Time)"
+      },
+      {
+        "state": false,
+        "text": "Молоко",
+        "lastChange": ""
+      },
+      {
+        "state": false,
+        "text": "   ",
+        "lastChange": ""
+      },
+      {
+        "state": true,
+        "text": "Яйца",
+        "lastChange": "вчера вечером"
+      }
+    ],
+    "irrelevant": false,
+    "rollOver": 0,
+    "markProc": 0,
+    "daysCountdown": 4,
+    "changedMonth": false
+  },
+  {
+    "id": "rq4f5zr37e3p3",
+    "date": "03.09.2026",
+    "note": "Планёрка",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 2,
+    "markProc": 1,
+    "daysCountdown": -28,
+    "changedMonth": false
+  },
+  {
+    "id": "e2z8iq9y7jzb6",
+    "date": "10.09.2026",
+    "note": "Планёрка",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 2,
+    "markProc": 1,
+    "daysCountdown": -21,
+    "changedMonth": false
+  },
+  {
+    "id": "cn6z43dvyrktt",
+    "date": "17.09.2026",
+    "note": "Планёрка",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 2,
+    "markProc": 1,
+    "daysCountdown": -14,
+    "changedMonth": false
+  },
+  {
+    "id": "njfbf5jxvlsi4",
+    "date": "24.09.2026",
+    "note": "Планёрка",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 2,
+    "markProc": 1,
+    "daysCountdown": -7,
+    "changedMonth": false
+  },
+  {
+    "id": "7wqal9vq24zkl",
+    "date": "01.10.2026",
+    "note": "Планёрка",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 2,
+    "markProc": 0,
+    "daysCountdown": 0,
+    "changedMonth": false
+  },
+  {
+    "id": "mvt45hu43jsio",
+    "date": "05.07.2026",
+    "note": "Аренда",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 3,
+    "markProc": 1,
+    "daysCountdown": -88,
+    "changedMonth": false
+  },
+  {
+    "id": "m1tma7v3di8fp",
+    "date": "05.08.2026",
+    "note": "Аренда",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 3,
+    "markProc": 1,
+    "daysCountdown": -57,
+    "changedMonth": false
+  },
+  {
+    "id": "pv5aspzh8rzhq",
+    "date": "05.09.2026",
+    "note": "Аренда",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 3,
+    "markProc": 1,
+    "daysCountdown": -26,
+    "changedMonth": false
+  },
+  {
+    "id": "moe95b9ee0vbg",
+    "date": "05.10.2026",
+    "note": "Аренда",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 3,
+    "markProc": 0,
+    "daysCountdown": 4,
+    "changedMonth": false
+  },
+  {
+    "id": "i09qynk8w3tzp",
+    "date": "15.12.2026",
+    "note": "Техосмотр",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 30,
+    "markProc": 0,
+    "daysCountdown": 75,
+    "changedMonth": false
+  },
+  {
+    "id": "ppp6up3c4dsa7",
+    "date": "20.02.2026",
+    "note": "День рождения мамы",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 4,
+    "markProc": 1,
+    "daysCountdown": -223,
+    "changedMonth": false
+  },
+  {
+    "id": "l3609y6n14do9",
+    "date": "20.02.2027",
+    "note": "День рождения мамы",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 4,
+    "markProc": 0,
+    "daysCountdown": 142,
+    "changedMonth": false
+  },
+  {
+    "id": "gmnu77vtuuj59",
+    "date": "27.09.2026",
+    "note": "Таблетки",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 1,
+    "markProc": 1,
+    "daysCountdown": -4,
+    "changedMonth": false
+  },
+  {
+    "id": "6lguax1dxn9y1",
+    "date": "28.09.2026",
+    "note": "Таблетки",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 1,
+    "markProc": 1,
+    "daysCountdown": -3,
+    "changedMonth": false
+  },
+  {
+    "id": "xj5gxnameyywl",
+    "date": "29.09.2026",
+    "note": "Таблетки",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 1,
+    "markProc": 1,
+    "daysCountdown": -2,
+    "changedMonth": false
+  },
+  {
+    "id": "ecfpecxvm11hu",
+    "date": "30.09.2026",
+    "note": "Таблетки",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 1,
+    "markProc": 1,
+    "daysCountdown": -1,
+    "changedMonth": false
+  },
+  {
+    "id": "gcmsmn5e6eucl",
+    "date": "01.10.2026",
+    "note": "Таблетки",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 1,
+    "markProc": 0,
+    "daysCountdown": 0,
+    "changedMonth": false
+  },
+  {
+    "id": "du0um57ocubrl",
+    "date": "20.10.2026",
+    "note": "Сдать отчёт",
+    "checkList": [],
+    "irrelevant": true,
+    "rollOver": 3,
+    "markProc": 1,
+    "daysCountdown": 19,
+    "changedMonth": false
+  },
+  {
+    "id": "5ptp5aa819t9u",
+    "date": "20.11.2026",
+    "note": "Сдать отчёт",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 3,
+    "markProc": 0,
+    "daysCountdown": 50,
+    "changedMonth": false
+  },
+  {
+    "id": "m9zz8106x8rcd",
+    "date": "10.08.2026",
+    "note": "Прошедшее",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 0,
+    "markProc": 1,
+    "daysCountdown": -52,
+    "changedMonth": false
+  },
+  {
+    "id": "1gdiwfkgyq83m",
+    "date": "10.09.2026",
+    "note": "Полив цветов",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 2,
+    "markProc": 0,
+    "daysCountdown": -21,
+    "changedMonth": false
+  },
+  {
+    "id": "txqw8y9xw1sb0",
+    "date": "01.06.2025",
+    "note": "Очень старое",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 0,
+    "markProc": 1,
+    "daysCountdown": -487,
+    "changedMonth": false
+  },
+  {
+    "id": "9b9u7z3kxxzu6",
+    "date": "31.08.2026",
+    "note": "Платёж 31-го",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 3,
+    "markProc": 0,
+    "daysCountdown": -31,
+    "changedMonth": false
+  },
+  {
+    "id": "z3fch26wsz14s",
+    "date": "09.10.2026",
+    "note": "<script>alert(1)</script> и **жирный** [ссылка](https://example.com)",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 0,
+    "markProc": 0,
+    "daysCountdown": 8,
+    "changedMonth": false
+  },
+  {
+    "id": "kwwchswyuwfxg",
+    "date": "01.11.2026",
+    "note": "Дата без нулей",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 0,
+    "markProc": 0,
+    "daysCountdown": 31,
+    "changedMonth": false
+  },
+  {
+    "date": "12.10.2026",
+    "note": "Без id",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 0,
+    "markProc": 0,
+    "daysCountdown": 11,
+    "changedMonth": false
+  },
+  {
+    "id": "dj79n9g8te6pv",
+    "date": "25.10.2026",
+    "note": "Очень старый формат",
+    "checkList": [],
+    "irrelevant": false
+  },
+  {
+    "id": "a1-internet0001",
+    "date": "16.10.2026",
+    "note": "Дубликат",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 0,
+    "markProc": 0,
+    "daysCountdown": 15,
+    "changedMonth": false
+  },
+  {
+    "id": "bad1",
+    "date": "31.02.2026",
+    "note": "невозможная дата",
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 0,
+    "markProc": 0
+  },
+  {
+    "id": "bad2",
+    "date": "10.10.2026",
+    "note": 123,
+    "checkList": [],
+    "irrelevant": false,
+    "rollOver": 0,
+    "markProc": 0
+  },
+  {
+    "id": "bad3",
+    "date": "10.10.2026",
+    "note": "пункт не объект",
+    "checkList": [
+      5
+    ],
+    "irrelevant": false,
+    "rollOver": 0,
+    "markProc": 0
+  },
+  "просто строка",
+  null,
+  {},
+  []
+]

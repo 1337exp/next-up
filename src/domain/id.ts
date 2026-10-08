@@ -1,3 +1,20 @@
+function fnv1a(text: string, seed: number): string {
+    let hash = seed >>> 0;
+    for (let i = 0; i < text.length; i++) {
+        hash ^= text.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+    }
+    return (hash >>> 0).toString(16).padStart(8, '0');
+}
+
+/**
+ * Одинаковый ключ — одинаковый id. Нужен импорту записей без id: повторный импорт того же файла
+ * не должен каждый раз создавать их заново.
+ */
+export function stableId(prefix: string, key: string): string {
+    return `${prefix}-${fnv1a(key, 2166136261)}${fnv1a(key, 0x9747b28c)}`;
+}
+
 export function newId(): string {
     if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
 

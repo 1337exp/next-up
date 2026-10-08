@@ -1,0 +1,12 @@
+/* Дизайнерские фоны: картинки лежат в assets, а здесь только имена, чтобы не писать url() в компонентах. */
+:root {
+    --nextup-img-dark-noise: url('@/assets/noise-dark.png');
+    --nextup-bg-card: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), var(--nextup-img-dark-noise);
+}
+
+/* Модалка и панель настроек телепортируются в body, поэтому стили scoped-компонентов до них не доходят,
+   а scoped-стили самой библиотеки специфичнее простого селектора, поэтому он длиннее. */
+body .tao-modal-overlay .tao-modal,
+body .tao-drawer .tao-drawer__panel {
+    background: var(--nextup-bg-card);
+}

@@ -138,4 +138,58 @@ describe('стор задач', () => {
             Object.defineProperty(window, 'localStorage', { value: real, configurable: true });
         }
     });
+
+    describe('создание и изменение', () => {
+        const input = { date: '2026-10-10', note: 'новая', checklist: [], recurrence: 'none' as const };
+
+        it('addTask создаёт и сохраняет задачу', () => {
+            const s = freshStore();
+            const result = s.addTask(input);
+
+            expect(result.ok).toBe(true);
+            expect(s.active.map((t) => t.note)).toEqual(['новая']);
+            expect(stored()!.tasks[0]).toMatchObject({ note: 'новая', date: '2026-10-10', anchor: '2026-10-10', updatedAt: Date.now() });
+        });
+
+        it('ошибки проверки возвращаются, список и хранилище не меняются', () => {
+            const s = freshStore();
+            expect(s.addTask({ ...input, note: '  ' })).toEqual({ ok: false, error: 'empty' });
+            expect(s.addTask({ ...input, date: '2024-01-01' })).toEqual({ ok: false, error: 'tooOld' });
+            expect(s.empty).toBe(true);
+            expect(localStorage.getItem(KEYS.tasks)).toBeNull();
+        });
+
+        it('задача с прошедшей датой сразу попадает в архив', () => {
+            const s = freshStore();
+            s.addTask({ ...input, date: '2026-10-01' });
+            expect(s.active).toHaveLength(0);
+            expect(s.archive).toHaveLength(1);
+        });
+
+        it('повторяющаяся задача в прошлом: пропущенные повторы создаются сразу', () => {
+            const s = freshStore();
+            s.addTask({ ...input, date: '2026-09-22', recurrence: 'weekly' });
+            expect(s.tasks.map((t) => t.date)).toEqual(['2026-09-22', '2026-09-29', '2026-10-06']);
+        });
+
+        it('updateTaskById меняет задачу, не трогая отметки и состояние', () => {
+            seed([makeTask({ id: 'a', date: '2026-10-20', note: 'старая', done: true, rolled: true, checklist: [{ text: 'x', done: true, changedAt: '2026-10-01T00:00:00.000Z' }] })]);
+            const s = freshStore();
+
+            const result = s.updateTaskById('a', { date: '2026-10-21', note: 'новая', checklist: s.tasks[0]!.checklist, recurrence: 'none' });
+            expect(result.ok).toBe(true);
+            expect(s.tasks[0]).toMatchObject({ id: 'a', date: '2026-10-21', note: 'новая', done: true, rolled: true });
+            expect(s.tasks[0]!.checklist[0]).toMatchObject({ done: true, changedAt: '2026-10-01T00:00:00.000Z' });
+            expect(stored()!.tasks[0]!.note).toBe('новая');
+        });
+
+        it('updateTaskById: ошибка проверки и несуществующий id', () => {
+            seed([makeTask({ id: 'a', date: '2026-10-20', note: 'старая' })]);
+            const s = freshStore();
+
+            expect(s.updateTaskById('a', { ...input, note: '' })).toEqual({ ok: false, error: 'empty' });
+            expect(s.tasks[0]!.note).toBe('старая');
+            expect(s.updateTaskById('nope', input)).toEqual({ ok: false, error: 'notFound' });
+        });
+    });
 });

@@ -7,6 +7,7 @@ import '@/assets/fontello/css/fontello.css';
 import '@/assets/fontello/css/animation.css';
 import '@/assets/font/roboto.css';
 import '@/styles/app.css';
+import '@/styles/theme.css';
 
 import App from '@/App.vue';
 

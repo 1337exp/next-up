@@ -13,8 +13,10 @@ const props = defineProps<{
     today: IsoDate;
     /** Сворачивать содержимое задач дальше 21 дня (настройка). */
     hideFar?: boolean;
-    /** Показывать «Изменить» и «Клонировать» (форма появится на этапе 4). */
+    /** Показывать «Изменить» и «Клонировать». */
     canEdit?: boolean;
+    /** Просить подтверждение при снятии отметки с пункта списка (настройка). */
+    confirmUncheck?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -106,7 +108,7 @@ function onAction(id: string): void {
             </div>
 
             <footer v-if="expanded && task.checklist.length" class="footer">
-                <TaskChecklist :items="task.checklist" @toggle="(index) => emit('toggleItem', task, index)" />
+                <TaskChecklist :items="task.checklist" :confirm-uncheck="confirmUncheck" @toggle="(index) => emit('toggleItem', task, index)" />
             </footer>
         </div>
     </TaoCard>
@@ -117,6 +119,7 @@ function onAction(id: string): void {
     --nextup-card-gap: 20px;
 
     border: 1px solid var(--tao-color-border);
+    background: var(--nextup-bg-card);
 }
 
 /* gap работает только на прямых потомках: поэтому заголовок, тело и подвал лежат в одном контейнере */

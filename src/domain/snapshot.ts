@@ -1,5 +1,5 @@
 import { isValidIsoDate, toIso, type IsoDate } from './date';
-import { newId } from './id';
+import { stableId } from './id';
 import { isRecurrence, SNAPSHOT_FORMAT, SNAPSHOT_SCHEMA_VERSION, type ChecklistItem, type Recurrence, type Snapshot, type Task } from './types';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -9,7 +9,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function parseChecklistItem(raw: unknown): ChecklistItem | null {
     if (!isRecord(raw) || typeof raw.text !== 'string') return null;
     const done = raw.done === true;
-    return { text: raw.text, done, changedAt: done && typeof raw.changedAt === 'string' ? raw.changedAt : null };
+    return { text: raw.text.trim(), done, changedAt: done && typeof raw.changedAt === 'string' ? raw.changedAt : null };
 }
 
 /** Запись в формате приложения. Любая непригодная запись даёт `null`, а не исключение. */
@@ -22,7 +22,7 @@ export function parseTaskRecord(raw: unknown): Task | null {
     for (const rawItem of raw.checklist) {
         const item = parseChecklistItem(rawItem);
         if (!item) return null;
-        checklist.push(item);
+        if (item.text !== '') checklist.push(item); // пустые пункты не нужны никому
     }
 
     return {
@@ -72,7 +72,7 @@ function isLegacyRecord(raw: Record<string, unknown>): boolean {
     return 'checkList' in raw || 'rollOver' in raw || (typeof raw.date === 'string' && LEGACY_DATE_RE.test(raw.date.trim()));
 }
 
-export function migrateLegacyTask(raw: unknown, makeId: () => string = newId): Task | null {
+export function migrateLegacyTask(raw: unknown): Task | null {
     if (!isRecord(raw)) return null;
 
     const date = legacyDate(raw.date);
@@ -81,14 +81,17 @@ export function migrateLegacyTask(raw: unknown, makeId: () => string = newId): T
     const checklist: ChecklistItem[] = [];
     for (const rawItem of Array.isArray(raw.checkList) ? raw.checkList : []) {
         if (!isRecord(rawItem) || typeof rawItem.text !== 'string') return null;
+        const text = rawItem.text.trim();
+        if (text === '') continue; // пустые пункты не нужны никому
         const done = rawItem.state === true;
-        checklist.push({ text: rawItem.text, done, changedAt: done ? legacyTime(rawItem.lastChange) : null });
+        checklist.push({ text, done, changedAt: done ? legacyTime(rawItem.lastChange) : null });
     }
 
     const rollOver = typeof raw.rollOver === 'number' ? raw.rollOver : 0;
 
     return {
-        id: typeof raw.id === 'string' && raw.id !== '' ? raw.id : makeId(),
+        // у записи без id он выводится из содержимого: повторный импорт того же файла её не продублирует
+        id: typeof raw.id === 'string' && raw.id !== '' ? raw.id : stableId('legacy', JSON.stringify([date, raw.note, rollOver, checklist.map((item) => item.text)])),
         date,
         note: raw.note,
         checklist,
@@ -122,7 +125,7 @@ export interface ParsedImport {
  * Разбор содержимого файла: снимок приложения (`{ format: 'nextup', tasks }`) или массив из старого приложения.
  * `null` — формат не распознан.
  */
-export function parseImport(raw: unknown, makeId: () => string = newId): ParsedImport | null {
+export function parseImport(raw: unknown): ParsedImport | null {
     let records: unknown[];
 
     if (Array.isArray(raw)) records = raw;
@@ -133,7 +136,7 @@ export function parseImport(raw: unknown, makeId: () => string = newId): ParsedI
     let invalid = 0;
 
     for (const record of records) {
-        const task = isRecord(record) && isLegacyRecord(record) ? migrateLegacyTask(record, makeId) : parseTaskRecord(record);
+        const task = isRecord(record) && isLegacyRecord(record) ? migrateLegacyTask(record) : parseTaskRecord(record);
         if (task) tasks.push(task);
         else invalid++;
     }
@@ -146,18 +149,22 @@ export type MergeStrategy = 'replace' | 'merge-by-updated-at';
 export interface ImportReport {
     added: number;
     updated: number;
+    /** Запись уже есть и не старее файловой. */
     skipped: number;
+    /** Непригодные записи в файле. */
     invalid: number;
+    /** Срок старше RETENTION_DAYS: чистка всё равно удалила бы их, поэтому не импортируются. */
+    expired: number;
 }
 
 /** Слияние по `id`: при совпадении побеждает запись с большим `updatedAt` (при равных остаётся текущая). */
 export function mergeTasks(current: readonly Task[], incoming: readonly Task[], strategy: MergeStrategy, invalid = 0): { tasks: Task[]; report: ImportReport } {
     if (strategy === 'replace') {
-        return { tasks: [...incoming], report: { added: incoming.length, updated: 0, skipped: 0, invalid } };
+        return { tasks: [...incoming], report: { added: incoming.length, updated: 0, skipped: 0, invalid, expired: 0 } };
     }
 
     const byId = new Map(current.map((task) => [task.id, task]));
-    const report: ImportReport = { added: 0, updated: 0, skipped: 0, invalid };
+    const report: ImportReport = { added: 0, updated: 0, skipped: 0, invalid, expired: 0 };
 
     for (const task of incoming) {
         const existing = byId.get(task.id);

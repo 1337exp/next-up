@@ -27,7 +27,7 @@ const legacyExport = [
 ];
 
 describe('импорт файла из старого приложения', () => {
-    const parsed = parseImport(legacyExport, idGenerator('gen'))!;
+    const parsed = parseImport(legacyExport)!;
 
     it('распознаёт формат, считает пропущенные записи', () => {
         expect(parsed.tasks).toHaveLength(3);
@@ -60,9 +60,27 @@ describe('импорт файла из старого приложения', () 
         }
     });
 
-    it('записи без id получают новый; поля rollOver/markProc могут отсутствовать (самые старые данные)', () => {
-        const t = migrateLegacyTask({ date: '01.01.2026', note: 'n', checkList: [], irrelevant: false }, () => 'fresh');
-        expect(t).toMatchObject({ id: 'fresh', recurrence: 'none', rolled: false });
+    it('запись без id получает id из содержимого: повторный импорт её не продублирует', () => {
+        const raw = { date: '01.01.2026', note: 'n', checkList: [], irrelevant: false };
+        const first = migrateLegacyTask(raw)!;
+        const again = migrateLegacyTask({ ...raw })!;
+
+        expect(first.id).toMatch(/^legacy-[0-9a-f]{16}$/);
+        expect(again.id).toBe(first.id);
+        expect(migrateLegacyTask({ ...raw, note: 'другая' })!.id).not.toBe(first.id);
+        expect(migrateLegacyTask({ ...raw, date: '02.01.2026' })!.id).not.toBe(first.id);
+    });
+
+    it('поля rollOver / markProc могут отсутствовать (самые старые данные)', () => {
+        expect(migrateLegacyTask({ id: 'x', date: '01.01.2026', note: 'n', checkList: [], irrelevant: false })).toMatchObject({ recurrence: 'none', rolled: false });
+    });
+
+    it('пустые пункты чек-листа отбрасываются, текст пунктов обрезается', () => {
+        const t = migrateLegacyTask({ id: 'x', date: '01.01.2026', note: 'n', checkList: [{ state: false, text: '   ' }, { state: false, text: '  а  ' }] });
+        expect(t!.checklist).toEqual([{ text: 'а', done: false, changedAt: null }]);
+
+        const fresh = parseTaskRecord({ id: 'a', date: '2026-10-06', note: '', checklist: [{ text: '', done: false }, { text: ' б ', done: true, changedAt: '2026-10-01T00:00:00.000Z' }] });
+        expect(fresh!.checklist).toEqual([{ text: 'б', done: true, changedAt: '2026-10-01T00:00:00.000Z' }]);
     });
 
     it('после импорта и normalize старые задачи ведут себя как в старом приложении', () => {
@@ -118,7 +136,7 @@ describe('mergeTasks', () => {
         ];
         const { tasks, report } = mergeTasks(current, incoming, 'merge-by-updated-at', 2);
 
-        expect(report).toEqual({ added: 1, updated: 1, skipped: 1, invalid: 2 });
+        expect(report).toEqual({ added: 1, updated: 1, skipped: 1, invalid: 2, expired: 0 });
         expect(Object.fromEntries(tasks.map((t) => [t.id, t.note]))).toEqual({ a: 'new-a', b: 'cur-b', c: 'new-c' });
     });
 

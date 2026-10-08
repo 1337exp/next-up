@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import { applyLocale, detectLocale, type LocaleCode } from '@/i18n';
 import { parseSettings, type Settings, type WidthMode } from '@/domain/settings';
 import { createBrowserJsonStorage, KEYS } from '@/storage/local';
+import { isAllowedEndpoint } from '@/sync';
 
 export const useSettingsStore = defineStore('settings', () => {
     const storage = createBrowserJsonStorage();
@@ -12,6 +13,8 @@ export const useSettingsStore = defineStore('settings', () => {
     /** Язык ещё не выбран: показываем экран первого запуска. */
     const widthMode = computed(() => state.value.width);
     const hideFarTasks = computed(() => state.value.hideFarTasks);
+    const confirmUncheck = computed(() => state.value.confirmUncheck);
+    const syncEndpoint = computed(() => state.value.sync.endpoint);
     const needsLanguage = computed(() => state.value.locale === null);
     /** Язык, который реально применён: выбранный или предложенный по языку браузера. */
     const effectiveLocale = computed(() => state.value.locale ?? detectLocale(navigator.languages ?? []));
@@ -38,5 +41,34 @@ export const useSettingsStore = defineStore('settings', () => {
         save();
     }
 
-    return { locale, needsLanguage, effectiveLocale, widthMode, hideFarTasks, persistent: storage.persistent, setLocale, setWidthMode, setHideFarTasks };
+    function setConfirmUncheck(value: boolean): void {
+        state.value.confirmUncheck = value;
+        save();
+    }
+
+    /** Адрес синхронизации (пока скрыт за FEATURES.sync). Небезопасный адрес не принимается. */
+    function setSyncEndpoint(value: string): boolean {
+        const endpoint = value.trim();
+        if (!isAllowedEndpoint(endpoint)) return false;
+
+        state.value.sync.endpoint = endpoint;
+        save();
+        return true;
+    }
+
+    return {
+        locale,
+        needsLanguage,
+        effectiveLocale,
+        widthMode,
+        hideFarTasks,
+        confirmUncheck,
+        syncEndpoint,
+        persistent: storage.persistent,
+        setLocale,
+        setWidthMode,
+        setHideFarTasks,
+        setConfirmUncheck,
+        setSyncEndpoint,
+    };
 });

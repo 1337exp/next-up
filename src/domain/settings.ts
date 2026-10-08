@@ -18,6 +18,8 @@ export interface Settings {
     width: WidthMode;
     /** Сворачивать содержимое задач, до которых больше 21 дня (старый autoHide). */
     hideFarTasks: boolean;
+    /** Спрашивать подтверждение при снятии отметки с пункта: снятие стирает время отметки. */
+    confirmUncheck: boolean;
     /** Точка расширения для синхронизации; пустая строка — выключено. */
     sync: { endpoint: string };
 }
@@ -28,6 +30,7 @@ export function defaultSettings(): Settings {
         locale: null,
         width: 'auto',
         hideFarTasks: false,
+        confirmUncheck: false,
         sync: { endpoint: '' },
     };
 }
@@ -44,6 +47,7 @@ export function parseSettings(raw: unknown): Settings {
     if (isLocaleCode(raw.locale)) result.locale = raw.locale;
     if (isWidthMode(raw.width)) result.width = raw.width;
     if (typeof raw.hideFarTasks === 'boolean') result.hideFarTasks = raw.hideFarTasks;
+    if (typeof raw.confirmUncheck === 'boolean') result.confirmUncheck = raw.confirmUncheck;
     if (isRecord(raw.sync) && typeof raw.sync.endpoint === 'string') result.sync.endpoint = raw.sync.endpoint;
 
     return result;
