@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { confirm, TaoButton, TaoCard, TaoCheckbox, TaoDivider, TaoEmpty, TaoIcon, TaoInput, TaoTabs, toast } from '@1337exp/taoui';
 import SettingsDrawer from '@/components/SettingsDrawer.vue';
 import TaskCard from '@/components/TaskCard.vue';
 import TaskForm, { type TaskFormMode } from '@/components/TaskForm.vue';
 import { isoParts } from '@/domain/date';
 import { groupByMonth, isArchived } from '@/domain/lifecycle';
+import { useCollapseHooks } from '@/lib/collapse';
 import { filterByQuery, isSearchable } from '@/domain/search';
 import { taskTitle } from '@/domain/tasks';
 import type { Task } from '@/domain/types';
@@ -34,7 +35,10 @@ function openForm(mode: TaskFormMode, task: Task | null = null): void {
 
 // после сохранения показываем ту вкладку, где оказалась задача (задача с прошедшей датой сразу попадает в архив)
 function onSaved(task: Task): void {
-    tab.value = isArchived(task, tasks.today) ? 'archive' : 'active';
+    const target: ListTab = isArchived(task, tasks.today) ? 'archive' : 'active';
+    // вкладка не меняется: новая или изменённая карточка плавно раскрывается; со сменой вкладки список заменяется целиком
+    if (target === tab.value) withLeaveAnimation(() => undefined);
+    tab.value = target;
 }
 const tab = ref<ListTab>('active');
 
@@ -70,13 +74,25 @@ function onTabChange(key: string): void {
     if (key === 'active' || key === 'archive') tab.value = key;
 }
 
+// Уход карточки анимируем, только когда задачу убрали действием (удалили, завершили, вернули в работу).
+// При смене вкладки и вводе в поиск список меняется целиком: там карточки должны заменяться сразу, без «вылета».
+const animateLeave = ref(false);
+
+const collapse = useCollapseHooks(() => animateLeave.value);
+function withLeaveAnimation(action: () => void): void {
+    animateLeave.value = true;
+    action();
+    // имя перехода читается при обновлении списка, поэтому выключаем после него
+    void nextTick(() => setTimeout(() => (animateLeave.value = false), 400));
+}
+
 async function onRemove(task: Task): Promise<void> {
     const ok = await confirm(t('tasks.notify.remove.title'))
         .message(t('tasks.notify.remove.message', [taskTitle(task)]))
         .ok(t('ui.confirm.yes'))
         .cancel(t('ui.confirm.no'))
         .danger();
-    if (ok) tasks.remove(task.id);
+    if (ok) withLeaveAnimation(() => tasks.remove(task.id));
 }
 
 // сообщения о состоянии хранилища: один раз при старте и при сбое записи
@@ -128,26 +144,28 @@ watch(
 
         <TaoEmpty v-if="visible.length === 0" class="empty" :title="emptyText" />
 
-        <div v-else class="list">
+        <TransitionGroup v-else tag="div" class="list" :name="animateLeave ? 'task' : 'task-instant'" v-bind="collapse">
             <section v-for="group in groups" :key="group.key" class="group">
                 <TaoDivider variant="dashed" fade :text="group.label" />
-                <TaskCard
-                    v-for="task in group.tasks"
-                    :key="task.id"
-                    :task="task"
-                    :today="tasks.today"
-                    :hide-far="settings.hideFarTasks"
-                    :confirm-uncheck="settings.confirmUncheck"
-                    can-edit
-                    @done="tasks.setDone(task.id, true)"
-                    @reopen="tasks.setDone(task.id, false)"
-                    @edit="openForm('edit', $event)"
-                    @clone="openForm('clone', $event)"
-                    @remove="onRemove"
-                    @toggle-item="(_, index) => tasks.toggleChecklistItem(task.id, index)"
-                />
+                <TransitionGroup tag="div" class="group-tasks" :name="animateLeave ? 'task' : 'task-instant'" v-bind="collapse">
+                    <TaskCard
+                        v-for="task in group.tasks"
+                        :key="task.id"
+                        :task="task"
+                        :today="tasks.today"
+                        :hide-far="settings.hideFarTasks"
+                        :confirm-uncheck="settings.confirmUncheck"
+                        can-edit
+                        @done="withLeaveAnimation(() => tasks.setDone(task.id, true))"
+                        @reopen="withLeaveAnimation(() => tasks.setDone(task.id, false))"
+                        @edit="openForm('edit', $event)"
+                        @clone="openForm('clone', $event)"
+                        @remove="onRemove"
+                        @toggle-item="(_, index) => tasks.toggleChecklistItem(task.id, index)"
+                    />
+                </TransitionGroup>
             </section>
-        </div>
+        </TransitionGroup>
 
         <TaskForm v-model="formOpen" :mode="formMode" :task="formTask" @saved="onSaved" />
         <SettingsDrawer v-model="settingsOpen" />
@@ -230,7 +248,8 @@ watch(
 }
 
 .list,
-.group {
+.group,
+.group-tasks {
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -238,6 +257,30 @@ watch(
 
 .list {
     gap: var(--tao-space-2, 8px);
+}
+
+/* появление и уход (карточек и целых групп) идут по высоте: JS в lib/collapse.ts подставляет реальную высоту,
+   а плавность даёт этот переход. Отрицательный нижний отступ съедает gap между соседями, чтобы в конце не было скачка */
+.task-enter-active,
+.task-leave-active {
+    overflow: hidden;
+    transition:
+        height 0.3s ease,
+        margin-bottom 0.3s ease,
+        opacity 0.25s ease;
+}
+
+.task-leave-to {
+    height: 0 !important;
+    margin-bottom: calc(var(--collapse-gap, 10px) * -1);
+    opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .task-enter-active,
+    .task-leave-active {
+        transition: none;
+    }
 }
 
 .empty {

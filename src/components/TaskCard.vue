@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 import { TaoButton, TaoCard, TaoCopy, TaoDropdownMenu, TaoIcon, TaoTag, type TaoDropdownAction } from '@1337exp/taoui';
 import MarkdownText from '@/components/MarkdownText.vue';
+import SwipeReveal from '@/components/SwipeReveal.vue';
 import TaskChecklist from '@/components/TaskChecklist.vue';
 import { formatUserDate, type IsoDate } from '@/domain/date';
 import { daysLeft as calcDaysLeft, isFarTask, urgency } from '@/domain/lifecycle';
@@ -58,6 +59,19 @@ const actions = computed<TaoDropdownAction[]>(() => {
     return list;
 });
 
+// свайп влево на сенсорном экране открывает два самых частых действия: «Изменить» сверху, «Завершить» снизу.
+// Опасное «Удалить» и редкое «Клонировать» остаются в меню: случайно задеть их на телефоне труднее.
+const swipeOpen = ref(false);
+const SWIPE_BUTTON_PX = 44;
+const SWIPE_ORDER = ['edit', 'done', 'reopen'];
+const SWIPE_ICONS: Record<string, string> = { edit: 'pencil', done: 'ok', reopen: 'logout' };
+const swipeActions = computed(() => SWIPE_ORDER.map((id) => actions.value.find((action) => action.id === id)).filter((action): action is TaoDropdownAction => !!action));
+
+function onSwipeAction(id: string): void {
+    swipeOpen.value = false;
+    onAction(id);
+}
+
 function onAction(id: string): void {
     switch (id) {
         case 'done': emit('done', props.task); break;
@@ -70,7 +84,8 @@ function onAction(id: string): void {
 </script>
 
 <template>
-    <TaoCard class="task" :shadow="false" :data-task-id="task.id">
+    <SwipeReveal v-model:open="swipeOpen" :open-min-height="swipeActions.length * SWIPE_BUTTON_PX" :disabled="swipeActions.length === 0">
+        <TaoCard class="task" :shadow="false" :data-task-id="task.id">
         <!-- три части с общим отступом: заголовок, тело (заметка), подвал (чек-лист) -->
         <div class="content">
             <header class="header">
@@ -111,10 +126,46 @@ function onAction(id: string): void {
                 <TaskChecklist :items="task.checklist" :confirm-uncheck="confirmUncheck" @toggle="(index) => emit('toggleItem', task, index)" />
             </footer>
         </div>
-    </TaoCard>
+        </TaoCard>
+
+        <template #actions>
+            <button
+                v-for="action in swipeActions"
+                :key="action.id"
+                type="button"
+                class="swipe-button"
+                :class="{ 'swipe-button--success': action.id !== 'edit' }"
+                :aria-label="action.name"
+                :title="action.name"
+                @click="onSwipeAction(action.id)"
+            >
+                <TaoIcon :name="SWIPE_ICONS[action.id] ?? 'ok'" />
+            </button>
+        </template>
+    </SwipeReveal>
 </template>
 
 <style scoped>
+.swipe-button {
+    flex: 1 1 0;
+    min-height: 0;
+    border: 0;
+    border-top: 1px solid var(--tao-color-border);
+    background: transparent;
+    color: var(--tao-color-text);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.swipe-button:first-child {
+    border-top: 0;
+}
+
+.swipe-button--success {
+    color: var(--tao-color-success);
+}
+
 .task {
     --nextup-card-gap: 20px;
 
