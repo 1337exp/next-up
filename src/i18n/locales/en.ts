@@ -63,9 +63,44 @@ export default {
             dropHint: 'Export file: drop it here or click to choose',
         },
         sync: {
-            title: 'Sync address',
-            placeholder: 'https://example.com/sync',
+            title: 'Cloud',
+            placeholder: 'https://example.com/wh_tasks_TOKEN',
             invalid: 'Only https:// (or http://localhost) is allowed',
+        },
+    },
+
+    sync: {
+        hint: "Your server's webhook address. The token is part of it, so don't show it to anyone.",
+        upload: { label: 'Upload', title: 'Send the data from this device to the server' },
+        download: { label: 'Download', title: 'Get the data from the server to this device' },
+        replace: 'Replace',
+        status: {
+            never: 'Not synced yet.',
+            at: 'Synced: {0}.',
+            unsynced: 'There are changes that are not on the server.',
+        },
+        confirm: {
+            localNewer: {
+                title: 'Data on this device is newer',
+                message: 'You changed data here on {0}, while the server copy is from {1}. Downloading will replace the data on this device. Continue?',
+            },
+            serverNewer: {
+                title: 'The server has newer data',
+                message: 'It was saved on {0}, after your last sync: probably uploaded from another device. Uploading will replace the data on the server. Continue?',
+            },
+        },
+        done: {
+            upload: 'Uploaded to the server. Tasks: {0}.',
+            download: 'Downloaded from the server. Tasks: {0}.',
+        },
+        empty: 'The server has no data yet: upload it first.',
+        error: {
+            network: 'The server is unreachable. Check the address and your connection.',
+            timeout: 'The server did not answer in time.',
+            unauthorized: 'Access denied: check the token in the address.',
+            server: 'The server returned an error.',
+            badResponse: "The server's answer does not look like Next Up data.",
+            tooLarge: 'The data on the server is too large.',
         },
     },
 

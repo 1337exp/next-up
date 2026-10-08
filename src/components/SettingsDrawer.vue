@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, ref } from 'vue';
-import { TaoDrawer, TaoFormField, TaoInput, TaoSpoiler, TaoSwitch, toast } from '@1337exp/taoui';
+import { computed, defineAsyncComponent } from 'vue';
+import { TaoDrawer, TaoSpoiler, TaoSwitch, toast } from '@1337exp/taoui';
 import DataSection from '@/components/DataSection.vue';
+import SyncSection from '@/components/SyncSection.vue';
 import FontSizePicker from '@/components/FontSizePicker.vue';
 import LanguagePicker from '@/components/LanguagePicker.vue';
 import WidthPicker from '@/components/WidthPicker.vue';
 import { FAR_TASK_DAYS } from '@/domain/constants';
 import { detectDevMode } from '@/dev/mode';
-import { FEATURES } from '@/features';
 import { notifySupport, requestNotifications } from '@/lib/notifications';
 import { useI18n } from '@/i18n';
 import { useSettingsStore } from '@/stores/settings';
@@ -31,15 +31,6 @@ async function onNotifyToggle(value: boolean): Promise<void> {
     const result = await requestNotifications();
     settings.setNotifyToday(result === 'granted');
     if (result !== 'granted') toast.warning(t(result === 'denied' ? 'settings.notify.denied' : 'settings.notify.unsupported'));
-}
-
-// Адрес синхронизации: поле скрыто, пока синхронизации нет (FEATURES.sync)
-const endpoint = ref(settings.syncEndpoint);
-const endpointInvalid = ref(false);
-
-function applyEndpoint(): void {
-    endpointInvalid.value = !settings.setSyncEndpoint(endpoint.value);
-    if (!endpointInvalid.value) endpoint.value = settings.syncEndpoint;
 }
 
 // Инструменты разработчика: отдельный чанк, который грузится, только когда режим разработки включён
@@ -107,11 +98,9 @@ const devMode = computed(() => open.value && detectDevMode());
             <DataSection />
         </section>
 
-        <section v-if="FEATURES.sync" class="section">
+        <section class="section">
             <h2 class="section-title">{{ t('settings.sync.title') }}</h2>
-            <TaoFormField :error="endpointInvalid ? t('settings.sync.invalid') : ''">
-                <TaoInput v-model="endpoint" :placeholder="t('settings.sync.placeholder')" :error="endpointInvalid" @blur="applyEndpoint" />
-            </TaoFormField>
+            <SyncSection />
         </section>
 
         <section v-if="devMode" class="section">

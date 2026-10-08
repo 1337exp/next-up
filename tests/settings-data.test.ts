@@ -4,7 +4,6 @@ import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import TaoUI, { TaoFileDrop } from '@1337exp/taoui';
 import SettingsDrawer from '@/components/SettingsDrawer.vue';
-import { FEATURES } from '@/features';
 import { KEYS } from '@/storage/local';
 import { MAX_IMPORT_BYTES } from '@/domain/transfer';
 import { useTasksStore } from '@/stores/tasks';
@@ -192,21 +191,20 @@ describe('настройки: данные', () => {
         });
     });
 
-    describe('адрес синхронизации (заложен, но скрыт)', () => {
-        afterEach(() => {
-            FEATURES.sync = false;
-        });
+    describe('облако: адрес вебхука', () => {
+        const PLACEHOLDER = 'https://example.com/wh_tasks_ТОКЕН';
 
-        it('по умолчанию поля нет', () => {
+        it('поле и кнопки есть; пока адреса нет, «Загрузить» и «Скачать» недоступны', () => {
             const { w } = mountDrawer();
-            expect(document.body.querySelector('input[placeholder="https://example.com/sync"]')).toBeNull();
+            expect(document.body.querySelector(`input[placeholder="${PLACEHOLDER}"]`)).not.toBeNull();
+            expect(q<HTMLButtonElement>('.upload').disabled).toBe(true);
+            expect(q<HTMLButtonElement>('.download').disabled).toBe(true);
             w.unmount();
         });
 
-        it('при включении: небезопасный адрес отвергается с подсказкой, https сохраняется', async () => {
-            FEATURES.sync = true;
+        it('небезопасный адрес отвергается с подсказкой, https сохраняется и открывает кнопки', async () => {
             const { w } = mountDrawer();
-            const input = q<HTMLInputElement>('input[placeholder="https://example.com/sync"]');
+            const input = q<HTMLInputElement>(`input[placeholder="${PLACEHOLDER}"]`);
             const type = async (value: string) => {
                 input.value = value;
                 input.dispatchEvent(new Event('input', { bubbles: true }));
@@ -215,13 +213,16 @@ describe('настройки: данные', () => {
                 await nextTick();
             };
 
-            await type('http://example.com/sync');
+            await type('http://example.com/wh_tasks_TOKEN');
             expect(document.body.textContent).toContain('Допустим адрес https:// (или http://localhost)');
             expect(JSON.parse(localStorage.getItem('nextup-settings') ?? '{}').sync?.endpoint ?? '').toBe('');
+            expect(q<HTMLButtonElement>('.upload').disabled).toBe(true);
 
-            await type('https://example.com/sync');
+            await type('https://example.com/wh_tasks_TOKEN');
             expect(document.body.textContent).not.toContain('Допустим адрес https://');
-            expect(JSON.parse(localStorage.getItem('nextup-settings') ?? '{}').sync.endpoint).toBe('https://example.com/sync');
+            expect(JSON.parse(localStorage.getItem('nextup-settings') ?? '{}').sync.endpoint).toBe('https://example.com/wh_tasks_TOKEN');
+            expect(q<HTMLButtonElement>('.upload').disabled).toBe(false);
+            expect(q<HTMLButtonElement>('.download').disabled).toBe(false);
             w.unmount();
         });
     });

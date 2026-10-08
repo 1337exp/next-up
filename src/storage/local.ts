@@ -4,6 +4,8 @@ export const KEY_PREFIX = 'nextup-';
 export const KEYS = {
     settings: `${KEY_PREFIX}settings`,
     tasks: `${KEY_PREFIX}tasks`,
+    /** Метки времени синхронизации (см. stores/sync.ts). */
+    syncState: `${KEY_PREFIX}sync`,
     /** Копия повреждённых данных задач: после сбоя ничего не теряется молча. */
     tasksCorruptBackup: `${KEY_PREFIX}tasks-corrupt-backup`,
 } as const;

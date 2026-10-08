@@ -9,6 +9,7 @@ import { exportFileName, importFromText, mergeIncoming, serializeExport, type Im
 import type { Snapshot, Task, TaskInput } from '@/domain/types';
 import { onLocalChange, onSyncStart } from '@/sync';
 import { createBrowserJsonStorage } from '@/storage/local';
+import { useSyncStore } from '@/stores/sync';
 import { loadTasks, saveTasks, type LoadStatus } from '@/storage/tasks';
 
 const sameTasks = (a: readonly Task[], b: readonly Task[]) => JSON.stringify(a) === JSON.stringify(b);
@@ -49,6 +50,7 @@ export const useTasksStore = defineStore('tasks', () => {
     function commit(next: Task[]): void {
         tasks.value = normalizeTasks(next, today.value, Date.now());
         persist();
+        useSyncStore().markLocalChange(Date.now()); // правка пользователя; автоматические пересчёты (normalize) сюда не попадают
     }
 
     function update(id: string, change: (task: Task) => Task): void {

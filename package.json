@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "example:server": "node examples/server/server.mjs"
   },
   "dependencies": {
     "@1337exp/taoui": "^1.11.6",

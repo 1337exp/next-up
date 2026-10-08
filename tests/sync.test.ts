@@ -39,8 +39,11 @@ describe('адрес синхронизации', () => {
         expect(s.syncEndpoint).toBe('');
     });
 
-    it('в первой версии адаптера нет', () => {
-        expect(getSyncAdapter({ sync: { endpoint: 'https://example.com/sync' } })).toBeNull();
+    it('адаптер есть только у допустимого непустого адреса', () => {
+        expect(getSyncAdapter({ sync: { endpoint: 'https://example.com/wh_tasks_TOKEN' } })).not.toBeNull();
+        expect(getSyncAdapter({ sync: { endpoint: 'http://localhost:8787/wh_tasks_TOKEN' } })).not.toBeNull();
+        expect(getSyncAdapter({ sync: { endpoint: '' } })).toBeNull();
+        expect(getSyncAdapter({ sync: { endpoint: 'http://example.com/sync' } })).toBeNull();
     });
 });
 
