@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from 'vue';
+import { computed, defineAsyncComponent, ref } from 'vue';
 import { TaoDrawer, TaoFormField, TaoInput, TaoSwitch } from '@1337exp/taoui';
 import DataSection from '@/components/DataSection.vue';
 import LanguagePicker from '@/components/LanguagePicker.vue';
 import WidthPicker from '@/components/WidthPicker.vue';
 import { FAR_TASK_DAYS } from '@/domain/constants';
+import { detectDevMode } from '@/dev/mode';
 import { FEATURES } from '@/features';
 import { useI18n } from '@/i18n';
 import { useSettingsStore } from '@/stores/settings';
@@ -23,8 +24,11 @@ function applyEndpoint(): void {
     if (!endpointInvalid.value) endpoint.value = settings.syncEndpoint;
 }
 
-// Инструменты разработчика: в рабочей сборке условие превращается в `null`, и модуль не включается в бандл.
-const DevTools = import.meta.env.DEV ? defineAsyncComponent(() => import('@/dev/DevTools.vue')) : null;
+// Инструменты разработчика: отдельный чанк, который грузится, только когда режим разработки включён
+// (заход по IP / localhost, сборка для разработки или флаг `nextup-dev=1` в localStorage; см. dev/mode.ts).
+// Проверяем при каждом открытии настроек, поэтому флаг работает без перезагрузки.
+const DevTools = defineAsyncComponent(() => import('@/dev/DevTools.vue'));
+const devMode = computed(() => open.value && detectDevMode());
 </script>
 
 <template>
@@ -59,8 +63,11 @@ const DevTools = import.meta.env.DEV ? defineAsyncComponent(() => import('@/dev/
             </TaoFormField>
         </section>
 
-        <section v-if="DevTools" class="section">
-            <component :is="DevTools" />
+        <section v-if="devMode" class="section">
+            <div style="height: 30px;"></div>
+            <div style="opacity: 0.4">
+                <component :is="DevTools" />
+            </div>
         </section>
     </TaoDrawer>
 </template>
