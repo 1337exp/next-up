@@ -18,6 +18,8 @@ const props = defineProps<{
     canEdit?: boolean;
     /** Просить подтверждение при снятии отметки с пункта списка (настройка). */
     confirmUncheck?: boolean;
+    /** Общий масштаб интерфейса (1 = 100%): панель свайпа считает размеры в px. */
+    uiScale?: number;
 }>();
 
 const emit = defineEmits<{
@@ -65,6 +67,7 @@ const actions = computed<TaoDropdownAction[]>(() => {
 // Опасное «Удалить» и редкое «Клонировать» остаются в меню: случайно задеть их на телефоне труднее.
 const swipeOpen = ref(false);
 const SWIPE_BUTTON_PX = 44;
+const scale = computed(() => props.uiScale ?? 1);
 const SWIPE_ORDER = ['edit', 'done', 'reopen'];
 const swipeActions = computed(() => SWIPE_ORDER.map((id) => actions.value.find((action) => action.id === id)).filter((action): action is TaoDropdownAction => !!action));
 
@@ -85,7 +88,14 @@ function onAction(id: string): void {
 </script>
 
 <template>
-    <SwipeReveal v-model:open="swipeOpen" :open-min-height="swipeActions.length * SWIPE_BUTTON_PX" :disabled="swipeActions.length === 0">
+    <SwipeReveal
+        v-model:open="swipeOpen"
+        :width="64 * scale"
+        :overlap="10 * scale"
+        :max-height="100 * scale"
+        :open-min-height="swipeActions.length * SWIPE_BUTTON_PX * scale"
+        :disabled="swipeActions.length === 0"
+    >
         <TaoCard class="task" :shadow="false" :data-task-id="task.id">
         <!-- три части с общим отступом: заголовок, тело (заметка), подвал (чек-лист) -->
         <div class="content">
@@ -177,6 +187,7 @@ function onAction(id: string): void {
     background: transparent;
     color: var(--tao-color-text);
     font: inherit;
+    font-size: var(--tao-font-size-xl);
     font-weight: 600;
     cursor: pointer;
 }
@@ -228,7 +239,7 @@ function onAction(id: string): void {
 }
 
 .date-line {
-    font-size: calc(11px * var(--nextup-header-scale, 1));
+    font-size: calc(11px * var(--nextup-header-scale, 1) * var(--nextup-ui-scale, 1));
     color: var(--tao-color-text-muted);
 }
 

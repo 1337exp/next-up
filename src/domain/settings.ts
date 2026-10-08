@@ -24,6 +24,8 @@ export interface Settings {
     /** `null` — язык ещё не выбран (показываем экран первого запуска). */
     locale: LocaleCode | null;
     width: WidthMode;
+    /** Общий масштаб интерфейса, %: шрифты, отступы, панель свайпа. Поверх него работают размеры ниже. */
+    uiScale: FontScale;
     /** Размер текста заметки, %. */
     noteScale: FontScale;
     /** Размер пунктов списка (подпись и время отметки), %. */
@@ -43,6 +45,7 @@ export function defaultSettings(): Settings {
         schemaVersion: SETTINGS_SCHEMA_VERSION,
         locale: null,
         width: 'mini',
+        uiScale: 100,
         noteScale: 100,
         itemScale: 100,
         headerScale: 100,
@@ -63,6 +66,7 @@ export function parseSettings(raw: unknown): Settings {
 
     if (isLocaleCode(raw.locale)) result.locale = raw.locale;
     if (isWidthMode(raw.width)) result.width = raw.width;
+    if (isFontScale(raw.uiScale)) result.uiScale = raw.uiScale;
     if (isFontScale(raw.noteScale)) result.noteScale = raw.noteScale;
     if (isFontScale(raw.itemScale)) result.itemScale = raw.itemScale;
     if (isFontScale(raw.headerScale)) result.headerScale = raw.headerScale;

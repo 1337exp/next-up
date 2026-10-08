@@ -160,6 +160,7 @@ watch(
                         :today="tasks.today"
                         :hide-far="settings.hideFarTasks"
                         :confirm-uncheck="settings.confirmUncheck"
+                        :ui-scale="settings.uiScale / 100"
                         can-edit
                         @done="withLeaveAnimation(() => tasks.setDone(task.id, true))"
                         @reopen="withLeaveAnimation(() => tasks.setDone(task.id, false))"
@@ -219,11 +220,22 @@ watch(
     margin-top: var(--tao-space-2, 8px);
 }
 
-/* вкладки одной ширины: «Активные» и «Архив» вместе со счётчиками помещаются в 360 px */
+/* вкладки одной ширины (89 px в масштабе интерфейса), по центру; в узком ряду сжимаются поровну: «Активные» и «Архив»
+   вместе со счётчиками помещаются в 360 px, в том числе при крупном интерфейсе */
+.tabs :deep(.tao-tabs__list) {
+    width: 100%;
+    flex-wrap: nowrap;
+    justify-content: center;
+}
+
 .tabs :deep(.tao-tabs__tab) {
-    width: 89px;
+    /* подписи вкладок растут не больше чем на 15%: ряд «настройки · вкладки · плюс» иначе не помещается в узкий экран */
+    font-size: calc(14px * min(var(--nextup-ui-scale, 1), 1.15));
+    flex: 0 1 calc(89px * var(--nextup-ui-scale, 1));
+    min-width: 0;
     padding-right: 0;
     padding-left: 0;
+    justify-content: center;
 }
 
 .tab-label {
@@ -243,7 +255,7 @@ watch(
     padding: 0 4px;
     display: inline-flex;
     align-items: center;
-    font-size: 10px;
+    font-size: calc(10px * var(--nextup-ui-scale, 1));
     font-weight: 700;
     line-height: 1;
 }

@@ -270,7 +270,7 @@ function submit(): void {
 
 /* дата никогда не бывает длинной: узкое поле, текст по центру */
 .date-input {
-    --nextup-date-width: 200px;
+    --nextup-date-width: 230px;
 
     width: var(--nextup-date-width);
     flex: none;

@@ -37,8 +37,12 @@ export default {
             mini: 'Mini',
             hint: 'Auto fills the whole window.',
         },
+        uiScale: {
+            title: 'Interface size',
+            hint: 'Scales the whole interface at once.',
+        },
         fontSize: {
-            title: 'Text size',
+            title: 'Text size separately',
             note: 'Note',
             items: 'List items',
             header: 'Header (date)',

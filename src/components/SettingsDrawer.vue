@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, ref } from 'vue';
-import { TaoDrawer, TaoFormField, TaoInput, TaoSwitch } from '@1337exp/taoui';
+import { TaoDrawer, TaoFormField, TaoInput, TaoSpoiler, TaoSwitch } from '@1337exp/taoui';
 import DataSection from '@/components/DataSection.vue';
 import FontSizePicker from '@/components/FontSizePicker.vue';
 import LanguagePicker from '@/components/LanguagePicker.vue';
@@ -46,21 +46,27 @@ const devMode = computed(() => open.value && detectDevMode());
         </section>
 
         <section class="section">
-            <h2 class="section-title">{{ t('settings.fontSize.title') }}</h2>
-            <div class="font-rows">
-                <div>
-                    <p class="row-label">{{ t('settings.fontSize.note') }}</p>
-                    <FontSizePicker :model-value="settings.noteScale" :label="t('settings.fontSize.note')" @update:model-value="settings.setNoteScale" />
+            <h2 class="section-title">{{ t('settings.uiScale.title') }}</h2>
+            <FontSizePicker :model-value="settings.uiScale" :label="t('settings.uiScale.title')" @update:model-value="settings.setUiScale" />
+            <p class="hint">{{ t('settings.uiScale.hint') }}</p>
+
+            <!-- тонкая настройка нужна немногим: спрятана под спойлер -->
+            <TaoSpoiler class="fine-tune" :title="t('settings.fontSize.title')">
+                <div class="font-rows">
+                    <div>
+                        <p class="row-label">{{ t('settings.fontSize.note') }}</p>
+                        <FontSizePicker :model-value="settings.noteScale" :label="t('settings.fontSize.note')" @update:model-value="settings.setNoteScale" />
+                    </div>
+                    <div>
+                        <p class="row-label">{{ t('settings.fontSize.items') }}</p>
+                        <FontSizePicker :model-value="settings.itemScale" :label="t('settings.fontSize.items')" @update:model-value="settings.setItemScale" />
+                    </div>
+                    <div>
+                        <p class="row-label">{{ t('settings.fontSize.header') }}</p>
+                        <FontSizePicker :model-value="settings.headerScale" :label="t('settings.fontSize.header')" @update:model-value="settings.setHeaderScale" />
+                    </div>
                 </div>
-                <div>
-                    <p class="row-label">{{ t('settings.fontSize.items') }}</p>
-                    <FontSizePicker :model-value="settings.itemScale" :label="t('settings.fontSize.items')" @update:model-value="settings.setItemScale" />
-                </div>
-                <div>
-                    <p class="row-label">{{ t('settings.fontSize.header') }}</p>
-                    <FontSizePicker :model-value="settings.headerScale" :label="t('settings.fontSize.header')" @update:model-value="settings.setHeaderScale" />
-                </div>
-            </div>
+            </TaoSpoiler>
         </section>
 
         <section class="section">
@@ -101,6 +107,10 @@ const devMode = computed(() => open.value && detectDevMode());
     font-size: var(--tao-font-size-md);
     font-weight: 500;
     color: var(--tao-color-text-strong);
+}
+
+.fine-tune {
+    margin-top: var(--tao-space-3, 12px);
 }
 
 .font-rows {

@@ -56,7 +56,7 @@ async function onToggle(index: number): Promise<void> {
 }
 
 .item {
-    min-height: 40px;
+    min-height: calc(40px * var(--nextup-ui-scale, 1));
 }
 
 /* подпись рисует сам TaoCheckbox со своим размером, поэтому масштабируем её, а не <li> */
@@ -66,7 +66,7 @@ async function onToggle(index: number): Promise<void> {
 
 .changed {
     margin: 2px 0 var(--tao-space-3, 12px) 28px;
-    font-size: calc(10px * var(--nextup-item-scale, 1));
+    font-size: calc(10px * var(--nextup-item-scale, 1) * var(--nextup-ui-scale, 1));
     color: var(--tao-color-text-subtle);
 }
 </style>

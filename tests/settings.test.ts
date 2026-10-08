@@ -115,6 +115,9 @@ describe('размер шрифта', () => {
         expect(defaultSettings().noteScale).toBe(100);
         expect(defaultSettings().headerScale).toBe(100);
         expect(defaultSettings().itemScale).toBe(100);
+        expect(defaultSettings().uiScale).toBe(100);
+        expect(parseSettings({ uiScale: 140 }).uiScale).toBe(140);
+        expect(parseSettings({ uiScale: 150 }).uiScale).toBe(100);
         const parsed = parseSettings({ noteScale: 130, headerScale: '120', width: 'auto' });
         expect([parsed.noteScale, parsed.headerScale, parsed.width]).toEqual([100, 100, 'auto']);
         expect(parseSettings({ noteScale: 140, headerScale: 90 })).toMatchObject({ noteScale: 140, headerScale: 90 });

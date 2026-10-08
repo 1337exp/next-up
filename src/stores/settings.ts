@@ -12,6 +12,7 @@ export const useSettingsStore = defineStore('settings', () => {
     const locale = computed(() => state.value.locale);
     /** Язык ещё не выбран: показываем экран первого запуска. */
     const widthMode = computed(() => state.value.width);
+    const uiScale = computed(() => state.value.uiScale);
     const noteScale = computed(() => state.value.noteScale);
     const itemScale = computed(() => state.value.itemScale);
     const headerScale = computed(() => state.value.headerScale);
@@ -36,6 +37,11 @@ export const useSettingsStore = defineStore('settings', () => {
 
     function setWidthMode(mode: WidthMode): void {
         state.value.width = mode;
+        save();
+    }
+
+    function setUiScale(scale: FontScale): void {
+        state.value.uiScale = scale;
         save();
     }
 
@@ -79,6 +85,7 @@ export const useSettingsStore = defineStore('settings', () => {
         needsLanguage,
         effectiveLocale,
         widthMode,
+        uiScale,
         noteScale,
         itemScale,
         headerScale,
@@ -88,6 +95,7 @@ export const useSettingsStore = defineStore('settings', () => {
         persistent: storage.persistent,
         setLocale,
         setWidthMode,
+        setUiScale,
         setNoteScale,
         setItemScale,
         setHeaderScale,

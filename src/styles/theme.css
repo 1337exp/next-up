@@ -4,6 +4,28 @@
     --nextup-bg-card: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), var(--nextup-img-dark-noise);
 }
 
+/* Общий масштаб интерфейса (настройка «Размер интерфейса»): умножает шрифтовые и отступные токены TaoUi,
+   поэтому масштабируются и его компоненты. Переменную выставляет App.vue; без неё всё как в теме. */
+:root {
+    --tao-font-size-xs: calc(12px * var(--nextup-ui-scale, 1));
+    --tao-font-size-sm: calc(13px * var(--nextup-ui-scale, 1));
+    --tao-font-size-md: calc(14px * var(--nextup-ui-scale, 1));
+    --tao-font-size-lg: calc(16px * var(--nextup-ui-scale, 1));
+    --tao-font-size-xl: calc(18px * var(--nextup-ui-scale, 1));
+    --tao-font-size-2xl: calc(24px * var(--nextup-ui-scale, 1));
+    --tao-font-size-3xl: calc(32px * var(--nextup-ui-scale, 1));
+    --tao-font-size-4xl: calc(36px * var(--nextup-ui-scale, 1));
+
+    --tao-space-1: calc(4px * var(--nextup-ui-scale, 1));
+    --tao-space-2: calc(8px * var(--nextup-ui-scale, 1));
+    --tao-space-3: calc(12px * var(--nextup-ui-scale, 1));
+    --tao-space-4: calc(16px * var(--nextup-ui-scale, 1));
+    --tao-space-5: calc(20px * var(--nextup-ui-scale, 1));
+    --tao-space-6: calc(24px * var(--nextup-ui-scale, 1));
+    --tao-space-8: calc(32px * var(--nextup-ui-scale, 1));
+    --tao-space-10: calc(40px * var(--nextup-ui-scale, 1));
+}
+
 /* Модалка и панель настроек телепортируются в body, поэтому стили scoped-компонентов до них не доходят,
    а scoped-стили самой библиотеки специфичнее простого селектора, поэтому он длиннее. */
 body .tao-modal-overlay .tao-modal,
