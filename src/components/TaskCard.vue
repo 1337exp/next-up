@@ -102,10 +102,10 @@ function onAction(id: string): void {
         <div class="content">
             <header class="header">
                 <div class="meta">
-                    <TaoTag v-if="left >= 0" class="tag" :class="tone !== 'neutral' && `tag--${tone}`" type="neutral">
+                    <TaoTag v-if="left >= 0" class="tag" :class="tone !== 'neutral' && `tag--${tone}`" tone="neutral">
                         {{ left === 0 ? t('tasks.date.today') : t('tasks.date.daysLeft', [left]) }}
                     </TaoTag>
-                    <TaoTag class="tag" type="neutral">{{ weekdayShort(locale, task.date) }}</TaoTag>
+                    <TaoTag class="tag" tone="neutral">{{ weekdayShort(locale, task.date) }}</TaoTag>
                     <span class="date-line">
                         <!-- копирование по клику на саму дату, без отдельной иконки -->
                         <TaoCopy :text="dateText" tip :success-message="t('ui.copied')" :copy-label="t('ui.copy')">

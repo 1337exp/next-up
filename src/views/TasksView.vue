@@ -53,8 +53,8 @@ const found = computed(() => ({
 
 // счётчик выводится отдельным бейджем (слот label), а не текстом в скобках: так вкладки влезают в 360 px
 const tabs = computed(() => [
-    { key: 'active', label: t('tasks.tabs.active') },
-    { key: 'archive', label: t('tasks.tabs.archive') },
+    { value: 'active', label: t('tasks.tabs.active') },
+    { value: 'archive', label: t('tasks.tabs.archive') },
 ]);
 const counts = computed<Record<string, number>>(() => ({ active: found.value.active.length, archive: found.value.archive.length }));
 
@@ -125,7 +125,7 @@ watch(
                 <TaoButton variant="ghost" :aria-label="t('settings.title')" @click="settingsOpen = true">
                     <TaoIcon name="cog" />
                 </TaoButton>
-                <TaoTabs class="tabs" justify="center" :tabs="tabs" :model-value="tab" @update:model-value="onTabChange">
+                <TaoTabs class="tabs" justify="center" :items="tabs" :model-value="tab" @update:model-value="onTabChange">
                     <template #label="{ text, value }">
                         <span class="tab-label">
                             {{ text }}
