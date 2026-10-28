@@ -192,6 +192,10 @@ function timeOf(itemId: string): string {
     display: inline-flex;
     align-items: center;
     gap: 4px;
+    /* та же высота, что у бейджей рядом (TaoTag size=small): боксы одной высоты округляются одинаково, иначе при
+       дробной позиции карточки текст даты на пиксель съезжает относительно текста бейджей */
+    height: var(--tao-tag-height-small);
+    line-height: var(--tao-tag-height-small);
     color: var(--tao-color-text-muted);
     font-size: var(--tao-font-size-xs);
 }
@@ -202,6 +206,7 @@ function timeOf(itemId: string): string {
     background: none;
     color: inherit;
     font: inherit;
+    line-height: inherit;
     cursor: pointer;
 }
 
