@@ -183,7 +183,9 @@ function timeOf(itemId: string): string {
 .meta {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
+    /* по базовой линии, а не по центру: бейдж (строка 15 px в боксе 18 px) и дата (строка 18 px) при выравнивании
+       по центру ставили текст на 0.5 px по-разному, и в зависимости от дробной позиции карточки это было видно */
+    align-items: baseline;
     gap: var(--tao-space-2);
     min-width: 0;
 }
@@ -192,10 +194,6 @@ function timeOf(itemId: string): string {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    /* та же высота, что у бейджей рядом (TaoTag size=small): боксы одной высоты округляются одинаково, иначе при
-       дробной позиции карточки текст даты на пиксель съезжает относительно текста бейджей */
-    height: var(--tao-tag-height-small);
-    line-height: var(--tao-tag-height-small);
     color: var(--tao-color-text-muted);
     font-size: var(--tao-font-size-xs);
 }
@@ -206,7 +204,6 @@ function timeOf(itemId: string): string {
     background: none;
     color: inherit;
     font: inherit;
-    line-height: inherit;
     cursor: pointer;
 }
 
