@@ -3,7 +3,7 @@ import { TaoEmpty, TaoIcon } from '@1337exp/taoui';
 
 defineProps<{
     title: string;
-    /** Имя иконки (встроенной `tao-*` или из `registerAppIcons`). */
+    /** Имя иконки: встроенная `tao-*` или зарегистрированная через `registerTaoIcons`. */
     icon: string;
     /** Пояснение под заголовком. */
     hint?: string;

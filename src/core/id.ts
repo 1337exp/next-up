@@ -1,3 +1,5 @@
+import { uuid } from '@1337exp/taoux/ids';
+
 function fnv1a(text: string, seed: number): string {
     let hash = seed >>> 0;
     for (let i = 0; i < text.length; i++) {
@@ -12,9 +14,7 @@ export function stableId(prefix: string, key: string): string {
     return `${prefix}-${fnv1a(key, 2166136261)}${fnv1a(key, 0x9747b28c)}`;
 }
 
+/** Id новой записи: UUID v4 из TaoUX (работает и вне безопасного контекста, например по http в локальной сети). */
 export function newId(): string {
-    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
-
-    // запасной вариант для окружений без crypto.randomUUID
-    return Date.now().toString(36) + Math.random().toString(36).slice(2, 11) + Math.random().toString(36).slice(2, 7);
+    return uuid();
 }

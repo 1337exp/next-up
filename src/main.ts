@@ -8,10 +8,8 @@ import '@/assets/font/roboto.css';
 import '@/styles.css';
 
 import App from '@/App.vue';
-import { registerAppIcons } from '@/app/icons';
 import { initLocale } from '@/i18n';
 
-registerAppIcons();
 initLocale();
 
 createApp(App).use(createPinia()).use(TaoUI).mount('#app');

@@ -9,6 +9,7 @@ import { importNotes, type ImportResult, type MarkdownOptions, toMarkdown } from
 import { diffEntry, UndoStack } from '@/core/undo';
 import { createTodayClock } from '@/app/clock';
 import { createNotesRepository, type LoadStatus } from '@/app/persistence';
+import type { StorageFailure } from '@1337exp/taoux/storage';
 
 const PERSIST_DELAY_MS = 300;
 
@@ -21,7 +22,9 @@ export const useNotesStore = defineStore('notes', () => {
     const today = clock.today;
 
     const notes = ref<Note[]>(normalize(loaded.notes, today.value, Date.now()));
-    const saveFailed = ref(false);
+    /** Почему последняя запись не удалась (quota — место кончилось, denied — хранилище запрещено); 
+ull — удалась. */
+    const saveFailed = ref<StorageFailure | null>(null);
 
     /** Что случилось при загрузке; интерфейс показывает это один раз при старте. */
     const startup: { status: LoadStatus; invalid: number } = { status: loaded.status, invalid: loaded.invalid };
@@ -35,7 +38,8 @@ export const useNotesStore = defineStore('notes', () => {
         timer = undefined;
         if (!dirty || !writable) return;
         dirty = false;
-        saveFailed.value = !repo.save(notes.value, Date.now());
+        const result = repo.save(notes.value, Date.now());
+        saveFailed.value = result.ok ? null : result.reason;
     }
 
     function schedule(): void {

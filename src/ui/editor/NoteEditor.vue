@@ -161,7 +161,7 @@ onMounted(() => {
         <TaoFormField :label="t('editor.due.label')" :error="visibleError === 'badDate' || visibleError === 'tooOld' ? errorText : ''">
             <div class="due">
                 <TaoButton variant="ghost" icon="tao-chevron-left" :aria-label="t('editor.due.prev')" @click="shift(-1)" />
-                <TaoDate :model-value="draft.due" :min="minDate" :error="visibleError === 'badDate' || visibleError === 'tooOld'" class="due-field" @update:model-value="setDue" />
+                <TaoDate editable :model-value="draft.due" :min="minDate" :error="visibleError === 'badDate' || visibleError === 'tooOld'" class="due-field" @update:model-value="setDue" />
                 <TaoButton variant="ghost" icon="tao-chevron-right" :aria-label="t('editor.due.next')" @click="shift(1)" />
             </div>
         </TaoFormField>
@@ -178,7 +178,7 @@ onMounted(() => {
         <fieldset class="items">
             <legend class="sr-only">{{ t('editor.items.label') }}</legend>
             <div v-for="(item, index) in draft.items" :key="item.id" class="item-row">
-                <TaoButton variant="ghost" tone="danger" icon="trash" :aria-label="t('editor.items.remove')" @click="removeItem(index)" />
+                <TaoButton variant="ghost" tone="danger" icon="tao-trash" :aria-label="t('editor.items.remove')" @click="removeItem(index)" />
                 <TaoInput v-model="item.text" :placeholder="t('editor.items.placeholder')" :aria-label="t('editor.items.label')" @keydown.enter.prevent="addItem(index)" />
             </div>
             <TaoButton variant="ghost" icon="tao-plus" class="add-item" @click="addItem()">{{ t('editor.items.add') }}</TaoButton>

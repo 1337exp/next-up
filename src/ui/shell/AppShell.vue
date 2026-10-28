@@ -26,11 +26,11 @@ const listWidth = ref(480);
 
 // счётчики в навигации показывают найденное, пока идёт поиск
 const items = computed<TaoNavItem[]>(() => [
-    { id: 'active', label: t('nav.active'), icon: 'notes', badge: found.value.active.length || undefined },
+    { id: 'active', label: t('nav.active'), icon: 'tao-file', badge: found.value.active.length || undefined },
     { id: 'archive', label: t('nav.archive'), icon: 'tao-folder', badge: found.value.archive.length || undefined },
-    { id: 'tags', label: t('nav.tags'), icon: 'tag' },
-    { id: 'trash', label: t('nav.trash'), icon: 'trash', badge: store.trash.length || undefined },
-    { id: 'settings', label: t('nav.settings'), icon: 'settings' },
+    { id: 'tags', label: t('nav.tags'), icon: 'tao-tag' },
+    { id: 'trash', label: t('nav.trash'), icon: 'tao-trash', badge: store.trash.length || undefined },
+    { id: 'settings', label: t('nav.settings'), icon: 'tao-settings' },
 ]);
 
 function onNav(id: string): void {
@@ -74,8 +74,8 @@ onMounted(() => {
 
 watch(
     () => store.saveFailed,
-    (failed) => {
-        if (failed) toast.danger(t('storage.saveFailed'));
+    (reason) => {
+        if (reason) toast.danger(reason === 'quota' ? t('storage.quotaFull') : reason === 'denied' ? t('storage.memoryOnly') : t('storage.saveFailed'));
     },
 );
 </script>
@@ -101,7 +101,7 @@ watch(
                             </header>
                             <NoteEditor :key="editor.state.value.key" @close="editor.close()" />
                         </section>
-                        <EmptyState v-else icon="edit" :title="t('editor.empty')" />
+                        <EmptyState v-else icon="tao-edit" :title="t('editor.empty')" />
                     </div>
                 </template>
             </TaoSplit>
@@ -111,7 +111,7 @@ watch(
         <main v-else class="narrow"><ListColumn :section="section" @tag="onTagSelect" /></main>
     </TaoNav>
 
-    <TaoModal v-if="!wide" :model-value="!!editor.state.value" :title="editorTitle" @update:model-value="(open: boolean) => !open && editor.close()">
+    <TaoModal v-if="!wide" fullscreen="narrow" :model-value="!!editor.state.value" :title="editorTitle" @update:model-value="(open: boolean) => !open && editor.close()">
         <NoteEditor v-if="editor.state.value" :key="editor.state.value.key" @close="editor.close()" />
     </TaoModal>
 

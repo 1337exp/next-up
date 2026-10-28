@@ -94,6 +94,7 @@ export default {
         migrated: 'Data from the previous version was carried over. The backup is untouched.',
         invalid: 'Damaged records skipped: {0}.',
         saveFailed: 'Could not save changes.',
+        quotaFull: 'Browser storage is full: changes were not saved. Download a copy in settings and delete old notes.',
         memoryOnly: 'Browser storage is unavailable: changes last only until the page is closed.',
     },
 

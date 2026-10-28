@@ -7,6 +7,7 @@ import { useNotesStore } from '@/app/notes';
 import { MODES, SIZES, useSettingsStore, type Mode, type Size } from '@/app/settings';
 import { FAR_DAYS } from '@/core/constants';
 import DataSection from './DataSection.vue';
+import { usePhone } from './useWide';
 import { i18n, LOCALE_NAMES, setLocale, useI18n, type LocaleCode } from '@/i18n';
 
 const open = defineModel<boolean>({ required: true });
@@ -23,6 +24,8 @@ const palette = computed({
 });
 
 const dev = isDevMode();
+// на телефоне настройки выезжают нижним листом, на остальных — справа
+const phone = usePhone();
 
 async function fillDemo(): Promise<void> {
     const ok = await confirm(t('settings.dev.demo')).message(t('settings.dev.demoConfirm')).ok(t('settings.dev.replace')).cancel(t('ui.button.cancel')).danger();
@@ -31,7 +34,7 @@ async function fillDemo(): Promise<void> {
 </script>
 
 <template>
-    <TaoDrawer v-model="open" :title="t('settings.title')">
+    <TaoDrawer v-model="open" :side="phone ? 'bottom' : 'right'" :title="t('settings.title')">
         <div class="settings">
             <TaoFormField :label="t('settings.language')">
                 <TaoSegmented :model-value="i18n.current.value" @update:model-value="setLocale($event as LocaleCode)">

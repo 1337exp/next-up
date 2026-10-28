@@ -18,7 +18,7 @@ const { query, exact } = useSearch();
 
         <TaoPopover placement="bottom-end">
             <template #trigger>
-                <TaoButton variant="ghost" icon="settings" :aria-label="t('search.filters')" :pressed="exact" />
+                <TaoButton variant="ghost" icon="tao-settings" :aria-label="t('search.filters')" :pressed="exact" />
             </template>
             <TaoCheckbox v-model="exact" :label="t('search.exact')" />
         </TaoPopover>

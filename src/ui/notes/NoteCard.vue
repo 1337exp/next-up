@@ -5,6 +5,7 @@ import { formatUserDate, type IsoDate } from '@/core/date';
 import { daysLeft as calcDaysLeft, isArchived, isFar, urgency } from '@/core/lifecycle';
 import { UNKNOWN_TIME, type Note } from '@/core/model';
 import { formatDateTime, repeatText, useI18n, weekdayShort } from '@/i18n';
+import SwipeRow from '@/ui/components/SwipeRow.vue';
 import MarkdownView from './MarkdownView.vue';
 
 const props = defineProps<{
@@ -45,13 +46,13 @@ const showMore = ref(false);
 const expanded = computed(() => !canCollapse.value || showMore.value);
 
 const menu = computed<TaoMenuItem[]>(() => [
-    { id: 'edit', label: t('ui.button.change'), icon: 'edit' },
+    { id: 'edit', label: t('ui.button.change'), icon: 'tao-edit' },
     { id: 'clone', label: t('ui.button.clone'), icon: 'tao-copy' },
     archived.value && left.value >= 0
-        ? { id: 'reopen', label: t('ui.button.reopen'), icon: 'undo' }
+        ? { id: 'reopen', label: t('ui.button.reopen'), icon: 'tao-undo' }
         : { id: 'done', label: t('ui.button.done'), icon: 'tao-check', disabled: archived.value },
     { type: 'separator' },
-    { id: 'remove', label: t('ui.button.delete'), icon: 'trash' },
+    { id: 'remove', label: t('ui.button.delete'), icon: 'tao-trash' },
 ]);
 
 // клик по карточке открывает редактор, но не по её собственным элементам (кнопки, ссылки, пункты списка, теги)
@@ -60,7 +61,19 @@ function onCardClick(event: MouseEvent): void {
     emit('edit', props.note);
 }
 
+// свайп влево на сенсорном экране открывает самые частые действия; правка — касанием, остальное — в меню
+const swipeOpen = ref(false);
+const SWIPE_WIDTH = 64;
+const swipeActions = computed(() => {
+    const list: { id: string; label: string; icon: string }[] = [];
+    if (!archived.value) list.push({ id: 'done', label: t('ui.button.done'), icon: 'tao-check' });
+    else if (left.value >= 0) list.push({ id: 'reopen', label: t('ui.button.reopen'), icon: 'tao-undo' });
+    list.push({ id: 'remove', label: t('ui.button.delete'), icon: 'tao-trash' });
+    return list;
+});
+
 function onMenu(id: string): void {
+    swipeOpen.value = false;
     if (id === 'edit') emit('edit', props.note);
     else if (id === 'clone') emit('clone', props.note);
     else if (id === 'done') emit('done', props.note);
@@ -87,6 +100,7 @@ function timeOf(itemId: string): string {
 
 <template>
     <TaoContextMenu :items="menu" :menu-label="t('list.menu')" @select="onMenu">
+        <SwipeRow v-model:open="swipeOpen" :width="SWIPE_WIDTH" :disabled="swipeActions.length === 0">
         <TaoCard class="note" :stripe="stripe" :stripe-tone="tone" :active="selected" :data-note-id="note.id" :shadow="false" surface="grain" @click="onCardClick">
             <div class="content">
                 <header class="header">
@@ -99,7 +113,7 @@ function timeOf(itemId: string): string {
                                     <button type="button" class="date" :title="t('ui.copy')" @click="() => copy()">{{ dateText }}</button>
                                 </template>
                             </TaoCopy>
-                            <template v-if="repeatLabel"> · <TaoIcon name="repeat" class="repeat-icon" /> {{ repeatLabel }}</template>
+                            <template v-if="repeatLabel"> · <TaoIcon name="tao-repeat" class="repeat-icon" /> {{ repeatLabel }}</template>
                         </span>
                     </div>
 
@@ -119,12 +133,38 @@ function timeOf(itemId: string): string {
                 </TaoChecklist>
             </div>
         </TaoCard>
+            <template #actions>
+                <button v-for="action in swipeActions" :key="action.id" type="button" class="swipe-button" :class="{ 'swipe-button--danger': action.id === 'remove' }" :aria-label="action.label" @click="onMenu(action.id)">
+                    <TaoIcon :name="action.icon" />
+                </button>
+            </template>
+        </SwipeRow>
     </TaoContextMenu>
 </template>
 
 <style scoped>
 .note {
     cursor: pointer;
+}
+
+.swipe-button {
+    flex: 1 1 0;
+    min-height: 0;
+    border: 0;
+    border-top: 1px solid var(--tao-color-border);
+    background: transparent;
+    color: var(--tao-color-success);
+    font: inherit;
+    font-size: var(--tao-font-size-xl);
+    cursor: pointer;
+}
+
+.swipe-button:first-child {
+    border-top: 0;
+}
+
+.swipe-button--danger {
+    color: var(--tao-color-danger);
 }
 
 .content {

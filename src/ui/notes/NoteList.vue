@@ -52,7 +52,7 @@ const runTitle = (entry: Extract<ArchiveEntry, { kind: 'run' }>): string => {
 </script>
 
 <template>
-    <EmptyState v-if="visible.length === 0" :icon="searching ? 'tao-search' : section === 'active' ? 'notes' : 'tao-folder'" :title="emptyText" />
+    <EmptyState v-if="visible.length === 0" :icon="searching ? 'tao-search' : section === 'active' ? 'tao-file' : 'tao-folder'" :title="emptyText" />
 
     <div v-else class="list">
         <section v-for="group in groups" :key="group.key" class="group">

@@ -17,7 +17,7 @@ async function emptyAll(): Promise<void> {
 </script>
 
 <template>
-    <EmptyState v-if="store.trash.length === 0" icon="trash" :title="t('trash.empty')" :hint="t('trash.hint', [TRASH_DAYS])" />
+    <EmptyState v-if="store.trash.length === 0" icon="tao-trash" :title="t('trash.empty')" :hint="t('trash.hint', [TRASH_DAYS])" />
 
     <div v-else class="trash">
         <p class="hint">{{ t('trash.hint', [TRASH_DAYS]) }}</p>
@@ -29,8 +29,8 @@ async function emptyAll(): Promise<void> {
                     <span class="due">{{ formatUserDate(note.due) }}</span>
                 </div>
                 <div class="actions">
-                    <TaoButton variant="ghost" icon="undo" :aria-label="t('trash.restore')" :title="t('trash.restore')" @click="store.restore(note.id)" />
-                    <TaoButton variant="ghost" tone="danger" icon="trash" :aria-label="t('trash.purge')" :title="t('trash.purge')" @click="store.purge(note.id)" />
+                    <TaoButton variant="ghost" icon="tao-undo" :aria-label="t('trash.restore')" :title="t('trash.restore')" @click="store.restore(note.id)" />
+                    <TaoButton variant="ghost" tone="danger" icon="tao-trash" :aria-label="t('trash.purge')" :title="t('trash.purge')" @click="store.purge(note.id)" />
                 </div>
             </div>
         </TaoCard>

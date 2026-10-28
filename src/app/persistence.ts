@@ -1,4 +1,4 @@
-import { createSavedStorage } from '@1337exp/taoux/storage';
+import { createSavedStorage, type StorageFailure } from '@1337exp/taoux/storage';
 import { exportSnapshot, upgrade } from '@/core/codec';
 import type { Note } from '@/core/model';
 
@@ -33,9 +33,11 @@ function parseJson(text: string): unknown {
     }
 }
 
+export type SaveResult = { ok: true } | { ok: false; reason: StorageFailure };
+
 export interface NotesRepository {
     load(): Loaded;
-    save(notes: readonly Note[], now: number): boolean;
+    save(notes: readonly Note[], now: number): SaveResult;
     /** Запись из другой вкладки: вызывает `onChange`. Возвращает отписку. */
     subscribe(onChange: () => void): () => void;
 }
@@ -66,13 +68,8 @@ export function createNotesRepository(key = NOTES_KEY, v1Key = V1_KEY): NotesRep
 
     return {
         load,
-        save: (notes, now) => storage.write(JSON.stringify(exportSnapshot(notes, now))),
-        subscribe(onChange) {
-            const handler = (event: StorageEvent): void => {
-                if (event.key === key) onChange();
-            };
-            window.addEventListener('storage', handler);
-            return () => window.removeEventListener('storage', handler);
-        },
+        save: (notes, now) => storage.tryWrite(JSON.stringify(exportSnapshot(notes, now))),
+        // запись из другой вкладки: сам текст не нужен, перечитываем через load() (там и разбор, и проверка версии)
+        subscribe: (onChange) => storage.subscribe(() => onChange()),
     };
 }

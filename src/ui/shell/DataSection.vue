@@ -66,7 +66,7 @@ async function removeAll(): Promise<void> {
 
         <TaoFileDrop v-model="files" accept=".json,application/json" :list="false" @change="onFiles">{{ t('data.importHint') }}</TaoFileDrop>
 
-        <TaoButton variant="ghost" tone="danger" icon="trash" class="remove-all" @click="removeAll">{{ t('data.removeAll') }}</TaoButton>
+        <TaoButton variant="ghost" tone="danger" icon="tao-trash" class="remove-all" @click="removeAll">{{ t('data.removeAll') }}</TaoButton>
     </section>
 </template>
 
