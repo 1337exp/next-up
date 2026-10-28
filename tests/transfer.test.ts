@@ -173,6 +173,19 @@ describe('стор: корзина, «удалить всё», импорт', ()
         expect(store.active).toHaveLength(1);
     });
 
+    it('replaceAll с теми же id заменяет записи, а не дублирует их и не «удаляет» заново созданные', () => {
+        const store = useNotesStore();
+        const make = (body: string) => [{ ...note({ id: 'same', due: addDays(today, 2), body }), updatedAt: Date.now() }];
+
+        store.replaceAll(make('первая'));
+        store.add(input('своя'));
+        vi.advanceTimersByTime(10);
+        store.replaceAll(make('вторая'));
+
+        expect(store.notes.filter((n) => n.id === 'same')).toHaveLength(1); // не два варианта одной записи
+        expect(store.active.map((n) => n.body)).toEqual(['вторая']); // своя убрана в корзину, same заменена
+        expect(store.trash.map((n) => n.body)).toEqual(['своя']);
+    });
     it('экспорт из стора читается обратно', () => {
         const store = useNotesStore();
         store.add(input('экспортируем'));

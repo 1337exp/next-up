@@ -17,12 +17,14 @@ export interface Settings {
     size: Size;
     /** Сворачивать содержимое заметок дальше FAR_DAYS дней. */
     hideFar: boolean;
+    /** Синхронизация между устройствами (см. docs/PLAN-v3.md §9). */
+    sync: { enabled: boolean; url: string; authorization: string };
 }
 
 export const SETTINGS_KEY = 'nextup.settings';
 
 export function defaultSettings(): Settings {
-    return { mode: 'auto', palette: '', size: 'medium', hideFar: false };
+    return { mode: 'auto', palette: '', size: 'medium', hideFar: false, sync: { enabled: false, url: '', authorization: '' } };
 }
 
 const isMode = (v: unknown): v is Mode => typeof v === 'string' && (MODES as readonly string[]).includes(v);
@@ -38,6 +40,12 @@ export function parseSettings(raw: unknown): Settings {
     if (isPalette(record.palette)) result.palette = record.palette;
     if (isSize(record.size)) result.size = record.size;
     if (typeof record.hideFar === 'boolean') result.hideFar = record.hideFar;
+    if (typeof record.sync === 'object' && record.sync !== null) {
+        const sync = record.sync as Record<string, unknown>;
+        if (typeof sync.enabled === 'boolean') result.sync.enabled = sync.enabled;
+        if (typeof sync.url === 'string') result.sync.url = sync.url;
+        if (typeof sync.authorization === 'string') result.sync.authorization = sync.authorization;
+    }
     return result;
 }
 

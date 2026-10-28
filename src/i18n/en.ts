@@ -84,6 +84,36 @@ export default {
         unreadable: 'The file could not be read.',
     },
 
+    sync: {
+        title: 'Sync',
+        enable: 'Sync between devices',
+        url: 'Document address',
+        urlHint: 'https:// (or http://localhost). The token may be part of the address. A sample server: examples/README.md.',
+        urlInvalid: 'An https:// (or http://localhost) address is required',
+        authorization: 'Authorization header',
+        authorizationHint: 'Optional: Bearer … or Basic …',
+        now: 'Sync now',
+        status: {
+            off: 'Off.',
+            idle: 'Everything is in sync.',
+            syncing: 'Syncing…',
+            offline: 'No network: will sync when it is back.',
+            error: 'Sync failed.',
+        },
+        lastAt: 'Last time: {0}.',
+        done: 'Synced',
+        error: {
+            network: 'The server is unreachable. Check the address and the network.',
+            timeout: 'The server did not answer in time.',
+            unauthorized: 'No access: check the token or the Authorization header.',
+            server: 'The server returned an error.',
+            badResponse: 'The server response does not look like Next Up data.',
+            tooLarge: 'The data is too large.',
+            newer: 'The server holds data from a newer version of the app. Update the app.',
+            conflict: 'The data on the server changes too often. Try again.',
+        },
+    },
+
     toast: { removed: 'Note deleted', done: 'Note completed', reopened: 'Back in progress', itemOn: 'Item checked', itemOff: 'Check removed', undo: 'Undo', redo: 'Redo', nothingToUndo: 'Nothing to undo', nothingToRedo: 'Nothing to redo' },
 
     command: { undo: 'Undo', redo: 'Redo', create: 'New note', search: 'Search', settings: 'Settings' },

@@ -7,6 +7,7 @@ import { useNotesStore } from '@/app/notes';
 import { MODES, SIZES, useSettingsStore, type Mode, type Size } from '@/app/settings';
 import { FAR_DAYS } from '@/core/constants';
 import DataSection from './DataSection.vue';
+import SyncSection from './SyncSection.vue';
 import { usePhone } from './useWide';
 import { i18n, LOCALE_NAMES, setLocale, useI18n, type LocaleCode } from '@/i18n';
 
@@ -59,6 +60,8 @@ async function fillDemo(): Promise<void> {
             </TaoFormField>
 
             <TaoSwitch v-model="settings.hideFar" :label="t('settings.hideFar', [FAR_DAYS])" />
+
+            <SyncSection />
 
             <DataSection />
 

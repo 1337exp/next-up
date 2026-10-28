@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { TaoButton, TaoModal, TaoNav, TaoScrollTop, TaoSplit, toast, type TaoNavItem } from '@1337exp/taoui';
 import { createCommands, historyCommands } from '@1337exp/taoux/commands';
 import { useNotesStore } from '@/app/notes';
+import { useSyncStore } from '@/app/sync';
 import { useI18n } from '@/i18n';
 import EmptyState from '@/ui/components/EmptyState.vue';
 import NoteEditor from '@/ui/editor/NoteEditor.vue';
@@ -16,6 +17,8 @@ type Section = 'active' | 'archive' | 'tags' | 'trash';
 
 const { t } = useI18n();
 const store = useNotesStore();
+// стор синхронизации живёт всё время работы приложения: сам следит за правками, сетью и возвратом на вкладку
+const sync = useSyncStore();
 const editor = useEditor();
 const wide = useWide();
 const { found, searching } = useSearch();
@@ -30,7 +33,7 @@ const items = computed<TaoNavItem[]>(() => [
     { id: 'archive', label: t('nav.archive'), icon: 'tao-folder', badge: found.value.archive.length || undefined },
     { id: 'tags', label: t('nav.tags'), icon: 'tao-tag' },
     { id: 'trash', label: t('nav.trash'), icon: 'tao-trash', badge: store.trash.length || undefined },
-    { id: 'settings', label: t('nav.settings'), icon: 'tao-settings' },
+    { id: 'settings', label: t('nav.settings'), icon: 'tao-settings', badge: sync.status === 'error' ? true : undefined },
 ]);
 
 function onNav(id: string): void {

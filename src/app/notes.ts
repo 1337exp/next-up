@@ -50,6 +50,8 @@ ull — удалась. */
 
     // --- отмена: по затронутым заметкам; флаги реактивны, сам стек нет ---
     const stack = createUndoStack();
+    /** Растёт при каждой правке пользователя (в том числе отмене): по нему синхронизация узнаёт, что пора отправлять. */
+    const revision = ref(0);
     const canUndo = ref(false);
     const canRedo = ref(false);
     const syncFlags = (): void => {
@@ -63,6 +65,7 @@ ull — удалась. */
         const entry = diffEntry(notes.value, normalized);
         if (entry) stack.record(entry, key);
         notes.value = normalized;
+        revision.value++;
         syncFlags();
         schedule();
     }
@@ -120,6 +123,7 @@ ull — удалась. */
         startup,
         canUndo,
         canRedo,
+        revision,
 
         /**
          * Создать заметку из данных редактора. При ошибке проверки список не меняется.
@@ -144,8 +148,11 @@ ull — удалась. */
         /** Заменить весь список (демо-данные). Заменённое можно вернуть отменой. */
         replaceAll(next: Note[]): void {
             const now = Date.now();
-            const gone = notes.value.filter((n) => n.deletedAt === null).map((n) => removeNote(n, now));
-            commit([...gone, ...next]);
+            // записи с теми же id, что в списке `next`, заменяются; остальные живые уходят в надгробия, старые надгробия остаются
+            // (иначе одна запись попала бы в список дважды, и при равных метках слияние отдало бы победу удалению)
+            const incoming = new Set(next.map((n) => n.id));
+            const rest = notes.value.filter((n) => !incoming.has(n.id)).map((n) => (n.deletedAt === null ? removeNote(n, now) : n));
+            commit([...rest, ...next]);
         },
 
         // --- корзина: удалённая заметка остаётся надгробием и 30 дней видна здесь ---
@@ -172,14 +179,23 @@ ull — удалась. */
             return result;
         },
 
+        /** Принять слияние с сервера: сохраняется, но это не правка пользователя (ни отмены, ни новой отправки). */
+        applyRemote: (next: Note[]) => replace(next, false),
+
         undo(): boolean {
             const next = stack.undo(notes.value, Date.now());
-            if (next) replace(next, false);
+            if (next) {
+                replace(next, false);
+                revision.value++;
+            }
             return next !== null;
         },
         redo(): boolean {
             const next = stack.redo(notes.value, Date.now());
-            if (next) replace(next, false);
+            if (next) {
+                replace(next, false);
+                revision.value++;
+            }
             return next !== null;
         },
         flush,
