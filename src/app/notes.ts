@@ -6,7 +6,7 @@ import { mergeNotes } from '@/core/merge';
 import type { Note, NoteInput } from '@/core/model';
 import { createNote, purgeNote, removeNote, restoreNote, setDone as setNoteDone, toggleItem as toggleNoteItem, updateNote, type NoteResult } from '@/core/notes';
 import { importNotes, type ImportResult, type MarkdownOptions, toMarkdown } from '@/core/transfer';
-import { diffEntry, UndoStack } from '@/core/undo';
+import { createUndoStack, diffEntry } from '@/core/undo';
 import { createTodayClock } from '@/app/clock';
 import { createNotesRepository, type LoadStatus } from '@/app/persistence';
 import type { StorageFailure } from '@1337exp/taoux/storage';
@@ -49,7 +49,7 @@ ull — удалась. */
     }
 
     // --- отмена: по затронутым заметкам; флаги реактивны, сам стек нет ---
-    const stack = new UndoStack();
+    const stack = createUndoStack();
     const canUndo = ref(false);
     const canRedo = ref(false);
     const syncFlags = (): void => {

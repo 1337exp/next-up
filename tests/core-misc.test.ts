@@ -4,7 +4,7 @@ import { mergeNotes } from '@/core/merge';
 import { cloneInput, createNote, removeNote, toggleItem, updateNote } from '@/core/notes';
 import { filterByQuery, matchesQuery } from '@/core/search';
 import { extractTags, tagIndex } from '@/core/tags';
-import { diffEntry, UndoStack } from '@/core/undo';
+import { createUndoStack, diffEntry } from '@/core/undo';
 import { item, note } from './helpers';
 
 const TODAY = '2026-10-10';
@@ -83,7 +83,7 @@ describe('отмена', () => {
   const a = note({ id: 'a', due: TODAY });
 
   it('отмена и повтор по затронутым заметкам', () => {
-    const stack = new UndoStack();
+    const stack = createUndoStack();
     const edited = { ...a, body: 'новое', updatedAt: 5 };
     const other = note({ id: 'o', due: TODAY });
     stack.record(diffEntry([a], [edited])!);
@@ -98,13 +98,13 @@ describe('отмена', () => {
   });
 
   it('отмена создания помечает заметку удалённой, а не стирает', () => {
-    const stack = new UndoStack();
+    const stack = createUndoStack();
     stack.record(diffEntry([], [a])!);
     expect(stack.undo([a], 50)![0]).toMatchObject({ deletedAt: 50, updatedAt: 50 });
   });
 
   it('новое действие сбрасывает «повтор», лимит обрезает старое', () => {
-    const stack = new UndoStack(2);
+    const stack = createUndoStack(2);
     const v = (n: number) => ({ ...a, body: String(n) });
     stack.record(diffEntry([v(0)], [v(1)])!);
     stack.record(diffEntry([v(1)], [v(2)])!);
@@ -118,7 +118,7 @@ describe('отмена', () => {
   });
 
   it('правки с одним ключом склеиваются в один шаг, с разными и после паузы — нет', () => {
-    const stack = new UndoStack();
+    const stack = createUndoStack();
     const v = (n: number) => ({ ...a, body: String(n) });
     stack.record(diffEntry([v(0)], [v(1)])!, 'k', 1000);
     stack.record(diffEntry([v(1)], [v(2)])!, 'k', 2000);
