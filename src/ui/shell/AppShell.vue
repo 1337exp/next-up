@@ -11,9 +11,10 @@ import { useEditor } from '@/ui/editor/useEditor';
 import { toggleTag, useSearch } from '@/ui/notes/useNotes';
 import ListColumn from './ListColumn.vue';
 import SettingsDrawer from './SettingsDrawer.vue';
-import { useWide } from './useWide';
+import SettingsForm from './SettingsForm.vue';
+import { usePhone, useWide } from './useWide';
 
-type Section = 'active' | 'archive' | 'tags' | 'trash';
+type Section = 'active' | 'archive' | 'tags' | 'trash' | 'settings';
 
 const { t } = useI18n();
 const store = useNotesStore();
@@ -21,6 +22,7 @@ const store = useNotesStore();
 const sync = useSyncStore();
 const editor = useEditor();
 const wide = useWide();
+const phone = usePhone();
 const { found, searching } = useSearch();
 
 const section = ref<Section>('active');
@@ -36,8 +38,15 @@ const items = computed<TaoNavItem[]>(() => [
     { id: 'settings', label: t('nav.settings'), icon: 'tao-settings', badge: sync.status === 'error' ? true : undefined },
 ]);
 
+// Настройки: на ПК и планшете — раздел рядом с меню (выезжающая справа панель была бы на другом краю широкого экрана),
+// на телефоне — нижний лист у большого пальца, где и меню.
+function openSettings(): void {
+    if (phone.value) settingsOpen.value = true;
+    else section.value = 'settings';
+}
+
 function onNav(id: string): void {
-    if (id === 'settings') settingsOpen.value = true;
+    if (id === 'settings') openSettings();
     else section.value = id as Section;
 }
 
@@ -59,7 +68,7 @@ const commands = createCommands([
     { id: 'create', label: () => t('command.create'), shortcut: 'N', run: editor.openCreate },
     ...historyCommands(store, { labels: { undo: () => t('command.undo'), redo: () => t('command.redo') } }),
     { id: 'search', label: () => t('command.search'), shortcut: '/', run: () => document.querySelector<HTMLInputElement>('[data-search] input')?.focus() },
-    { id: 'settings', label: () => t('command.settings'), shortcut: 'Mod+,', run: () => (settingsOpen.value = true) },
+    { id: 'settings', label: () => t('command.settings'), shortcut: 'Mod+,', run: openSettings },
 ]);
 
 let unbind = (): void => {};
@@ -89,8 +98,14 @@ watch(
             <TaoButton icon="tao-plus" @click="editor.openCreate()"><span class="tao-nav__action-label">{{ t('nav.create') }}</span></TaoButton>
         </template>
 
+        <!-- Настройки: страница рядом с меню (на телефоне вместо неё нижний лист) -->
+        <main v-if="section === 'settings'" class="settings-page" :class="{ scroll: wide }">
+            <h2 class="tao-heading-5">{{ t('settings.title') }}</h2>
+            <SettingsForm />
+        </main>
+
         <!-- ПК: список и редактор рядом, у каждого своя прокрутка -->
-        <div v-if="wide" class="wide">
+        <div v-else-if="wide" class="wide">
             <TaoSplit v-model="listWidth" unit="px" :min="360" :max="760" :min-end="360">
                 <template #start>
                     <div class="pane"><ListColumn :section="section" @tag="onTagSelect" /></div>
@@ -118,7 +133,7 @@ watch(
         <NoteEditor v-if="editor.state.value" :key="editor.state.value.key" @close="editor.close()" />
     </TaoModal>
 
-    <SettingsDrawer v-model="settingsOpen" />
+    <SettingsDrawer v-if="phone" v-model="settingsOpen" />
     <TaoScrollTop v-if="!wide" :aria-label="t('list.scrollTop')" />
 </template>
 
@@ -135,6 +150,25 @@ watch(
 
 .wide {
     height: 100dvh;
+}
+
+.settings-page {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: var(--tao-space-4);
+    max-width: 640px;
+    padding: var(--tao-space-4);
+}
+
+.settings-page h2 {
+    margin: 0;
+}
+
+/* на широком экране у страницы своя прокрутка, как у панелей списка и редактора */
+.settings-page.scroll {
+    height: 100dvh;
+    overflow: auto;
 }
 
 .pane {
