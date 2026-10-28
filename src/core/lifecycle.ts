@@ -104,7 +104,8 @@ export function groupRuns(archive: readonly Note[]): ArchiveEntry[] {
  *    а два устройства получают одни и те же записи. У созданных `updatedAt = 0`: любая правка пользователя сильнее.
  * 2. Живые заметки со сроком старше `RETENTION_DAYS` удаляются (повторы старше этого порога не создаются вовсе),
  *    надгробия старше `TOMBSTONE_DAYS` тоже.
- * 3. Результат отсортирован по сроку.
+ * 3. Результат отсортирован по сроку. Заметки неизменяемы: существующие возвращаются теми же объектами
+ *    (по этому отмена и поиск отличают изменённые от нетронутых).
  */
 export function normalize(notes: readonly Note[], today: IsoDate, now: number): Note[] {
     const horizon = addDays(today, -RETENTION_DAYS);
@@ -149,6 +150,5 @@ export function normalize(notes: readonly Note[], today: IsoDate, now: number): 
     const tombstoneHorizon = now - TOMBSTONE_DAYS * MS_PER_DAY;
     return [...notes, ...created]
         .filter((n) => (n.deletedAt === null ? n.due >= horizon : n.deletedAt >= tombstoneHorizon))
-        .map((n) => ({ ...n }))
         .sort(byDue);
 }

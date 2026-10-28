@@ -1,0 +1,59 @@
+import { reactive, watch } from 'vue';
+import { defineStore } from 'pinia';
+import { taoPalettes } from '@1337exp/taoui';
+import { createSavedStorage } from '@1337exp/taoux/storage';
+
+export const MODES = ['auto', 'light', 'dark'] as const;
+export type Mode = (typeof MODES)[number];
+export const SIZES = ['small', 'medium', 'large'] as const;
+export type Size = (typeof SIZES)[number];
+
+export interface Settings {
+    /** Тема: светлая, тёмная или как в системе. */
+    mode: Mode;
+    /** Имя палитры TaoUI; пустая строка — стандартная. */
+    palette: string;
+    /** Размер интерфейса: класс `tao-size-*` на `<html>`. */
+    size: Size;
+    /** Сворачивать содержимое заметок дальше FAR_DAYS дней. */
+    hideFar: boolean;
+}
+
+export const SETTINGS_KEY = 'nextup.settings';
+
+export function defaultSettings(): Settings {
+    return { mode: 'auto', palette: '', size: 'medium', hideFar: false };
+}
+
+const isMode = (v: unknown): v is Mode => typeof v === 'string' && (MODES as readonly string[]).includes(v);
+const isSize = (v: unknown): v is Size => typeof v === 'string' && (SIZES as readonly string[]).includes(v);
+const isPalette = (v: unknown): v is string => typeof v === 'string' && taoPalettes.some((p) => p.name === v);
+
+/** Терпимый разбор: повреждённое поле заменяется значением по умолчанию, остальные сохраняются. */
+export function parseSettings(raw: unknown): Settings {
+    const result = defaultSettings();
+    if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) return result;
+    const record = raw as Record<string, unknown>;
+    if (isMode(record.mode)) result.mode = record.mode;
+    if (isPalette(record.palette)) result.palette = record.palette;
+    if (isSize(record.size)) result.size = record.size;
+    if (typeof record.hideFar === 'boolean') result.hideFar = record.hideFar;
+    return result;
+}
+
+function readSaved(text: string | null): unknown {
+    try {
+        return text === null ? null : JSON.parse(text);
+    } catch {
+        return null;
+    }
+}
+
+export const useSettingsStore = defineStore('settings', () => {
+    const storage = createSavedStorage(SETTINGS_KEY);
+    const settings = reactive<Settings>(parseSettings(readSaved(storage.read())));
+
+    watch(settings, () => storage.write(JSON.stringify(settings)));
+
+    return { settings };
+});
