@@ -1,14 +1,15 @@
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
-import TaoUI from '@1337exp/taoui';
+import TaoUI, { localeRu } from '@1337exp/taoui';
 
 import '@1337exp/taoui/styles.css';
-import '@/assets/fontello/css/fontello.css';
-import '@/assets/fontello/css/animation.css';
+import '@1337exp/taoui/palettes.css';
 import '@/assets/font/roboto.css';
-import '@/styles/app.css';
-import '@/styles/theme.css';
+import '@/styles.css';
 
 import App from '@/App.vue';
 
-createApp(App).use(createPinia()).use(TaoUI).mount('#app');
+// Класс размера и плотности на <html>: их читают и всплывающие панели, телепортированные в body.
+document.documentElement.classList.add('tao-size-medium', 'tao-density-auto');
+
+createApp(App).use(createPinia()).use(TaoUI, { locale: localeRu }).mount('#app');
