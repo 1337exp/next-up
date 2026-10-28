@@ -156,9 +156,16 @@ watch(
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: var(--tao-space-4);
-    max-width: 640px;
-    padding: var(--tao-space-4);
+    gap: var(--tao-space-5);
+    /* поля формы не должны тянуться через весь экран: колонка в удобную для чтения ширину, с воздухом у меню */
+    max-width: 560px;
+    padding: var(--tao-space-8);
+}
+
+@media (max-width: 599px) {
+    .settings-page {
+        padding: var(--tao-space-4);
+    }
 }
 
 .settings-page h2 {

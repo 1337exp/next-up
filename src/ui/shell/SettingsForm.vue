@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { confirm, TaoButton, TaoFormField, TaoSegmented, TaoSegmentedOption, TaoSelect, TaoSwitch, taoPalettes } from '@1337exp/taoui';
+import { confirm, TaoButton, TaoDivider, TaoFormField, TaoSegmented, TaoSegmentedOption, TaoSelect, TaoSwitch, taoPalettes } from '@1337exp/taoui';
 import { buildDemoNotes } from '@/app/demo';
 import { isDevMode } from '@/app/dev';
 import { useNotesStore } from '@/app/notes';
@@ -56,9 +56,15 @@ async function fillDemo(): Promise<void> {
 
         <TaoSwitch v-model="settings.hideFar" :label="t('settings.hideFar', [FAR_DAYS])" />
 
+        <TaoDivider />
+
         <SyncSection />
 
+        <TaoDivider />
+
         <DataSection />
+
+        <TaoDivider v-if="dev" />
 
         <section v-if="dev" class="dev">
             <h3 class="tao-heading-6">{{ t('settings.dev.title') }}</h3>
