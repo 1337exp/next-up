@@ -4,7 +4,7 @@ import { TaoButton, TaoCard, TaoChecklist, TaoContextMenu, TaoCopy, TaoDropdownM
 import { formatUserDate, type IsoDate } from '@/core/date';
 import { daysLeft as calcDaysLeft, isArchived, isFar, urgency } from '@/core/lifecycle';
 import { UNKNOWN_TIME, type Note } from '@/core/model';
-import { formatDateTime, useI18n, weekdayShort } from '@/i18n';
+import { formatDateTime, repeatText, useI18n, weekdayShort } from '@/i18n';
 import MarkdownView from './MarkdownView.vue';
 
 const props = defineProps<{
@@ -38,11 +38,7 @@ const stripe = computed(() => (!archived.value && (level.value === 'today' || le
 
 const dateText = computed(() => formatUserDate(props.note.due));
 
-const repeatLabel = computed(() => {
-    const repeat = props.note.repeat;
-    if (!repeat) return '';
-    return repeat.every === 1 ? t(`repeat.one.${repeat.unit}`) : t(`repeat.many.${repeat.unit}`, [repeat.every]);
-});
+const repeatLabel = computed(() => (props.note.repeat ? repeatText(props.note.repeat) : ''));
 
 const canCollapse = computed(() => !!props.hideFar && isFar(left.value));
 const showMore = ref(false);

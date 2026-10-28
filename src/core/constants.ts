@@ -12,3 +12,5 @@ export const TOMBSTONE_DAYS = 90;
 export const RUN_MIN = 3;
 
 export const MS_PER_DAY = 86_400_000;
+/** Насколько «состаривается» удаление при «удалить навсегда»: заметка пропадает из корзины, оставшись надгробием. */
+export const PURGED_AGE_MS = TRASH_DAYS * MS_PER_DAY + 1;

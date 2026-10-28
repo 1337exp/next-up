@@ -28,6 +28,11 @@ export function splitNotes(notes: readonly Note[], today: IsoDate): { active: No
     };
 }
 
+/** Удалена навсегда: в корзине уже не видна, остаётся только надгробием. */
+export function isPurged(note: Pick<Note, 'deletedAt'>, now: number): boolean {
+    return note.deletedAt !== null && now - note.deletedAt >= TRASH_DAYS * MS_PER_DAY;
+}
+
 /** Корзина: удалённые не больше `TRASH_DAYS` дней назад, свежие сверху. */
 export function trashed(notes: readonly Note[], now: number): Note[] {
     return notes

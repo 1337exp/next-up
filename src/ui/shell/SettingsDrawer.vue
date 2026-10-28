@@ -6,6 +6,7 @@ import { isDevMode } from '@/app/dev';
 import { useNotesStore } from '@/app/notes';
 import { MODES, SIZES, useSettingsStore, type Mode, type Size } from '@/app/settings';
 import { FAR_DAYS } from '@/core/constants';
+import DataSection from './DataSection.vue';
 import { i18n, LOCALE_NAMES, setLocale, useI18n, type LocaleCode } from '@/i18n';
 
 const open = defineModel<boolean>({ required: true });
@@ -55,6 +56,8 @@ async function fillDemo(): Promise<void> {
             </TaoFormField>
 
             <TaoSwitch v-model="settings.hideFar" :label="t('settings.hideFar', [FAR_DAYS])" />
+
+            <DataSection />
 
             <section v-if="dev" class="dev">
                 <h3 class="tao-heading-6">{{ t('settings.dev.title') }}</h3>

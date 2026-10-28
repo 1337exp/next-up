@@ -1,9 +1,11 @@
 import { computed, onScopeDispose, ref, watch } from 'vue';
 import { defineStore } from 'pinia';
-import { normalize, splitNotes } from '@/core/lifecycle';
+import { exportSnapshot } from '@/core/codec';
+import { isPurged, normalize, splitNotes, trashed } from '@/core/lifecycle';
 import { mergeNotes } from '@/core/merge';
 import type { Note, NoteInput } from '@/core/model';
-import { createNote, removeNote, setDone as setNoteDone, toggleItem as toggleNoteItem, updateNote, type NoteResult } from '@/core/notes';
+import { createNote, purgeNote, removeNote, restoreNote, setDone as setNoteDone, toggleItem as toggleNoteItem, updateNote, type NoteResult } from '@/core/notes';
+import { importNotes, type ImportResult, type MarkdownOptions, toMarkdown } from '@/core/transfer';
 import { diffEntry, UndoStack } from '@/core/undo';
 import { createTodayClock } from '@/app/clock';
 import { createNotesRepository, type LoadStatus } from '@/app/persistence';
@@ -140,6 +142,30 @@ export const useNotesStore = defineStore('notes', () => {
             const now = Date.now();
             const gone = notes.value.filter((n) => n.deletedAt === null).map((n) => removeNote(n, now));
             commit([...gone, ...next]);
+        },
+
+        // --- корзина: удалённая заметка остаётся надгробием и 30 дней видна здесь ---
+        trash: computed(() => trashed(notes.value, Date.now())),
+        restore: (id: string) => update(id, (note) => restoreNote(note, Date.now())),
+        /** «Удалить навсегда»: из корзины заметка уходит, а надгробие остаётся для синхронизации. */
+        purge: (id: string) => update(id, (note) => purgeNote(note, Date.now())),
+        emptyTrash(): void {
+            const now = Date.now();
+            commit(notes.value.map((note) => (note.deletedAt !== null && !isPurged(note, now) ? purgeNote(note, now) : note)));
+        },
+        removeAll(): void {
+            const now = Date.now();
+            commit(notes.value.map((note) => (note.deletedAt === null ? removeNote(note, now) : note)));
+        },
+
+        // --- обмен данными ---
+        exportJson: (): string => JSON.stringify(exportSnapshot(notes.value, Date.now()), null, 2),
+        exportMarkdown: (options?: MarkdownOptions): string => toMarkdown(notes.value, options),
+        /** Импорт из текста файла любой известной версии. Список меняется только при успехе; отменяется одним шагом. */
+        importText(text: string): ImportResult {
+            const result = importNotes(text, notes.value, today.value, Date.now());
+            if (result.ok) commit(result.notes);
+            return result;
         },
 
         undo(): boolean {

@@ -11,7 +11,7 @@ import ListColumn from './ListColumn.vue';
 import SettingsDrawer from './SettingsDrawer.vue';
 import { useWide } from './useWide';
 
-type Section = 'active' | 'archive' | 'tags';
+type Section = 'active' | 'archive' | 'tags' | 'trash';
 
 const { t } = useI18n();
 const store = useNotesStore();
@@ -28,6 +28,7 @@ const items = computed<TaoNavItem[]>(() => [
     { id: 'active', label: t('nav.active'), icon: 'notes', badge: found.value.active.length || undefined },
     { id: 'archive', label: t('nav.archive'), icon: 'tao-folder', badge: found.value.archive.length || undefined },
     { id: 'tags', label: t('nav.tags'), icon: 'tag' },
+    { id: 'trash', label: t('nav.trash'), icon: 'trash', badge: store.trash.length || undefined },
     { id: 'settings', label: t('nav.settings'), icon: 'settings' },
 ]);
 

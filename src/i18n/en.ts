@@ -11,7 +11,7 @@ export default {
         copied: 'Copied',
     },
 
-    nav: { label: 'Sections', active: 'Active', archive: 'Archive', tags: 'Tags', settings: 'Settings', create: 'New note', more: 'More' },
+    nav: { label: 'Sections', active: 'Active', archive: 'Archive', tags: 'Tags', trash: 'Trash', settings: 'Settings', create: 'New note', more: 'More' },
 
     list: {
         emptyActive: 'No active notes',
@@ -56,6 +56,31 @@ export default {
             unit: { day: 'days', week: 'weeks', month: 'months', year: 'years' },
         },
         error: { badDate: 'Invalid date', empty: 'Enter text or add at least one item', tooOld: 'The due date cannot be earlier than {0} days ago', badRepeat: 'The repeat period is 1 to {0}' },
+    },
+
+    trash: { empty: 'The trash is empty', hint: 'Deleted notes are kept here for {0} days.', restore: 'Restore', purge: 'Delete forever', emptyAll: 'Empty the trash' },
+
+    data: {
+        title: 'Data',
+        exportJson: 'Download JSON',
+        exportMarkdown: 'Download Markdown',
+        importHint: 'Import: a JSON file from this app or its earlier version. Drop it here or click',
+        removeAll: 'Delete everything',
+        removeAllMessage: 'All notes go to the trash for {0} days. The deletion can be undone.',
+        removeAllDone: 'All notes deleted',
+    },
+
+    import: {
+        done: 'Import finished. Added: {0}, updated: {1}, skipped: {2}.',
+        upgraded: 'A version {0} file was upgraded to version {1}.',
+        upgradedLegacy: 'A file from the first app was converted to version {0}.',
+        invalid: 'Damaged records: {0}.',
+        expired: 'Older than a year, not imported: {0}.',
+        notJson: 'The file does not look like JSON.',
+        unknown: 'The file was not recognised: it must be JSON saved by this app or its earlier version.',
+        newer: 'The file was made by a newer version of the app (version {0}). Update the app.',
+        tooLarge: 'The file is too large (over {0} MB).',
+        unreadable: 'The file could not be read.',
     },
 
     toast: { removed: 'Note deleted', done: 'Note completed', reopened: 'Back in progress', itemOn: 'Item checked', itemOff: 'Check removed', undo: 'Undo', redo: 'Redo', nothingToUndo: 'Nothing to undo', nothingToRedo: 'Nothing to redo' },

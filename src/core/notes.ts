@@ -1,4 +1,4 @@
-import { RETENTION_DAYS } from './constants';
+import { PURGED_AGE_MS, RETENTION_DAYS } from './constants';
 import { diffDays, isValidIsoDate, type IsoDate } from './date';
 import { newId } from './id';
 import { MAX_REPEAT_EVERY, isRepeatUnit, type Item, type Note, type NoteInput, type RepeatRule } from './model';
@@ -86,6 +86,14 @@ export function toggleItem(note: Note, itemId: string, now: number): Note {
 
 export function removeNote(note: Note, now: number): Note {
     return { ...note, deletedAt: now, updatedAt: now };
+}
+
+/**
+ * «Удалить навсегда»: заметка уходит из корзины, но остаётся надгробием, чтобы удаление дошло до других устройств
+ * (само надгробие уберёт чистка через TOMBSTONE_DAYS). Для этого удаление «состаривается» за пределы срока корзины.
+ */
+export function purgeNote(note: Note, now: number): Note {
+    return { ...note, deletedAt: now - PURGED_AGE_MS, updatedAt: now };
 }
 
 export function restoreNote(note: Note, now: number): Note {

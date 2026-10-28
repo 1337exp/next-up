@@ -22,6 +22,12 @@ export function initLocale(): void {
     setTaoLocale(code === 'ru' ? localeRu : localeEn);
 }
 
+/** Подпись правила повтора на текущем языке: «Каждый день», «Каждые 3 нед.». */
+export function repeatText(repeat: { every: number; unit: 'day' | 'week' | 'month' | 'year' }): string {
+    const code = i18n.current.value;
+    return repeat.every === 1 ? i18n.translate(code, `repeat.one.${repeat.unit}`) : i18n.translate(code, `repeat.many.${repeat.unit}`, [repeat.every]);
+}
+
 function capitalize(text: string): string {
     return text.charAt(0).toLocaleUpperCase() + text.slice(1);
 }

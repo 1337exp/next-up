@@ -2,15 +2,17 @@
 import NoteList from '@/ui/notes/NoteList.vue';
 import SearchBar from '@/ui/notes/SearchBar.vue';
 import TagsView from '@/ui/notes/TagsView.vue';
+import TrashView from '@/ui/notes/TrashView.vue';
 
-defineProps<{ section: 'active' | 'archive' | 'tags' }>();
+defineProps<{ section: 'active' | 'archive' | 'tags' | 'trash' }>();
 defineEmits<{ tag: [tag: string] }>();
 </script>
 
 <template>
     <div class="column">
-        <SearchBar class="search" />
-        <TagsView v-if="section === 'tags'" @select="$emit('tag', $event)" />
+        <SearchBar v-if="section !== 'trash'" class="search" />
+        <TrashView v-if="section === 'trash'" />
+        <TagsView v-else-if="section === 'tags'" @select="$emit('tag', $event)" />
         <NoteList v-else :section="section" />
     </div>
 </template>
