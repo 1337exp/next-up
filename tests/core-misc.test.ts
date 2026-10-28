@@ -117,6 +117,19 @@ describe('отмена', () => {
     expect(stack.canRedo).toBe(false);
   });
 
+  it('правки с одним ключом склеиваются в один шаг, с разными и после паузы — нет', () => {
+    const stack = new UndoStack();
+    const v = (n: number) => ({ ...a, body: String(n) });
+    stack.record(diffEntry([v(0)], [v(1)])!, 'k', 1000);
+    stack.record(diffEntry([v(1)], [v(2)])!, 'k', 2000);
+    stack.record(diffEntry([v(2)], [v(3)])!, 'other', 2500);
+    stack.record(diffEntry([v(3)], [v(4)])!, 'other', 9000);
+
+    expect(stack.undo([v(4)], 1)![0]!.body).toBe('3');
+    expect(stack.undo([v(3)], 1)![0]!.body).toBe('2');
+    expect(stack.undo([v(2)], 1)![0]!.body).toBe('0'); // первые две правки — один шаг
+    expect(stack.canUndo).toBe(false);
+  });
   it('без изменений записи нет', () => {
     expect(diffEntry([a], [a])).toBeNull();
   });

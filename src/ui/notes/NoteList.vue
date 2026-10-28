@@ -6,6 +6,7 @@ import { useSettingsStore } from '@/app/settings';
 import { isoParts, formatUserDate } from '@/core/date';
 import { groupByMonth, groupRuns, type ArchiveEntry } from '@/core/lifecycle';
 import { monthName, useI18n } from '@/i18n';
+import { useEditor } from '@/ui/editor/useEditor';
 import NoteCard from './NoteCard.vue';
 import { toggleTag, useNoteActions, useSearch } from './useNotes';
 
@@ -16,6 +17,7 @@ const store = useNotesStore();
 const { settings } = useSettingsStore();
 const { found, searching } = useSearch();
 const actions = useNoteActions();
+const editor = useEditor();
 
 const visible = computed(() => found.value[props.section]);
 const emptyText = computed(() => (searching.value ? t('list.searchEmpty') : props.section === 'active' ? t('list.emptyActive') : t('list.emptyArchive')));
@@ -61,6 +63,9 @@ const runTitle = (entry: Extract<ArchiveEntry, { kind: 'run' }>): string => {
                     :note="entry.note"
                     :today="store.today"
                     :hide-far="settings.hideFar"
+                    :selected="editor.state.value?.activeId === entry.note.id"
+                    @edit="editor.openEdit"
+                    @clone="editor.openClone"
                     @done="actions.done"
                     @reopen="actions.reopen"
                     @remove="actions.remove"
@@ -82,6 +87,9 @@ const runTitle = (entry: Extract<ArchiveEntry, { kind: 'run' }>): string => {
                             :note="note"
                             :today="store.today"
                             :hide-far="settings.hideFar"
+                            :selected="editor.state.value?.activeId === note.id"
+                            @edit="editor.openEdit"
+                            @clone="editor.openClone"
                             @done="actions.done"
                             @reopen="actions.reopen"
                             @remove="actions.remove"

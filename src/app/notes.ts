@@ -52,10 +52,10 @@ export const useNotesStore = defineStore('notes', () => {
     };
 
     /** Применить изменение пользователя: пересчитать, запомнить для отмены, сохранить. */
-    function commit(next: Note[]): void {
+    function commit(next: Note[], key?: string): void {
         const normalized = normalize(next, today.value, Date.now());
         const entry = diffEntry(notes.value, normalized);
-        if (entry) stack.record(entry);
+        if (entry) stack.record(entry, key);
         notes.value = normalized;
         syncFlags();
         schedule();
@@ -73,8 +73,8 @@ export const useNotesStore = defineStore('notes', () => {
         schedule();
     }
 
-    function update(id: string, change: (note: Note) => Note): void {
-        commit(notes.value.map((note) => (note.id === id ? change(note) : note)));
+    function update(id: string, change: (note: Note) => Note, key?: string): void {
+        commit(notes.value.map((note) => (note.id === id ? change(note) : note)), key);
     }
 
     // сменился день: догоняем повторы и переносим вчерашнее в архив (это не действие пользователя, отмены нет)
@@ -115,18 +115,21 @@ export const useNotesStore = defineStore('notes', () => {
         canUndo,
         canRedo,
 
-        /** Создать заметку из данных редактора. При ошибке проверки список не меняется. */
-        add(input: NoteInput): NoteResult {
-            const result = createNote(input, today.value, Date.now());
-            if (result.ok) commit([...notes.value, result.note]);
+        /**
+         * Создать заметку из данных редактора. При ошибке проверки список не меняется.
+         * Редактор выдаёт `id` заранее: правки сразу после создания склеиваются с ним в один шаг отмены.
+         */
+        add(input: NoteInput, id?: string): NoteResult {
+            const result = createNote(input, today.value, Date.now(), id);
+            if (result.ok) commit([...notes.value, result.note], `edit:${result.note.id}`);
             return result;
         },
-        /** Изменить заметку. `notFound` — её успела убрать чистка. */
+        /** Изменить заметку. `notFound` — её успела убрать чистка. Частые правки одной заметки склеиваются при отмене. */
         edit(id: string, input: NoteInput): NoteResult | { ok: false; error: 'notFound' } {
-            const current = notes.value.find((note) => note.id === id);
+            const current = notes.value.find((note) => note.id === id && note.deletedAt === null);
             if (!current) return { ok: false, error: 'notFound' };
             const result = updateNote(current, input, today.value, Date.now());
-            if (result.ok) update(id, () => result.note);
+            if (result.ok) update(id, () => result.note, `edit:${id}`);
             return result;
         },
         setDone: (id: string, done: boolean) => update(id, (note) => setNoteDone(note, done, Date.now())),

@@ -15,7 +15,7 @@ function validRepeat(rule: RepeatRule | null): boolean {
 }
 
 /** Правила редактора: дата обязательна; нужен текст или хотя бы один пункт; срок не старше RETENTION_DAYS. */
-function validate(input: NoteInput, today: IsoDate): NoteError | null {
+export function validateInput(input: NoteInput, today: IsoDate): NoteError | null {
     if (!isValidIsoDate(input.due)) return 'badDate';
     if (input.body.trim() === '' && cleanItems(input.items).length === 0) return 'empty';
     if (diffDays(today, input.due) < -RETENTION_DAYS) return 'tooOld';
@@ -24,7 +24,7 @@ function validate(input: NoteInput, today: IsoDate): NoteError | null {
 }
 
 export function createNote(input: NoteInput, today: IsoDate, now: number, id: string = newId()): NoteResult {
-    const error = validate(input, today);
+    const error = validateInput(input, today);
     if (error) return { ok: false, error };
 
     return {
@@ -45,7 +45,7 @@ export function createNote(input: NoteInput, today: IsoDate, now: number, id: st
 
 /** Изменение заметки. Если сменились срок или правило повтора, серия начинается заново от новой даты. */
 export function updateNote(note: Note, input: NoteInput, today: IsoDate, now: number): NoteResult {
-    const error = validate(input, today);
+    const error = validateInput(input, today);
     if (error) return { ok: false, error };
 
     const sameRule = note.repeat?.every === input.repeat?.every && note.repeat?.unit === input.repeat?.unit;

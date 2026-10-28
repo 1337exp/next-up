@@ -36,6 +36,28 @@ export default {
         many: { day: 'Every {0} days', week: 'Every {0} weeks', month: 'Every {0} months', year: 'Every {0} years' },
     },
 
+    editor: {
+        title: { create: 'New note', edit: 'Note', clone: 'Cloning' },
+        done: 'Done',
+        empty: 'Pick a note or create a new one',
+        due: { label: 'Due', today: 'Today', prev: 'Previous day', next: 'Next day', add: 'Add days: {0}' },
+        body: { label: 'Text', placeholder: 'Write the note', hint: 'Markdown, #tags and links are supported' },
+        items: { label: 'List', placeholder: 'Item', add: 'Add item', remove: 'Remove item' },
+        repeat: {
+            label: 'Repeat',
+            none: 'Do not repeat',
+            day: 'Every day',
+            week: 'Every week',
+            month: 'Every month',
+            half: 'Every six months',
+            year: 'Every year',
+            custom: 'Custom period…',
+            every: 'Every',
+            unit: { day: 'days', week: 'weeks', month: 'months', year: 'years' },
+        },
+        error: { badDate: 'Invalid date', empty: 'Enter text or add at least one item', tooOld: 'The due date cannot be earlier than {0} days ago', badRepeat: 'The repeat period is 1 to {0}' },
+    },
+
     toast: { removed: 'Note deleted', done: 'Note completed', reopened: 'Back in progress', itemOn: 'Item checked', itemOff: 'Check removed', undo: 'Undo', redo: 'Redo', nothingToUndo: 'Nothing to undo', nothingToRedo: 'Nothing to redo' },
 
     command: { undo: 'Undo', redo: 'Redo', create: 'New note', search: 'Search', settings: 'Settings' },

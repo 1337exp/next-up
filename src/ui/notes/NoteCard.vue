@@ -12,9 +12,13 @@ const props = defineProps<{
     today: IsoDate;
     /** Сворачивать содержимое заметок дальше FAR_DAYS дней (настройка). */
     hideFar?: boolean;
+    /** Открыта в редакторе. */
+    selected?: boolean;
 }>();
 
 const emit = defineEmits<{
+    edit: [note: Note];
+    clone: [note: Note];
     done: [note: Note];
     reopen: [note: Note];
     remove: [note: Note];
@@ -45,6 +49,8 @@ const showMore = ref(false);
 const expanded = computed(() => !canCollapse.value || showMore.value);
 
 const menu = computed<TaoMenuItem[]>(() => [
+    { id: 'edit', label: t('ui.button.change'), icon: 'edit' },
+    { id: 'clone', label: t('ui.button.clone'), icon: 'tao-copy' },
     archived.value && left.value >= 0
         ? { id: 'reopen', label: t('ui.button.reopen'), icon: 'undo' }
         : { id: 'done', label: t('ui.button.done'), icon: 'tao-check', disabled: archived.value },
@@ -52,8 +58,16 @@ const menu = computed<TaoMenuItem[]>(() => [
     { id: 'remove', label: t('ui.button.delete'), icon: 'trash' },
 ]);
 
+// клик по карточке открывает редактор, но не по её собственным элементам (кнопки, ссылки, пункты списка, теги)
+function onCardClick(event: MouseEvent): void {
+    if ((event.target as Element).closest('a, button, input, label, [role="menu"], .tao-checklist')) return;
+    emit('edit', props.note);
+}
+
 function onMenu(id: string): void {
-    if (id === 'done') emit('done', props.note);
+    if (id === 'edit') emit('edit', props.note);
+    else if (id === 'clone') emit('clone', props.note);
+    else if (id === 'done') emit('done', props.note);
     else if (id === 'reopen') emit('reopen', props.note);
     else if (id === 'remove') emit('remove', props.note);
 }
@@ -77,7 +91,7 @@ function timeOf(itemId: string): string {
 
 <template>
     <TaoContextMenu :items="menu" :menu-label="t('list.menu')" @select="onMenu">
-        <TaoCard class="note" :stripe="stripe" :stripe-tone="tone" :data-note-id="note.id" :shadow="false" surface="grain">
+        <TaoCard class="note" :stripe="stripe" :stripe-tone="tone" :active="selected" :data-note-id="note.id" :shadow="false" surface="grain" @click="onCardClick">
             <div class="content">
                 <header class="header">
                     <div class="meta">
@@ -113,6 +127,10 @@ function timeOf(itemId: string): string {
 </template>
 
 <style scoped>
+.note {
+    cursor: pointer;
+}
+
 .content {
     display: flex;
     flex-direction: column;
