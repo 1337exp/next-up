@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { TaoButton, TaoDivider, TaoEmpty } from '@1337exp/taoui';
+import { TaoButton, TaoDivider } from '@1337exp/taoui';
 import { useNotesStore } from '@/app/notes';
 import { useSettingsStore } from '@/app/settings';
 import { isoParts, formatUserDate } from '@/core/date';
 import { groupByMonth, groupRuns, type ArchiveEntry } from '@/core/lifecycle';
 import { monthName, useI18n } from '@/i18n';
 import { useEditor } from '@/ui/editor/useEditor';
+import EmptyState from '@/ui/components/EmptyState.vue';
 import NoteCard from './NoteCard.vue';
 import { toggleTag, useNoteActions, useSearch } from './useNotes';
 
@@ -51,7 +52,7 @@ const runTitle = (entry: Extract<ArchiveEntry, { kind: 'run' }>): string => {
 </script>
 
 <template>
-    <TaoEmpty v-if="visible.length === 0" class="empty" :title="emptyText" />
+    <EmptyState v-if="visible.length === 0" :icon="searching ? 'tao-search' : section === 'active' ? 'notes' : 'tao-folder'" :title="emptyText" />
 
     <div v-else class="list">
         <section v-for="group in groups" :key="group.key" class="group">
@@ -110,10 +111,6 @@ const runTitle = (entry: Extract<ArchiveEntry, { kind: 'run' }>): string => {
     display: flex;
     flex-direction: column;
     gap: var(--tao-space-3);
-}
-
-.empty {
-    margin-top: var(--tao-space-6);
 }
 
 .run-line {

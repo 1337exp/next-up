@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { TaoButton, TaoEmpty, TaoModal, TaoNav, TaoScrollTop, TaoSplit, toast, type TaoNavItem } from '@1337exp/taoui';
+import { TaoButton, TaoModal, TaoNav, TaoScrollTop, TaoSplit, toast, type TaoNavItem } from '@1337exp/taoui';
 import { createCommands, historyCommands } from '@1337exp/taoux/commands';
 import { useNotesStore } from '@/app/notes';
 import { useI18n } from '@/i18n';
+import EmptyState from '@/ui/components/EmptyState.vue';
 import NoteEditor from '@/ui/editor/NoteEditor.vue';
 import { useEditor } from '@/ui/editor/useEditor';
 import { toggleTag, useSearch } from '@/ui/notes/useNotes';
@@ -100,7 +101,7 @@ watch(
                             </header>
                             <NoteEditor :key="editor.state.value.key" @close="editor.close()" />
                         </section>
-                        <TaoEmpty v-else class="editor-empty" :title="t('editor.empty')" />
+                        <EmptyState v-else icon="edit" :title="t('editor.empty')" />
                     </div>
                 </template>
             </TaoSplit>
@@ -120,7 +121,8 @@ watch(
 
 <style scoped>
 .nav {
-    min-height: 100%;
+    /* на короткой странице (пустой раздел) нижняя панель остаётся внизу окна */
+    min-height: 100dvh;
 }
 
 .narrow {
@@ -157,7 +159,4 @@ watch(
     margin: 0;
 }
 
-.editor-empty {
-    margin-top: var(--tao-space-8);
-}
 </style>

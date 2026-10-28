@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { TaoEmpty, TaoTag } from '@1337exp/taoui';
+import { TaoTag } from '@1337exp/taoui';
 import { useNotesStore } from '@/app/notes';
 import { tagIndex } from '@/core/tags';
 import { useI18n } from '@/i18n';
+import EmptyState from '@/ui/components/EmptyState.vue';
 
 const emit = defineEmits<{ select: [tag: string] }>();
 
@@ -13,7 +14,7 @@ const tags = computed(() => tagIndex(store.notes.filter((note) => note.deletedAt
 </script>
 
 <template>
-    <TaoEmpty v-if="tags.length === 0" :title="t('list.tagsEmpty')" />
+    <EmptyState v-if="tags.length === 0" icon="tag" :title="t('list.tagsEmpty')" :hint="t('list.tagsEmptyHint')" />
     <ul v-else class="tags">
         <li v-for="tag in tags" :key="tag.name.toLocaleLowerCase()">
             <TaoTag tone="neutral" clickable role="button" tabindex="0" @click="emit('select', tag.name)" @keydown.enter="emit('select', tag.name)">#{{ tag.name }} · {{ tag.count }}</TaoTag>

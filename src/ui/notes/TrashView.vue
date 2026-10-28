@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { confirm, TaoButton, TaoCard, TaoEmpty } from '@1337exp/taoui';
+import { confirm, TaoButton, TaoCard } from '@1337exp/taoui';
 import { useNotesStore } from '@/app/notes';
 import { TRASH_DAYS } from '@/core/constants';
 import { formatUserDate } from '@/core/date';
 import { noteTitle } from '@/core/notes';
 import { useI18n } from '@/i18n';
+import EmptyState from '@/ui/components/EmptyState.vue';
 
 const { t } = useI18n();
 const store = useNotesStore();
@@ -16,7 +17,7 @@ async function emptyAll(): Promise<void> {
 </script>
 
 <template>
-    <TaoEmpty v-if="store.trash.length === 0" :title="t('trash.empty')" />
+    <EmptyState v-if="store.trash.length === 0" icon="trash" :title="t('trash.empty')" :hint="t('trash.hint', [TRASH_DAYS])" />
 
     <div v-else class="trash">
         <p class="hint">{{ t('trash.hint', [TRASH_DAYS]) }}</p>
