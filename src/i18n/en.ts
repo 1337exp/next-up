@@ -116,6 +116,8 @@ export default {
 
     toast: { removed: 'Note deleted', done: 'Note completed', reopened: 'Back in progress', itemOn: 'Item checked', itemOff: 'Check removed', undo: 'Undo', redo: 'Redo', nothingToUndo: 'Nothing to undo', nothingToRedo: 'Nothing to redo' },
 
+    notify: { today: 'Notes due today: {0}' },
+
     command: { undo: 'Undo', redo: 'Redo', create: 'New note', search: 'Search', settings: 'Settings' },
 
     storage: {
@@ -135,6 +137,12 @@ export default {
         palette: { title: 'Palette', default: 'Default' },
         size: { title: 'Interface size', small: 'Small', medium: 'Medium', large: 'Large' },
         hideFar: 'Collapse notes further than {0} days',
-        dev: { replace: 'Replace', title: 'Development', demo: 'Demo data', demoConfirm: 'Replace all notes with demo data?' },
+        notify: {
+            label: 'Notify about notes due today',
+            hint: 'Once a day, when the date changes, if the tab is in the background.',
+            denied: 'Notifications are blocked in the browser settings.',
+            unsupported: 'This browser does not support notifications (https or localhost is required).',
+        },
+        dev: { notice: 'Test notification', replace: 'Replace', title: 'Development', demo: 'Demo data', demoConfirm: 'Replace all notes with demo data?' },
     },
 } satisfies DeepStrings<typeof ru>;

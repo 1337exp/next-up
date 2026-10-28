@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { confirm, TaoButton, TaoDivider, TaoFormField, TaoSegmented, TaoSegmentedOption, TaoSelect, TaoSwitch, taoPalettes } from '@1337exp/taoui';
 import { buildDemoNotes } from '@/app/demo';
+import { notifySupport, requestNotifications, showTodayNotice, type NotifySupport } from '@/app/notify';
 import { isDevMode } from '@/app/dev';
 import { useNotesStore } from '@/app/notes';
 import { MODES, SIZES, useSettingsStore, type Mode, type Size } from '@/app/settings';
@@ -23,6 +24,22 @@ const palette = computed({
 });
 
 const dev = isDevMode();
+
+// --- оповещения: разрешение просим по клику на переключатель, иначе браузер его не покажет ---
+const support = ref<NotifySupport>(notifySupport());
+const asking = ref(false);
+const notifyHint = computed(() => (support.value === 'unsupported' ? t('settings.notify.unsupported') : support.value === 'denied' ? t('settings.notify.denied') : t('settings.notify.hint')));
+
+async function onNotify(on: boolean): Promise<void> {
+    if (!on) {
+        settings.notifyToday = false;
+        return;
+    }
+    asking.value = true;
+    support.value = await requestNotifications();
+    asking.value = false;
+    settings.notifyToday = support.value === 'granted';
+}
 
 async function fillDemo(): Promise<void> {
     const ok = await confirm(t('settings.dev.demo')).message(t('settings.dev.demoConfirm')).ok(t('settings.dev.replace')).cancel(t('ui.button.cancel')).danger();
@@ -58,6 +75,11 @@ async function fillDemo(): Promise<void> {
 
         <TaoDivider />
 
+        <div class="notify">
+            <TaoSwitch :model-value="settings.notifyToday" :label="t('settings.notify.label')" :loading="asking" :disabled="support === 'unsupported' || support === 'denied'" @update:model-value="onNotify" />
+            <p class="hint">{{ notifyHint }}</p>
+        </div>
+
         <SyncSection />
 
         <TaoDivider />
@@ -68,7 +90,10 @@ async function fillDemo(): Promise<void> {
 
         <section v-if="dev" class="dev">
             <h3 class="tao-heading-6">{{ t('settings.dev.title') }}</h3>
-            <TaoButton variant="secondary" @click="fillDemo">{{ t('settings.dev.demo') }}</TaoButton>
+            <div class="dev-buttons">
+                <TaoButton variant="secondary" @click="fillDemo">{{ t('settings.dev.demo') }}</TaoButton>
+                <TaoButton variant="secondary" @click="showTodayNotice">{{ t('settings.dev.notice') }}</TaoButton>
+            </div>
         </section>
     </div>
 </template>
@@ -78,6 +103,24 @@ async function fillDemo(): Promise<void> {
     display: flex;
     flex-direction: column;
     gap: var(--tao-space-5);
+}
+
+.notify {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tao-space-1);
+}
+
+.hint {
+    margin: 0;
+    color: var(--tao-color-text-muted);
+    font-size: var(--tao-font-size-sm);
+}
+
+.dev-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tao-space-2);
 }
 
 .dev {
