@@ -1,0 +1,8 @@
+[
+    { "id": "a1", "date": "05.10.2026", "note": "Позвонить в банк #работа", "checkList": [{ "text": "паспорт", "state": true, "lastChange": "Mon Oct 05 2026 10:00:00 GMT+0300" }, { "text": "  ", "state": false }], "rollOver": 0, "irrelevant": false, "markProc": 0 },
+    { "date": "01.10.2026", "note": "Витамины", "checkList": [], "rollOver": 1, "irrelevant": false, "markProc": 1 },
+    { "date": "02.10.2026", "note": "Витамины", "checkList": [], "rollOver": 1, "irrelevant": false, "markProc": 1 },
+    { "date": "03.10.2026", "note": "Витамины", "checkList": [], "rollOver": 1, "irrelevant": false, "markProc": 0 },
+    { "date": "31.02.2026", "note": "плохая дата", "checkList": [], "rollOver": 0 },
+    "мусор"
+]
