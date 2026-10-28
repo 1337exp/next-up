@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
-import { TaoButton, TaoFormField, TaoInput, TaoInputNumber, TaoDate, TaoSelect, TaoTextarea } from '@1337exp/taoui';
+import { TaoButton, TaoFormField, TaoInput, TaoInputNumber, TaoDate, TaoSelect, TaoTextarea, TaoToolbar, TaoToolbarGroup, TaoIcon } from '@1337exp/taoui';
+import { bindHotkeys, formatHotkey } from '@1337exp/taoux/hotkeys';
 import { useNotesStore } from '@/app/notes';
 import { MAX_REPEAT_EVERY, REPEAT_UNITS, type Item, type NoteInput, type RepeatRule } from '@/core/model';
 import { RETENTION_DAYS } from '@/core/constants';
 import { addDays } from '@/core/date';
 import { newId } from '@/core/id';
+import { applyMarkdown, type MdAction } from '@/core/mdFormat';
 import { cloneInput, validateInput } from '@/core/notes';
 import { useI18n } from '@/i18n';
 import { useEditor } from './useEditor';
@@ -149,10 +151,35 @@ function setEvery(value: number | null): void {
     if (draft.repeat && value !== null) draft.repeat.every = value;
 }
 
+// --- панель Markdown: кнопки и Mod+B / Mod+I / Mod+K; сами правила — core/mdFormat.ts ---
+const bodyArea = (): HTMLTextAreaElement | null => root.value?.querySelector('textarea') ?? null;
+
+async function format(action: MdAction): Promise<void> {
+    const area = bodyArea();
+    if (!area) return;
+    const edit = applyMarkdown(action, area.value, area.selectionStart, area.selectionEnd);
+    draft.body = edit.text;
+    await nextTick();
+    area.focus();
+    area.setSelectionRange(edit.start, edit.end);
+}
+
+const FORMAT_KEYS: Partial<Record<MdAction, string>> = { bold: 'Mod+B', italic: 'Mod+I', link: 'Mod+K' };
+const FORMATS: MdAction[] = ['bold', 'italic', 'code', 'list', 'quote', 'link'];
+const formatTitle = (action: MdAction): string => {
+    const key = FORMAT_KEYS[action];
+    return key ? `${t(`editor.format.${action}`)} (${formatHotkey(key)})` : t(`editor.format.${action}`);
+};
+
+let unbindKeys = (): void => {};
+onBeforeUnmount(() => unbindKeys());
+
 onMounted(() => {
     // клонирование — это и есть намерение сделать копию: она появляется сразу, а не после первой правки
     if (mode === 'clone') save();
-    if (mode !== 'edit') root.value?.querySelector<HTMLTextAreaElement>('textarea')?.focus();
+    const area = bodyArea();
+    if (area) unbindKeys = bindHotkeys(area, { 'Mod+B': () => void format('bold'), 'Mod+I': () => void format('italic'), 'Mod+K': () => void format('link') }, { editable: 'always' });
+    if (mode !== 'edit') area?.focus();
 });
 </script>
 
@@ -172,6 +199,16 @@ onMounted(() => {
         </div>
 
         <TaoFormField :label="t('editor.body.label')" :hint="t('editor.body.hint')" :error="visibleError === 'empty' ? errorText : ''">
+            <!-- mousedown.prevent: кнопка не уводит фокус из поля, иначе выделение пропало бы до применения -->
+            <TaoToolbar :label="t('editor.format.label')" size="small" variant="plain" class="format">
+                <TaoToolbarGroup>
+                    <TaoButton v-for="action in FORMATS" :key="action" variant="ghost" size="small" :aria-label="t(`editor.format.${action}`)" :title="formatTitle(action)" @mousedown.prevent @click="format(action)">
+                        <b v-if="action === 'bold'" aria-hidden="true">B</b>
+                        <i v-else-if="action === 'italic'" aria-hidden="true">I</i>
+                        <TaoIcon v-else :name="action" />
+                    </TaoButton>
+                </TaoToolbarGroup>
+            </TaoToolbar>
             <TaoTextarea v-model="draft.body" variant="outline" :placeholder="t('editor.body.placeholder')" :error="visibleError === 'empty'" />
         </TaoFormField>
 

@@ -42,6 +42,7 @@ export default {
         done: 'Done',
         empty: 'Pick a note or create a new one',
         due: { label: 'Due', today: 'Today', prev: 'Previous day', next: 'Next day', add: 'Add days: {0}' },
+        format: { label: 'Formatting', bold: 'Bold', italic: 'Italic', code: 'Code', list: 'List', quote: 'Quote', link: 'Link' },
         body: { label: 'Text', placeholder: 'Write the note', hint: 'Markdown, #tags and links are supported' },
         items: { label: 'List', placeholder: 'Item', add: 'Add item', remove: 'Remove item' },
         repeat: {

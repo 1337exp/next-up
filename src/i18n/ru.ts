@@ -39,6 +39,7 @@ export default {
         done: 'Готово',
         empty: 'Выберите заметку или создайте новую',
         due: { label: 'Срок', today: 'Сегодня', prev: 'Предыдущий день', next: 'Следующий день', add: 'Прибавить дней: {0}' },
+        format: { label: 'Форматирование', bold: 'Жирный', italic: 'Курсив', code: 'Код', list: 'Список', quote: 'Цитата', link: 'Ссылка' },
         body: { label: 'Текст', placeholder: 'Введите текст заметки', hint: 'Поддерживается Markdown, #теги и ссылки' },
         items: { label: 'Список', placeholder: 'Пункт', add: 'Добавить пункт', remove: 'Удалить пункт' },
         repeat: {

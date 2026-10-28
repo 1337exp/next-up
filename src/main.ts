@@ -8,8 +8,10 @@ import '@/assets/font/roboto.css';
 import '@/styles.css';
 
 import App from '@/App.vue';
+import { registerAppIcons } from '@/app/icons';
 import { initLocale } from '@/i18n';
 
+registerAppIcons();
 initLocale();
 
 // офлайн-оболочка и оповещения; в режиме разработки worker не регистрируем: кеш мешал бы правкам
