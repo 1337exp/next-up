@@ -12,4 +12,9 @@ import { initLocale } from '@/i18n';
 
 initLocale();
 
+// офлайн-оболочка и оповещения; в режиме разработки worker не регистрируем: кеш мешал бы правкам
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+    window.addEventListener('load', () => void navigator.serviceWorker.register(new URL('sw.js', document.baseURI)).catch(() => {}));
+}
+
 createApp(App).use(createPinia()).use(TaoUI).mount('#app');
