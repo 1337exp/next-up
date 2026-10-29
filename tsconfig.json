@@ -15,7 +15,7 @@
         "skipLibCheck": true,
         "noEmit": true,
         "types": ["vite/client"],
-        "paths": { "@/*": ["./src/*"], "vue": ["./node_modules/vue"] }
+        "paths": { "@/*": ["./src/*"] }
     },
     "include": ["src/**/*.ts", "src/**/*.vue", "tests/**/*.ts", "vite.config.ts", "build/**/*.ts"]
 }

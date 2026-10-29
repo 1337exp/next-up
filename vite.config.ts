@@ -9,8 +9,6 @@ export default defineConfig({
     plugins: [vue(), precache()],
     resolve: {
         alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
-        // библиотеки подключены через file:, им нужна та же копия Vue, что у приложения
-        dedupe: ['vue'],
     },
     test: {
         environment: 'happy-dom',
