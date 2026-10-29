@@ -15,8 +15,6 @@ export interface Settings {
     palette: string;
     /** Размер интерфейса: класс `tao-size-*` на `<html>`. */
     size: Size;
-    /** Сворачивать содержимое заметок дальше FAR_DAYS дней. */
-    hideFar: boolean;
     /** Раз в день, когда сменилась дата, оповещать о заметках на сегодня (нужно разрешение браузера). */
     notifyToday: boolean;
     /** Дата (yyyy-mm-dd), за которую оповещение уже обработано; пустая строка — ни за какую. */
@@ -28,7 +26,7 @@ export interface Settings {
 export const SETTINGS_KEY = 'nextup.settings';
 
 export function defaultSettings(): Settings {
-    return { mode: 'auto', palette: '', size: 'medium', hideFar: false, notifyToday: false, lastNotified: '', sync: { enabled: false, url: '', authorization: '' } };
+    return { mode: 'auto', palette: '', size: 'medium', notifyToday: false, lastNotified: '', sync: { enabled: false, url: '', authorization: '' } };
 }
 
 const isMode = (v: unknown): v is Mode => typeof v === 'string' && (MODES as readonly string[]).includes(v);
@@ -43,7 +41,6 @@ export function parseSettings(raw: unknown): Settings {
     if (isMode(record.mode)) result.mode = record.mode;
     if (isPalette(record.palette)) result.palette = record.palette;
     if (isSize(record.size)) result.size = record.size;
-    if (typeof record.hideFar === 'boolean') result.hideFar = record.hideFar;
     if (typeof record.notifyToday === 'boolean') result.notifyToday = record.notifyToday;
     if (typeof record.lastNotified === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(record.lastNotified)) result.lastNotified = record.lastNotified;
     if (typeof record.sync === 'object' && record.sync !== null) {

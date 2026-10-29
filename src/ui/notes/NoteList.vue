@@ -1,40 +1,51 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { TaoButton, TaoDivider } from '@1337exp/taoui';
+import { TaoButton } from '@1337exp/taoui';
 import { useNotesStore } from '@/app/notes';
-import { useSettingsStore } from '@/app/settings';
 import { isoParts, formatUserDate } from '@/core/date';
-import { groupByMonth, groupRuns, type ArchiveEntry } from '@/core/lifecycle';
+import { groupByBucket, groupByMonth, groupRuns, type ArchiveEntry } from '@/core/lifecycle';
 import { monthName, useI18n } from '@/i18n';
 import { useEditor } from '@/ui/editor/useEditor';
 import EmptyState from '@/ui/components/EmptyState.vue';
-import NoteCard from './NoteCard.vue';
+import NoteRow from './NoteRow.vue';
 import { toggleTag, useNoteActions, useSearch } from './useNotes';
 
 const props = defineProps<{ section: 'active' | 'archive' }>();
 
 const { t, locale } = useI18n();
 const store = useNotesStore();
-const { settings } = useSettingsStore();
-const { found, searching } = useSearch();
+const { found, searching, query } = useSearch();
 const actions = useNoteActions();
 const editor = useEditor();
 
 const visible = computed(() => found.value[props.section]);
+const emptyHint = computed(() => (searching.value ? t('list.searchEmptyHint') : props.section === 'active' ? t('list.emptyActiveHint') : ''));
 const emptyText = computed(() => (searching.value ? t('list.searchEmpty') : props.section === 'active' ? t('list.emptyActive') : t('list.emptyArchive')));
 
-// разделитель «К4 / Октябрь»; год добавляем, если он не текущий (иначе два января подряд не различить)
-const groups = computed(() =>
-    groupByMonth(visible.value).map((group) => {
-        const label = `${t('date.quarterTag')}${group.quarter} / ${monthName(locale.value, group.month)}`;
-        return {
-            ...group,
-            label: group.year === isoParts(store.today).year ? label : `${label} ${group.year}`,
-            // в архиве подряд идущие повторы одной серии сворачиваются в одну строку
-            entries: (props.section === 'archive' ? groupRuns(group.items) : group.items.map((note): ArchiveEntry => ({ kind: 'note', note }))),
-        };
-    }),
-);
+interface Group {
+    key: string;
+    label: string;
+    /** Группа «Сегодня» отмечается точкой акцента. */
+    today: boolean;
+    entries: ArchiveEntry[];
+}
+
+const asEntries = (notes: readonly (typeof visible.value)[number][]): ArchiveEntry[] => notes.map((note): ArchiveEntry => ({ kind: 'note', note }));
+
+// активные группируются по времени («Сегодня», «Завтра», …), архив — по месяцам: год добавляем, если он не текущий
+const groups = computed<Group[]>(() => {
+    if (props.section === 'active') {
+        return groupByBucket(visible.value, store.today).map((group) => ({ key: group.key, label: t(`date.${group.key}`), today: group.key === 'today', entries: asEntries(group.items) }));
+    }
+    const currentYear = isoParts(store.today).year;
+    return groupByMonth(visible.value).map((group) => ({
+        key: group.key,
+        label: group.year === currentYear ? monthName(locale.value, group.month) : `${monthName(locale.value, group.month)} ${group.year}`,
+        today: false,
+        // в архиве подряд идущие повторы одной серии сворачиваются в одну строку
+        entries: groupRuns(group.items),
+    }));
+});
 
 const openRuns = ref(new Set<string>());
 function toggleRun(key: string): void {
@@ -52,25 +63,31 @@ const runTitle = (entry: Extract<ArchiveEntry, { kind: 'run' }>): string => {
 </script>
 
 <template>
-    <EmptyState v-if="visible.length === 0" :icon="searching ? 'tao-search' : section === 'active' ? 'tao-file' : 'tao-folder'" :title="emptyText" />
+    <EmptyState v-if="visible.length === 0" :icon="searching ? 'tao-search' : section === 'active' ? 'tao-file' : 'tao-folder'" :title="emptyText" :hint="emptyHint">
+        <template v-if="searching" #action>
+            <TaoButton variant="secondary" @click="query = ''">{{ t('search.clear') }}</TaoButton>
+        </template>
+    </EmptyState>
 
     <div v-else class="list">
-        <section v-for="group in groups" :key="group.key" class="group">
-            <TaoDivider variant="dashed" fade :text="group.label" />
+        <section v-for="group in groups" :key="group.key" class="group" :aria-label="group.label">
+            <h2 class="group-title">
+                <span v-if="group.today" class="dot" aria-hidden="true" />
+                {{ group.label }}
+                <span class="count">{{ group.entries.length }}</span>
+            </h2>
 
             <template v-for="entry in group.entries" :key="entry.kind === 'run' ? runKey(entry) : entry.note.id">
-                <NoteCard
+                <NoteRow
                     v-if="entry.kind === 'note'"
                     :note="entry.note"
                     :today="store.today"
-                    :hide-far="settings.hideFar"
                     :selected="editor.state.value?.activeId === entry.note.id"
                     @edit="editor.openEdit"
                     @clone="editor.openClone"
                     @done="actions.done"
                     @reopen="actions.reopen"
                     @remove="actions.remove"
-                    @toggle-item="actions.toggleItem"
                     @tag="toggleTag"
                 />
 
@@ -82,19 +99,17 @@ const runTitle = (entry: Extract<ArchiveEntry, { kind: 'run' }>): string => {
                         </span>
                     </TaoButton>
                     <template v-if="openRuns.has(runKey(entry))">
-                        <NoteCard
+                        <NoteRow
                             v-for="note in entry.notes"
                             :key="note.id"
                             :note="note"
                             :today="store.today"
-                            :hide-far="settings.hideFar"
                             :selected="editor.state.value?.activeId === note.id"
                             @edit="editor.openEdit"
                             @clone="editor.openClone"
                             @done="actions.done"
                             @reopen="actions.reopen"
                             @remove="actions.remove"
-                            @toggle-item="actions.toggleItem"
                             @tag="toggleTag"
                         />
                     </template>
@@ -105,19 +120,45 @@ const runTitle = (entry: Extract<ArchiveEntry, { kind: 'run' }>): string => {
 </template>
 
 <style scoped>
-.list,
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tao-space-2);
+}
+
 .group,
 .run {
     display: flex;
     flex-direction: column;
-    gap: var(--tao-space-3);
+}
+
+.group-title {
+    display: flex;
+    gap: var(--tao-space-2);
+    align-items: center;
+    margin: 0;
+    padding: var(--tao-space-4) var(--tao-space-3) var(--tao-space-1);
+    font-size: var(--tao-font-size-md);
+    font-weight: 700;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--tao-color-accent);
+}
+
+.count {
+    color: var(--tao-color-text-muted);
+    font-weight: 400;
 }
 
 .run-line {
     display: flex;
     flex: 1;
-    align-items: baseline;
     gap: var(--tao-space-3);
+    align-items: baseline;
     min-width: 0;
 }
 

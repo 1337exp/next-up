@@ -44,6 +44,11 @@ export function fromDayNumber(n: number): IsoDate {
     return toIso(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate());
 }
 
+/** День недели с понедельника: 0 — пн, 6 — вс. 1 января 1970 было четвергом. */
+export function weekdayIndex(iso: IsoDate): number {
+    return (((dayNumber(iso) + 3) % 7) + 7) % 7;
+}
+
 /** Сколько целых дней от `from` до `to` (отрицательно, если `to` раньше). */
 export function diffDays(from: IsoDate, to: IsoDate): number {
     return dayNumber(to) - dayNumber(from);

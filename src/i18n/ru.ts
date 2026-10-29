@@ -8,26 +8,41 @@ export default {
         copied: 'Скопировано',
     },
 
-    nav: { label: 'Разделы', active: 'Активные', archive: 'Архив', tags: 'Теги', trash: 'Корзина', settings: 'Настройки', create: 'Новая заметка', more: 'Ещё' },
+    nav: { label: 'Разделы', active: 'Скоро', archive: 'Архив', tags: 'Теги', trash: 'Корзина', settings: 'Настройки', create: 'Новая заметка', more: 'Ещё' },
 
     list: {
-        emptyActive: 'Нет активных заметок',
+        emptyActive: 'Ничего не запланировано',
+        emptyActiveHint: 'Напишите в поле выше, например: завтра позвонить маме #дом.',
         emptyArchive: 'Архив пуст',
         searchEmpty: 'Ничего не найдено',
+        searchEmptyHint: 'Попробуйте другие слова или уберите точное совпадение в фильтрах.',
         tagsEmpty: 'Тегов пока нет',
         tagsEmptyHint: 'Напишите #тег в тексте заметки, и он появится здесь.',
         scrollTop: 'Наверх',
-        collapse: 'Свернуть',
-        expand: 'Развернуть',
+        markDone: 'Отметить выполненной',
+        markUndone: 'Вернуть в работу',
+        checked: '{0} из {1}',
+        untitled: 'Без названия',
+        summary: 'На сегодня: {0} · дальше: {1}',
+        summaryNone: 'На сегодня ничего не осталось',
         menu: 'Действия',
         run: '{0} раз: {1} — {2}',
         runShow: 'Показать',
         runHide: 'Скрыть',
     },
 
+    quick: { label: 'Быстрая заметка', placeholder: 'Что запомнить?', add: 'Добавить', full: 'Подробнее', added: 'Добавлено: {0}' },
+
     search: { placeholder: 'Поиск', clear: 'Очистить поиск', exact: 'Точное совпадение', filters: 'Фильтры' },
 
-    date: { today: 'Сегодня', daysLeft: 'Дней: {0}', quarterTag: 'К' },
+    date: {
+        today: 'Сегодня',
+        tomorrow: 'Завтра',
+        week: 'На этой неделе',
+        later: 'Позже',
+        // форма выбирается через Intl.PluralRules: 1 день, 2–4 дня, 5 и больше дней
+        inDays: { one: 'через {0} день', few: 'через {0} дня', many: 'через {0} дней', other: 'через {0} дня' },
+    },
 
     repeat: {
         one: { day: 'Каждый день', week: 'Каждую неделю', month: 'Каждый месяц', year: 'Каждый год' },
@@ -38,10 +53,12 @@ export default {
         title: { create: 'Новая заметка', edit: 'Заметка', clone: 'Клонирование' },
         done: 'Готово',
         empty: 'Выберите заметку или создайте новую',
-        due: { label: 'Срок', today: 'Сегодня', prev: 'Предыдущий день', next: 'Следующий день', add: 'Прибавить дней: {0}' },
+        due: { label: 'Срок', today: 'Сегодня', tomorrow: 'Завтра', plus: '+{0} дней' },
+        props: 'Параметры',
+        saved: 'Сохранено',
         format: { label: 'Форматирование', bold: 'Жирный', italic: 'Курсив', code: 'Код', list: 'Список', quote: 'Цитата', link: 'Ссылка' },
         body: { label: 'Текст', placeholder: 'Введите текст заметки', hint: 'Поддерживается Markdown, #теги и ссылки' },
-        items: { label: 'Список', placeholder: 'Пункт', add: 'Добавить пункт', remove: 'Удалить пункт' },
+        items: { label: 'Список', placeholder: 'Пункт', add: 'Добавить пункт', remove: 'Удалить пункт', move: 'Переместить пункт', done: 'Отметить пункт' },
         repeat: {
             label: 'Повтор',
             none: 'Не повторять',
@@ -130,11 +147,12 @@ export default {
 
     settings: {
         title: 'Настройки',
+        appearance: 'Внешний вид',
+        notifications: 'Оповещения',
         language: 'Язык',
         mode: { title: 'Тема', auto: 'Авто', light: 'Светлая', dark: 'Тёмная' },
         palette: { title: 'Палитра', default: 'Стандартная' },
         size: { title: 'Размер интерфейса', small: 'Мелко', medium: 'Средне', large: 'Крупно' },
-        hideFar: 'Сворачивать заметки дальше {0} дней',
         notify: {
             label: 'Оповещать о заметках на сегодня',
             hint: 'Раз в день, когда сменилась дата, если вкладка в фоне.',

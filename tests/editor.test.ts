@@ -88,8 +88,8 @@ describe('редактор', () => {
         await wrapper.find('textarea').setValue('список');
 
         await wrapper.find('.add-item').trigger('click');
-        await wrapper.find('.item-row input').setValue('один');
-        await wrapper.find('.item-row input').trigger('keydown', { key: 'Enter' });
+        await wrapper.find('.item-text input').setValue('один');
+        await wrapper.find('.item-text input').trigger('keydown', { key: 'Enter' });
         expect(wrapper.findAll('.item-row')).toHaveLength(2); // вторая пустая
         vi.advanceTimersByTime(700);
 
@@ -120,5 +120,19 @@ describe('редактор', () => {
         store.remove(note.id);
         await vi.advanceTimersByTimeAsync(0);
         expect(wrapper.emitted('close')).toBeTruthy();
+    });
+});
+
+describe('клавиатура', () => {
+    it('Esc в тексте закрывает редактор', async () => {
+        const wrapper = open(() => useEditor().openCreate());
+        await wrapper.find('textarea').trigger('keydown', { key: 'Escape' });
+        expect(wrapper.emitted('close')).toBeTruthy();
+    });
+
+    it('Esc не в тексте (например, в выборе повтора) редактор не закрывает', async () => {
+        const wrapper = open(() => useEditor().openCreate());
+        await wrapper.find('.add-item').trigger('keydown', { key: 'Escape' });
+        expect(wrapper.emitted('close')).toBeFalsy();
     });
 });

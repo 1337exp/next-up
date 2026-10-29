@@ -28,6 +28,20 @@ export function repeatText(repeat: { every: number; unit: 'day' | 'week' | 'mont
     return repeat.every === 1 ? i18n.translate(code, `repeat.one.${repeat.unit}`) : i18n.translate(code, `repeat.many.${repeat.unit}`, [repeat.every]);
 }
 
+/** «через 3 дня» / «in 3 days»: форма по правилам склонения текущего языка. */
+export function inDaysText(days: number): string {
+    const code = i18n.current.value;
+    const form = new Intl.PluralRules(code).select(days);
+    // zero и two есть только в других языках (арабский, валлийский): у нас им соответствует «other»
+    return i18n.translate(code, `date.inDays.${form === 'one' || form === 'few' || form === 'many' ? form : 'other'}`, [days]);
+}
+
+/** Короткая дата с днём недели без точки после месяца: «пт, 30 окт» / «Fri, Oct 30». */
+export function dateShort(locale: string, iso: string): string {
+    const [year, month, day] = [Number(iso.slice(0, 4)), Number(iso.slice(5, 7)), Number(iso.slice(8, 10))] as const;
+    return new Intl.DateTimeFormat(locale, { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }).format(Date.UTC(year, month - 1, day)).replace(/\./g, '');
+}
+
 function capitalize(text: string): string {
     return text.charAt(0).toLocaleUpperCase() + text.slice(1);
 }
@@ -41,6 +55,12 @@ export function monthName(locale: string, month: number): string {
 export function weekdayShort(locale: string, iso: string): string {
     const [year, month, day] = [Number(iso.slice(0, 4)), Number(iso.slice(5, 7)), Number(iso.slice(8, 10))] as const;
     return capitalize(new Intl.DateTimeFormat(locale, { weekday: 'short', timeZone: 'UTC' }).format(Date.UTC(year, month - 1, day)));
+}
+
+/** Дата для заголовка списка: «Чт, 29 октября» / «Thu, October 29». */
+export function dateLong(locale: string, iso: string): string {
+    const [year, month, day] = [Number(iso.slice(0, 4)), Number(iso.slice(5, 7)), Number(iso.slice(8, 10))] as const;
+    return capitalize(new Intl.DateTimeFormat(locale, { weekday: 'short', day: 'numeric', month: 'long', timeZone: 'UTC' }).format(Date.UTC(year, month - 1, day)));
 }
 
 /** Время отметки пункта в часовом поясе пользователя. */

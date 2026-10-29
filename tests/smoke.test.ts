@@ -9,6 +9,6 @@ it('приложение монтируется и показывает разд
     localStorage.clear();
     setLocale('ru');
     const wrapper = mount(App, { global: { plugins: [createPinia(), TaoUI] } });
-    expect(wrapper.text()).toContain('Нет активных заметок');
+    expect(wrapper.text()).toContain('Ничего не запланировано');
     expect(document.documentElement.classList.contains('tao-size-medium')).toBe(true);
 });

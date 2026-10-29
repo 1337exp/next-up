@@ -11,26 +11,40 @@ export default {
         copied: 'Copied',
     },
 
-    nav: { label: 'Sections', active: 'Active', archive: 'Archive', tags: 'Tags', trash: 'Trash', settings: 'Settings', create: 'New note', more: 'More' },
+    nav: { label: 'Sections', active: 'Upcoming', archive: 'Archive', tags: 'Tags', trash: 'Trash', settings: 'Settings', create: 'New note', more: 'More' },
 
     list: {
-        emptyActive: 'No active notes',
+        emptyActive: 'Nothing planned',
+        emptyActiveHint: 'Write in the field above, for example: call mom tomorrow #home.',
         emptyArchive: 'The archive is empty',
         searchEmpty: 'Nothing found',
+        searchEmptyHint: 'Try other words or turn off exact match in the filters.',
         tagsEmpty: 'No tags yet',
         tagsEmptyHint: 'Write #tag in a note and it will show up here.',
         scrollTop: 'Back to top',
-        collapse: 'Collapse',
-        expand: 'Expand',
+        markDone: 'Mark as done',
+        markUndone: 'Put back to work',
+        checked: '{0} of {1}',
+        untitled: 'Untitled',
+        summary: 'Today: {0} · later: {1}',
+        summaryNone: 'Nothing left for today',
         menu: 'Actions',
         run: '{0} times: {1} — {2}',
         runShow: 'Show',
         runHide: 'Hide',
     },
 
+    quick: { label: 'Quick note', placeholder: 'What to remember?', add: 'Add', full: 'More options', added: 'Added: {0}' },
+
     search: { placeholder: 'Search', clear: 'Clear search', exact: 'Exact match', filters: 'Filters' },
 
-    date: { today: 'Today', daysLeft: 'Days: {0}', quarterTag: 'Q' },
+    date: {
+        today: 'Today',
+        tomorrow: 'Tomorrow',
+        week: 'This week',
+        later: 'Later',
+        inDays: { one: 'in {0} day', few: 'in {0} days', many: 'in {0} days', other: 'in {0} days' },
+    },
 
     repeat: {
         one: { day: 'Every day', week: 'Every week', month: 'Every month', year: 'Every year' },
@@ -41,10 +55,12 @@ export default {
         title: { create: 'New note', edit: 'Note', clone: 'Cloning' },
         done: 'Done',
         empty: 'Pick a note or create a new one',
-        due: { label: 'Due', today: 'Today', prev: 'Previous day', next: 'Next day', add: 'Add days: {0}' },
+        due: { label: 'Due', today: 'Today', tomorrow: 'Tomorrow', plus: '+{0} days' },
+        props: 'Details',
+        saved: 'Saved',
         format: { label: 'Formatting', bold: 'Bold', italic: 'Italic', code: 'Code', list: 'List', quote: 'Quote', link: 'Link' },
         body: { label: 'Text', placeholder: 'Write the note', hint: 'Markdown, #tags and links are supported' },
-        items: { label: 'List', placeholder: 'Item', add: 'Add item', remove: 'Remove item' },
+        items: { label: 'List', placeholder: 'Item', add: 'Add item', remove: 'Remove item', move: 'Move item', done: 'Mark item' },
         repeat: {
             label: 'Repeat',
             none: 'Do not repeat',
@@ -133,11 +149,12 @@ export default {
 
     settings: {
         title: 'Settings',
+        appearance: 'Appearance',
+        notifications: 'Notifications',
         language: 'Language',
         mode: { title: 'Theme', auto: 'Auto', light: 'Light', dark: 'Dark' },
         palette: { title: 'Palette', default: 'Default' },
         size: { title: 'Interface size', small: 'Small', medium: 'Medium', large: 'Large' },
-        hideFar: 'Collapse notes further than {0} days',
         notify: {
             label: 'Notify about notes due today',
             hint: 'Once a day, when the date changes, if the tab is in the background.',

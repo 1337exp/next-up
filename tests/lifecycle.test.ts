@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { addDays } from '@/core/date';
-import { groupByMonth, groupRuns, isArchived, normalize, splitNotes, trashed, urgency } from '@/core/lifecycle';
+import { bucketOf, groupByBucket, groupByMonth, groupRuns, isArchived, normalize, splitNotes, trashed, urgency } from '@/core/lifecycle';
 import { mergeNotes } from '@/core/merge';
 import { nextOccurrence, occurrence, occurrenceId } from '@/core/repeat';
 import { removeNote, setDone } from '@/core/notes';
@@ -114,5 +114,27 @@ describe('сворачивание серий в архиве', () => {
         const mk = (id: string, due: string, withRepeat = true) => note({ id, due, repeat: withRepeat ? r : null });
         const entries = groupRuns([mk('1', '2026-10-05'), mk('2', '2026-10-04'), mk('3', '2026-10-03'), mk('x', '2026-10-02', false), mk('4', '2026-10-01'), mk('5', '2026-09-30')]);
         expect(entries.map((e) => (e.kind === 'run' ? `run${e.notes.length}` : e.note.id))).toEqual(['run3', 'x', '4', '5']);
+    });
+});
+
+describe('группы по времени', () => {
+    // 29 октября 2026 — четверг: «эта неделя» длится до воскресенья 1 ноября
+    const today = '2026-10-29';
+
+    it('сегодня, завтра, до воскресенья, позже', () => {
+        expect(['2026-10-29', '2026-10-30', '2026-10-31', '2026-11-01', '2026-11-02'].map((due) => bucketOf(due, today))).toEqual(['today', 'tomorrow', 'week', 'week', 'later']);
+    });
+
+    it('в воскресенье «на этой неделе» пусто: после завтра сразу позже', () => {
+        expect(['2026-11-01', '2026-11-02', '2026-11-03'].map((due) => bucketOf(due, '2026-11-01'))).toEqual(['today', 'tomorrow', 'later']);
+    });
+
+    it('в понедельник неделя длится ещё шесть дней', () => {
+        expect(['2026-11-04', '2026-11-08', '2026-11-09'].map((due) => bucketOf(due, '2026-11-02'))).toEqual(['week', 'week', 'later']);
+    });
+
+    it('группирует отсортированный список и не создаёт пустых групп', () => {
+        const groups = groupByBucket([{ due: '2026-10-29' }, { due: '2026-10-29' }, { due: '2026-10-31' }, { due: '2026-11-10' }], today);
+        expect(groups.map((g) => [g.key, g.items.length])).toEqual([['today', 2], ['week', 1], ['later', 1]]);
     });
 });

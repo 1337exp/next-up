@@ -2,6 +2,7 @@ import { PURGED_AGE_MS, RETENTION_DAYS } from './constants';
 import { diffDays, isValidIsoDate, type IsoDate } from './date';
 import { newId } from './id';
 import { MAX_REPEAT_EVERY, isRepeatUnit, type Item, type Note, type NoteInput, type RepeatRule } from './model';
+import { scanTag } from './tags';
 
 export type NoteError = 'badDate' | 'empty' | 'tooOld' | 'badRepeat';
 export type NoteResult = { ok: true; note: Note } | { ok: false; error: NoteError };
@@ -104,4 +105,28 @@ export function restoreNote(note: Note, now: number): Note {
 export function noteTitle(note: Pick<Note, 'body' | 'items'>, limit = 50): string {
     const source = note.body !== '' ? note.body : (note.items[0]?.text ?? '');
     return source.length > limit ? `${source.slice(0, limit)} ...` : source;
+}
+
+/**
+ * Заголовок строки списка: первая непустая строка текста без разметки Markdown и без `#тегов`
+ * (теги показываются отдельно); у заметки без текста — первый пункт. Пустая строка, если нечего показать.
+ */
+export function rowTitle(note: Pick<Note, 'body' | 'items'>): string {
+    const line = note.body.split('\n').find((l) => l.replace(/[#>*_`\s-]/g, '') !== '');
+    const source = line ?? note.items[0]?.text ?? '';
+
+    let text = source
+        .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1') // [текст](адрес) → текст
+        .replace(/^\s*(?:#{1,6}\s+|>\s*|[-*+]\s+(?:\[[ xX]\]\s+)?|\d+[.)]\s+)/, '') // маркер заголовка, цитаты, списка
+        .replace(/(\*\*|__|\*|_|`|~~)/g, '');
+
+    // #теги убираем по тому же правилу, что и индекс тегов
+    let out = '';
+    for (let i = 0; i < text.length; i++) {
+        const name = scanTag(text, i);
+        if (name) i += name.length; // сам `#` пропускает цикл, следом имя
+        else out += text[i];
+    }
+    text = out;
+    return text.replace(/\s+/g, ' ').trim();
 }

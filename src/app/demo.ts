@@ -18,7 +18,7 @@ export function buildDemoNotes(today: IsoDate, now: number): Note[] {
         base(today, '**Сегодня:** позвонить в банк #работа\n\nСсылка: [пример](https://example.com)', { items: [item('Паспорт', true), item('Номер договора')] }),
         base(addDays(today, 1), 'Завтра: короткая заметка #дом'),
         base(addDays(today, 12), 'Через 12 дней #работа'),
-        base(addDays(today, 30), 'Далёкая заметка (сворачивается в настройках)\n\n- пункт один\n- пункт два', { items: [item('Подготовить документы')] }),
+        base(addDays(today, 30), 'Далёкая заметка\n\n- пункт один\n- пункт два', { items: [item('Подготовить документы')] }),
         base(addMonthsClamped(today, 14), 'В следующем году: проверка разделителя года', { repeat: series('demo-s-year', addMonthsClamped(today, 14), 'year') }),
         base(addDays(today, -1), 'Вчера (архив) #дом'),
         base(addDays(today, 3), 'Завершена до срока (архив)', { doneAt: now - 60_000 }),

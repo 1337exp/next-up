@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { parseUserDate } from '@/core/date';
 import { mergeNotes } from '@/core/merge';
-import { cloneInput, createNote, removeNote, toggleItem, updateNote } from '@/core/notes';
+import { cloneInput, createNote, removeNote, rowTitle, toggleItem, updateNote } from '@/core/notes';
 import { filterByQuery, matchesQuery } from '@/core/search';
 import { extractTags, tagIndex } from '@/core/tags';
 import { createUndoStack, diffEntry } from '@/core/undo';
@@ -167,5 +167,25 @@ describe('быстрый ввод даты', () => {
     expect(parseUserDate('05.03.26', TODAY)).toBe('2026-03-05');
     expect(parseUserDate('31.02', TODAY)).toBeNull();
     expect(parseUserDate('abc', TODAY)).toBeNull();
+  });
+});
+
+describe('заголовок строки списка', () => {
+  const title = (body: string, items = [] as ReturnType<typeof item>[]) => rowTitle({ body, items });
+
+  it('первая непустая строка без разметки и без тегов', () => {
+    expect(title('\n\n**Позвонить** в [банк](https://x.y) #работа\nвторая строка')).toBe('Позвонить в банк');
+    expect(title('## Заголовок')).toBe('Заголовок');
+    expect(title('- [ ] купить хлеб #дом')).toBe('купить хлеб');
+    expect(title('> цитата')).toBe('цитата');
+  });
+
+  it('якоря ссылок и числа с # не считаются тегами и остаются в тексте', () => {
+    expect(title('задача #12 и /page#top')).toBe('задача #12 и /page#top');
+  });
+
+  it('без текста берёт первый пункт, без всего — пустую строку', () => {
+    expect(title('', [item('a', 'молоко')])).toBe('молоко');
+    expect(title('  ')).toBe('');
   });
 });

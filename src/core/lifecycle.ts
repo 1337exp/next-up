@@ -1,5 +1,5 @@
 import { FAR_DAYS, MS_PER_DAY, RETENTION_DAYS, RUN_MIN, SOON_DAYS, TOMBSTONE_DAYS, TRASH_DAYS } from './constants';
-import { addDays, diffDays, isoParts, monthKey, quarterOf, type IsoDate } from './date';
+import { addDays, diffDays, isoParts, monthKey, quarterOf, weekdayIndex, type IsoDate } from './date';
 import type { Note } from './model';
 import { nextOccurrence, occurrenceId } from './repeat';
 
@@ -58,6 +58,36 @@ export function groupByMonth<T extends { due: IsoDate }>(list: readonly T[]): Mo
         if (!group || group.key !== key) {
             const { year, month } = isoParts(item.due);
             group = { key, year, month, quarter: quarterOf(item.due), items: [] };
+            groups.push(group);
+        }
+        group.items.push(item);
+    }
+    return groups;
+}
+
+export type Bucket = 'today' | 'tomorrow' | 'week' | 'later';
+
+export interface BucketGroup<T> {
+    key: Bucket;
+    items: T[];
+}
+
+/** В какую группу «по времени» попадает срок: сегодня, завтра, до конца этой недели (воскресенье), позже. */
+export function bucketOf(due: IsoDate, today: IsoDate): Bucket {
+    const left = diffDays(today, due);
+    if (left <= 0) return 'today';
+    if (left === 1) return 'tomorrow';
+    return left <= 6 - weekdayIndex(today) ? 'week' : 'later';
+}
+
+/** Разбивка уже отсортированного по сроку списка активных на группы по времени; пустые группы не возвращаются. */
+export function groupByBucket<T extends { due: IsoDate }>(list: readonly T[], today: IsoDate): BucketGroup<T>[] {
+    const groups: BucketGroup<T>[] = [];
+    for (const item of list) {
+        const key = bucketOf(item.due, today);
+        let group = groups[groups.length - 1];
+        if (!group || group.key !== key) {
+            group = { key, items: [] };
             groups.push(group);
         }
         group.items.push(item);

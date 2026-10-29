@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 import type { Note } from '@/core/model';
 
 export type EditorMode = 'create' | 'edit' | 'clone';
@@ -27,7 +27,12 @@ export function useEditor() {
         openCreate: () => open('create', null),
         openEdit: (note: Note) => open('edit', note),
         openClone: (note: Note) => open('clone', note),
-        close: () => void (state.value = null),
+        close(): void {
+            const id = state.value?.activeId;
+            state.value = null;
+            // фокус возвращается на строку заметки: клавиатурный пользователь не теряет место в списке
+            if (id) void nextTick(() => document.querySelector<HTMLElement>(`[data-note-id="${CSS.escape(id)}"]`)?.focus());
+        },
         setActive(id: string): void {
             if (state.value) state.value.activeId = id;
         },

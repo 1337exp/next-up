@@ -6,7 +6,6 @@ import { notifySupport, requestNotifications, showTodayNotice, type NotifySuppor
 import { isDevMode } from '@/app/dev';
 import { useNotesStore } from '@/app/notes';
 import { MODES, SIZES, useSettingsStore, type Mode, type Size } from '@/app/settings';
-import { FAR_DAYS } from '@/core/constants';
 import { i18n, LOCALE_NAMES, setLocale, useI18n, type LocaleCode } from '@/i18n';
 import DataSection from './DataSection.vue';
 import SyncSection from './SyncSection.vue';
@@ -49,6 +48,8 @@ async function fillDemo(): Promise<void> {
 
 <template>
     <div class="settings">
+        <h3 class="tao-heading-6 group">{{ t('settings.appearance') }}</h3>
+
         <TaoFormField :label="t('settings.language')">
             <TaoSegmented :model-value="i18n.current.value" @update:model-value="setLocale($event as LocaleCode)">
                 <TaoSegmentedOption v-for="code in i18n.codes" :key="code" :value="code" :label="LOCALE_NAMES[code]" />
@@ -71,9 +72,9 @@ async function fillDemo(): Promise<void> {
             </TaoSegmented>
         </TaoFormField>
 
-        <TaoSwitch v-model="settings.hideFar" :label="t('settings.hideFar', [FAR_DAYS])" />
-
         <TaoDivider />
+
+        <h3 class="tao-heading-6 group">{{ t('settings.notifications') }}</h3>
 
         <div class="notify">
             <TaoSwitch :model-value="settings.notifyToday" :label="t('settings.notify.label')" :loading="asking" :disabled="support === 'unsupported' || support === 'denied'" @update:model-value="onNotify" />
@@ -95,6 +96,8 @@ async function fillDemo(): Promise<void> {
                 <TaoButton variant="secondary" @click="showTodayNotice">{{ t('settings.dev.notice') }}</TaoButton>
             </div>
         </section>
+
+        <p class="about">{{ t('app.name') }} v3</p>
     </div>
 </template>
 
@@ -103,6 +106,17 @@ async function fillDemo(): Promise<void> {
     display: flex;
     flex-direction: column;
     gap: var(--tao-space-5);
+}
+
+.about {
+    margin: var(--tao-space-4) 0 0;
+    color: var(--tao-color-text-muted);
+    font-size: var(--tao-font-size-xs);
+    opacity: 0.55;
+}
+
+.group {
+    margin: 0;
 }
 
 .notify {

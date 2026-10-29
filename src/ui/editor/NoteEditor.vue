@@ -1,23 +1,23 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
-import { TaoButton, TaoFormField, TaoInput, TaoInputNumber, TaoDate, TaoSelect, TaoTextarea, TaoToolbar, TaoToolbarGroup, TaoIcon } from '@1337exp/taoui';
+import { TaoButton, TaoCheckbox, TaoDate, TaoFormField, TaoIcon, TaoInput, TaoInputNumber, TaoSelect, TaoTextarea, TaoToolbar, TaoToolbarGroup } from '@1337exp/taoui';
 import { bindHotkeys, formatHotkey } from '@1337exp/taoux/hotkeys';
+import { moveItem, sortableTextsEn, sortableTextsRu, useSortable } from '@1337exp/taoux/sortable';
 import { useNotesStore } from '@/app/notes';
 import { MAX_REPEAT_EVERY, REPEAT_UNITS, type Item, type NoteInput, type RepeatRule } from '@/core/model';
 import { RETENTION_DAYS } from '@/core/constants';
-import { addDays } from '@/core/date';
+import { addDays, diffDays } from '@/core/date';
 import { newId } from '@/core/id';
 import { applyMarkdown, type MdAction } from '@/core/mdFormat';
 import { cloneInput, validateInput } from '@/core/notes';
-import { useI18n } from '@/i18n';
+import { formatDateTime, i18n, inDaysText, useI18n } from '@/i18n';
 import { useEditor } from './useEditor';
 
 const AUTOSAVE_MS = 600;
-const QUICK_SHIFT_DAYS = [7, 30] as const;
 
 const emit = defineEmits<{ close: [] }>();
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const store = useNotesStore();
 const editor = useEditor();
 
@@ -44,10 +44,13 @@ const error = ref<ReturnType<typeof validateInput>>(null);
 
 // --- автосохранение: кнопки «Сохранить» нет, правка уходит в стор после короткой паузы ---
 let timer: ReturnType<typeof setTimeout> | undefined;
+/** Есть правка, которая ещё не ушла в стор: пока так, «Сохранено» не показываем. */
+const pending = ref(false);
 
 function save(): void {
     clearTimeout(timer);
     timer = undefined;
+    pending.value = false;
     const input = toInput();
     const snapshot = JSON.stringify(input);
     if (snapshot === lastSaved) return;
@@ -66,6 +69,7 @@ function save(): void {
 }
 
 watch(draft, () => {
+    pending.value = true;
     clearTimeout(timer);
     timer = setTimeout(save, AUTOSAVE_MS);
 });
@@ -91,20 +95,31 @@ const errorText = computed(() => {
         default: return '';
     }
 });
+const dateError = computed(() => visibleError.value === 'badDate' || visibleError.value === 'tooOld');
+const saved = computed(() => created && !pending.value && !error.value);
 
-// --- срок ---
+// Esc в тексте или пункте закрывает редактор; в выпадающих списках и календаре он закрывает только их
+function onEscape(event: KeyboardEvent): void {
+    if ((event.target as HTMLElement).closest('textarea, .item-text')) emit('close');
+}
+
+// --- срок: быстрые кнопки и дата рядом, сколько дней осталось — словами ---
 const minDate = computed(() => addDays(store.today, -RETENTION_DAYS));
+const QUICK_DUE = [{ days: 0, label: 'editor.due.today' }, { days: 1, label: 'editor.due.tomorrow' }, { days: 7, label: 'editor.due.plus' }] as const;
 
 function setDue(value: string | null): void {
     if (value) draft.due = value; // очистить срок нельзя: он обязателен
 }
-const shift = (days: number): void => void (draft.due = addDays(draft.due, days));
+const quickDue = (days: number): string => addDays(store.today, days);
+const dueLeft = computed(() => diffDays(store.today, draft.due));
+const dueHint = computed(() => (dueLeft.value >= 1 ? inDaysText(dueLeft.value) : ''));
 
-// --- пункты ---
+// --- пункты: галочка, текст, ручка перестановки, удаление ---
 const root = ref<HTMLElement | null>(null);
+const itemsEl = ref<HTMLElement | null>(null);
 
 function focusItem(index: number): void {
-    void nextTick(() => root.value?.querySelectorAll<HTMLInputElement>('.item-row input')[index]?.focus());
+    void nextTick(() => root.value?.querySelectorAll<HTMLInputElement>('.item-text input')[index]?.focus());
 }
 
 function addItem(after = draft.items.length - 1): void {
@@ -116,6 +131,24 @@ function addItem(after = draft.items.length - 1): void {
 function removeItem(index: number): void {
     draft.items.splice(index, 1);
 }
+
+// Backspace в пустом пункте убирает его и возвращает курсор выше: так удаляют, не тянясь к кнопке
+function onItemBackspace(event: KeyboardEvent, index: number): void {
+    if (draft.items[index]!.text !== '') return;
+    event.preventDefault();
+    removeItem(index);
+    focusItem(Math.max(0, index - 1));
+}
+
+function setItemDone(item: Item, done: boolean): void {
+    item.doneAt = done ? Date.now() : null;
+}
+const doneTime = (item: Item): string => (item.doneAt ? formatDateTime(item.doneAt, locale.value) : '');
+
+useSortable(itemsEl, {
+    onMove: (from, to) => void (draft.items = moveItem(draft.items, from, to)),
+    texts: () => (i18n.current.value === 'ru' ? sortableTextsRu : sortableTextsEn),
+});
 
 // --- повтор: пресеты и свой период ---
 type Preset = 'none' | 'day' | 'week' | 'month' | 'half' | 'year' | 'custom';
@@ -151,7 +184,7 @@ function setEvery(value: number | null): void {
     if (draft.repeat && value !== null) draft.repeat.every = value;
 }
 
-// --- панель Markdown: кнопки и Mod+B / Mod+I / Mod+K; сами правила — core/mdFormat.ts ---
+// --- панель Markdown: появляется, пока курсор в тексте; кнопки и Mod+B / Mod+I / Mod+K; сами правила — core/mdFormat.ts ---
 const bodyArea = (): HTMLTextAreaElement | null => root.value?.querySelector('textarea') ?? null;
 
 async function format(action: MdAction): Promise<void> {
@@ -184,55 +217,81 @@ onMounted(() => {
 </script>
 
 <template>
-    <form ref="root" class="editor" @submit.prevent="emit('close')">
-        <TaoFormField :label="t('editor.due.label')" :error="visibleError === 'badDate' || visibleError === 'tooOld' ? errorText : ''">
-            <div class="due">
-                <TaoButton variant="ghost" icon="tao-chevron-left" :aria-label="t('editor.due.prev')" @click="shift(-1)" />
-                <TaoDate editable :model-value="draft.due" :min="minDate" :error="visibleError === 'badDate' || visibleError === 'tooOld'" class="due-field" @update:model-value="setDue" />
-                <TaoButton variant="ghost" icon="tao-chevron-right" :aria-label="t('editor.due.next')" @click="shift(1)" />
-            </div>
-        </TaoFormField>
-
-        <div class="chips">
-            <TaoButton size="small" variant="secondary" @click="draft.due = store.today">{{ t('editor.due.today') }}</TaoButton>
-            <TaoButton v-for="days in QUICK_SHIFT_DAYS" :key="days" size="small" variant="secondary" :aria-label="t('editor.due.add', [days])" @click="shift(days)">+{{ days }}</TaoButton>
-        </div>
-
-        <TaoFormField :label="t('editor.body.label')" :hint="t('editor.body.hint')" :error="visibleError === 'empty' ? errorText : ''">
-            <!-- mousedown.prevent: кнопка не уводит фокус из поля, иначе выделение пропало бы до применения -->
+    <form ref="root" class="editor" @submit.prevent="emit('close')" @keydown.esc="onEscape">
+        <!-- текст идёт первым: заметку начинают с него, а не с даты -->
+        <div class="body-field">
+            <TaoFormField :error="visibleError === 'empty' ? errorText : ''">
+                <TaoTextarea v-model="draft.body" class="body" variant="plain" size="large" :rows="4" :resize="false" :placeholder="t('editor.body.placeholder')" :aria-label="t('editor.body.label')" :error="visibleError === 'empty'" />
+            </TaoFormField>
+            <!-- pointerdown.prevent: кнопка не уводит фокус из поля, иначе выделение пропало бы до применения -->
             <TaoToolbar :label="t('editor.format.label')" size="small" variant="plain" class="format">
                 <TaoToolbarGroup>
-                    <TaoButton v-for="action in FORMATS" :key="action" variant="ghost" size="small" :aria-label="t(`editor.format.${action}`)" :title="formatTitle(action)" @mousedown.prevent @click="format(action)">
+                    <TaoButton v-for="action in FORMATS" :key="action" variant="ghost" size="small" :aria-label="t(`editor.format.${action}`)" :title="formatTitle(action)" @pointerdown.prevent @click="format(action)">
                         <b v-if="action === 'bold'" aria-hidden="true">B</b>
                         <i v-else-if="action === 'italic'" aria-hidden="true">I</i>
                         <TaoIcon v-else :name="action" />
                     </TaoButton>
                 </TaoToolbarGroup>
             </TaoToolbar>
-            <TaoTextarea v-model="draft.body" variant="outline" :placeholder="t('editor.body.placeholder')" :error="visibleError === 'empty'" />
-        </TaoFormField>
+        </div>
 
         <fieldset class="items">
             <legend class="sr-only">{{ t('editor.items.label') }}</legend>
-            <div v-for="(item, index) in draft.items" :key="item.id" class="item-row">
-                <TaoButton variant="ghost" tone="danger" icon="tao-trash" :aria-label="t('editor.items.remove')" @click="removeItem(index)" />
-                <TaoInput v-model="item.text" :placeholder="t('editor.items.placeholder')" :aria-label="t('editor.items.label')" @keydown.enter.prevent="addItem(index)" />
+            <div ref="itemsEl" class="item-list">
+                <div v-for="(item, index) in draft.items" :key="item.id" class="item-row" data-sortable-item>
+                    <TaoCheckbox :model-value="item.doneAt !== null" class="item-check" :aria-label="t('editor.items.done')" @update:model-value="setItemDone(item, $event)" />
+                    <div class="item-main">
+                        <TaoInput v-model="item.text" class="item-text" variant="plain" :placeholder="t('editor.items.placeholder')" :aria-label="t('editor.items.label')" @keydown.enter.prevent="addItem(index)" @keydown.backspace="onItemBackspace($event, index)" />
+                        <span v-if="item.doneAt" class="item-time">{{ doneTime(item) }}</span>
+                    </div>
+                    <TaoButton variant="ghost" icon="tao-grip" class="grip" :aria-label="t('editor.items.move')" data-sortable-handle />
+                    <TaoButton variant="ghost" icon="tao-close" class="drop" :aria-label="t('editor.items.remove')" @click="removeItem(index)" />
+                </div>
             </div>
             <TaoButton variant="ghost" icon="tao-plus" class="add-item" @click="addItem()">{{ t('editor.items.add') }}</TaoButton>
         </fieldset>
 
-        <TaoFormField :label="t('editor.repeat.label')" :error="visibleError === 'badRepeat' ? errorText : ''">
-            <div class="repeat">
-                <TaoSelect :model-value="preset" :options="presetOptions" :clearable="false" @update:model-value="setPreset" />
-                <div v-if="preset === 'custom' && draft.repeat" class="custom">
-                    <span>{{ t('editor.repeat.every') }}</span>
-                    <TaoInputNumber :model-value="draft.repeat.every" :min="1" :max="MAX_REPEAT_EVERY" :step="1" class="every" @update:model-value="setEvery" />
-                    <TaoSelect v-model="draft.repeat.unit" :options="unitOptions" :clearable="false" />
+        <!-- срок и повтор — один блок: подписи слева, значения справа -->
+        <section class="props" :aria-label="t('editor.props')">
+            <div class="prop">
+                <h3 class="prop-label">{{ t('editor.due.label') }}</h3>
+                <div class="prop-value">
+                    <div class="chips">
+                        <TaoButton v-for="quick in QUICK_DUE" :key="quick.days" size="small" variant="secondary" :pressed="draft.due === quickDue(quick.days)" @click="draft.due = quickDue(quick.days)">{{ t(quick.label, [quick.days]) }}</TaoButton>
+                    </div>
+                    <TaoFormField :error="dateError ? errorText : ''">
+                        <div class="date-line">
+                            <TaoDate editable :model-value="draft.due" :min="minDate" :error="dateError" :aria-label="t('editor.due.label')" class="due-field" @update:model-value="setDue" />
+                            <span v-if="dueHint" class="due-hint">{{ dueHint }}</span>
+                        </div>
+                    </TaoFormField>
                 </div>
             </div>
-        </TaoFormField>
 
-        <TaoButton type="submit" variant="primary" class="submit">{{ t('editor.done') }}</TaoButton>
+            <div class="prop">
+                <h3 class="prop-label">{{ t('editor.repeat.label') }}</h3>
+                <div class="prop-value">
+                    <TaoFormField :error="visibleError === 'badRepeat' ? errorText : ''">
+                        <div class="repeat">
+                            <TaoSelect :model-value="preset" :options="presetOptions" :clearable="false" :aria-label="t('editor.repeat.label')" @update:model-value="setPreset" />
+                            <div v-if="preset === 'custom' && draft.repeat" class="custom">
+                                <span>{{ t('editor.repeat.every') }}</span>
+                                <TaoInputNumber :model-value="draft.repeat.every" :min="1" :max="MAX_REPEAT_EVERY" :step="1" class="every" @update:model-value="setEvery" />
+                                <TaoSelect v-model="draft.repeat.unit" :options="unitOptions" :clearable="false" />
+                            </div>
+                        </div>
+                    </TaoFormField>
+                </div>
+            </div>
+        </section>
+
+        <!-- «Готово» внизу, у большого пальца; при прокрутке остаётся на виду -->
+        <div class="foot">
+            <p class="status" aria-live="polite">
+                <template v-if="saved"><TaoIcon name="tao-check" />{{ t('editor.saved') }}</template>
+            </p>
+            <TaoButton type="submit" variant="primary">{{ t('editor.done') }}</TaoButton>
+        </div>
     </form>
 </template>
 
@@ -241,48 +300,150 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
     gap: var(--tao-space-4);
+    /* на весь экран телефона форма растягивается, и «Готово» оказывается у самого низа */
+    min-height: 100%;
 }
 
-.due {
+/* крупный текст без рамки: это страница заметки, а не форма */
+.body :deep(textarea) {
+    font-size: var(--tao-font-size-lg);
+    line-height: 1.55;
+    /* где браузер умеет, поле растёт вместе с текстом */
+    field-sizing: content;
+    min-height: 6.5em;
+}
+
+.format {
+    display: none;
+}
+
+.body-field:focus-within .format {
+    display: flex;
+}
+
+.items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tao-space-1);
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.item-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.item-row {
     display: flex;
     align-items: center;
-    gap: var(--tao-space-2);
+    gap: var(--tao-space-1);
+    border-radius: var(--tao-radius-md);
+    background: var(--tao-color-bg);
 }
 
-.due-field {
+.item-row[data-sortable-dragging],
+.item-row[data-sortable-lifted] {
+    background: var(--tao-color-surface-raised);
+    box-shadow: 0 6px 18px rgb(0 0 0 / 0.25);
+}
+
+.item-check {
+    flex: none;
+}
+
+.item-main {
+    display: flex;
     flex: 1;
+    flex-direction: column;
     min-width: 0;
+}
+
+.item-main :deep(.tao-input) {
+    min-width: 0;
+}
+
+.item-time {
+    padding-inline: var(--tao-space-3);
+    color: var(--tao-color-text-muted);
+    font-size: var(--tao-font-size-xs);
+}
+
+.grip,
+.drop {
+    flex: none;
+    color: var(--tao-color-text-muted);
+}
+
+.grip {
+    cursor: grab;
+    touch-action: none;
+}
+
+.add-item {
+    align-self: flex-start;
+    color: var(--tao-color-text-muted);
+}
+
+.props {
+    display: flex;
+    flex-direction: column;
+    padding: var(--tao-space-2) var(--tao-space-4);
+    border: 1px solid var(--tao-color-border);
+    border-radius: var(--tao-radius-lg);
+    background: var(--tao-color-surface);
+}
+
+.prop {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tao-space-2) var(--tao-space-4);
+    padding-block: var(--tao-space-3);
+}
+
+.prop + .prop {
+    border-top: 1px solid var(--tao-color-border);
+}
+
+.prop-label {
+    flex: none;
+    width: 4.5rem;
+    margin: var(--tao-space-2) 0 0;
+    color: var(--tao-color-text-muted);
+    font-size: var(--tao-font-size-sm);
+    font-weight: 500;
+}
+
+.prop-value {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--tao-space-2);
+    min-width: min(100%, 14rem);
 }
 
 .chips {
     display: flex;
     flex-wrap: wrap;
     gap: var(--tao-space-2);
-    margin-top: calc(var(--tao-space-2) * -1);
 }
 
-.items {
+.date-line {
     display: flex;
-    flex-direction: column;
-    gap: var(--tao-space-2);
-    margin: 0;
-    padding: 0;
-    border: 0;
-}
-
-.item-row {
-    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tao-space-2) var(--tao-space-3);
     align-items: center;
-    gap: var(--tao-space-2);
 }
 
-.add-item {
-    align-self: flex-start;
-}
-
-.item-row :deep(.tao-input) {
-    flex: 1;
+.due-field {
+    flex: 0 1 11rem;
     min-width: 0;
+}
+
+.due-hint {
+    color: var(--tao-color-text-muted);
+    font-size: var(--tao-font-size-sm);
 }
 
 .repeat,
@@ -302,8 +463,26 @@ onMounted(() => {
     width: 8em;
 }
 
-.submit {
-    align-self: flex-start;
+.foot {
+    position: sticky;
+    margin-top: auto;
+    bottom: 0;
+    z-index: 1;
+    display: flex;
+    gap: var(--tao-space-3);
+    align-items: center;
+    justify-content: space-between;
+    padding-block: var(--tao-space-3);
+    background: var(--tao-color-bg);
+}
+
+.status {
+    display: flex;
+    gap: var(--tao-space-1);
+    align-items: center;
+    margin: 0;
+    color: var(--tao-color-text-muted);
+    font-size: var(--tao-font-size-sm);
 }
 
 .sr-only {

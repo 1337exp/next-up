@@ -96,8 +96,9 @@ watch(
 
 <template>
     <TaoNav :model-value="section" class="nav" :items="items" :aria-label="t('nav.label')" :more-label="t('nav.more')" @update:model-value="onNav">
-        <template #action>
-            <TaoButton icon="tao-plus" @click="editor.openCreate()"><span class="tao-nav__action-label">{{ t('nav.create') }}</span></TaoButton>
+        <!-- на телефоне главное действие — поле ввода внизу списка, круглая «+» не нужна -->
+        <template v-if="!phone" #action>
+            <TaoButton icon="tao-plus" shortcut="N" @click="editor.openCreate()"><span class="tao-nav__action-label">{{ t('nav.create') }}</span></TaoButton>
         </template>
 
         <!-- Настройки: страница рядом с меню (на телефоне вместо неё нижний лист) -->
@@ -143,6 +144,9 @@ watch(
 .nav {
     /* на короткой странице (пустой раздел) нижняя панель остаётся внизу окна */
     min-height: 100dvh;
+    /* на очень широком мониторе приложение не растягивается, а стоит по центру: ленте заметок больше не нужно */
+    max-width: var(--nu-app-max);
+    margin-inline: auto;
 }
 
 .narrow {
