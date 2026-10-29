@@ -115,7 +115,6 @@ async function fillDemo(): Promise<void> {
             </div>
         </section>
 
-        <p class="about">{{ t('app.name') }} v3</p>
     </div>
 </template>
 
@@ -124,13 +123,6 @@ async function fillDemo(): Promise<void> {
     display: flex;
     flex-direction: column;
     gap: var(--tao-space-5);
-}
-
-.about {
-    margin: var(--tao-space-4) 0 0;
-    color: var(--tao-color-text-muted);
-    font-size: var(--tao-font-size-xs);
-    opacity: 0.55;
 }
 
 .group {

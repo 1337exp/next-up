@@ -107,6 +107,10 @@ watch(
 <template>
     <TaoNav :model-value="section" class="nav" :floating="phone" :surface="phone ? 'glass' : 'flat'" :items="items" :aria-label="t('nav.label')" :more-label="t('nav.more')" @update:model-value="onNav">
         <!-- на телефоне главное действие — поле ввода внизу списка, круглая «+» не нужна -->
+        <template #footer>
+            <p class="about">{{ t('app.name') }} v3</p>
+        </template>
+
         <template v-if="!phone" #action>
             <TaoButton icon="tao-plus" shortcut="N" @click="editor.openCreate()"><span class="tao-nav__action-label">{{ t('nav.create') }}</span></TaoButton>
         </template>
@@ -172,13 +176,9 @@ watch(
 
 .wide {
     height: 100dvh;
-    /* ручка разделителя TaoSplit выступает на 1 px: без этого документ прокручивается */
-    overflow: hidden;
 }
 
 .settings-page {
-    /* контейнер для скрытых полей TaoSwitch / TaoFileDrop (position: absolute): без него они уходят за пределы прокручиваемой страницы и растягивают документ */
-    position: relative;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -194,6 +194,15 @@ watch(
     }
 }
 
+/* подпись внизу меню: едва заметная, как ссылка в подвале */
+.about {
+    margin: 0;
+    padding-inline: var(--tao-space-3);
+    color: var(--tao-color-text-muted);
+    font-size: var(--tao-font-size-xs);
+    opacity: 0.55;
+}
+
 .settings-page h2 {
     margin: 0;
 }
@@ -205,7 +214,6 @@ watch(
 }
 
 .pane {
-    position: relative;
     box-sizing: border-box;
     height: 100%;
     overflow: auto;

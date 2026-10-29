@@ -129,9 +129,9 @@ function onMenu(id: string): void {
 </template>
 
 <style scoped>
-/* лицевая панель свайпа красится библиотекой в surface-raised и скругляется по-своему: подгоняем под строку, иначе по углам видна «рамка» */
+/* строка лежит прямо на странице: фон и скругление свайпа подгоняем под неё, иначе по углам видна «рамка» */
 .swipe-row {
-    --tao-color-surface-raised: var(--tao-color-bg);
+    --tx-swipe-bg: var(--tao-color-bg);
     --tx-swipe-radius: var(--tao-radius-lg);
 }
 

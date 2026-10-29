@@ -72,7 +72,8 @@ choose a text colour, WCAG 2 to promise a number.
   in its default slot and it lays it out. `floating` makes the bar a detached pill (the FAB is your own button beside
   it). `select(id, event)` + `event.preventDefault()` to route with a router. Widths `--tao-nav-rail-width` /
   `--tao-nav-drawer-width`; the action button may take `shortcut="N"` (shown in the side panel, hidden when round). `surface="glass"` for a
-  translucent bar over the page (as on TaoCard; it turns solid where blur is off).
+  translucent bar over the page (as on TaoCard; it turns solid where blur is off). `#footer`: a small line under the
+  items (version, About) in the rail and the side panel.
 
 ## Forms
 
