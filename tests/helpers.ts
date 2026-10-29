@@ -1,35 +1,9 @@
-import { createJsonStorage, type JsonStorage } from '@/storage/local';
-import type { Task } from '@/domain/types';
+import type { Item, Note, Repeat } from '@/core/model';
 
-let counter = 0;
-
-export function makeTask(overrides: Partial<Task> = {}): Task {
-    const date = overrides.date ?? '2026-10-06';
-    return {
-        id: `t${++counter}`,
-        date,
-        note: 'note',
-        checklist: [],
-        recurrence: 'none',
-        anchor: overrides.anchor ?? date,
-        done: false,
-        rolled: false,
-        updatedAt: 1,
-        ...overrides,
-    };
+export function note(over: Partial<Note> & { id: string; due: string }): Note {
+    return { body: 'заметка', items: [], repeat: null, doneAt: null, createdAt: 1, updatedAt: 1, deletedAt: null, ...over };
 }
 
-export function idGenerator(prefix = 'n'): () => string {
-    let n = 0;
-    return () => `${prefix}${++n}`;
-}
+export const item = (id: string, text: string, doneAt: number | null = null): Item => ({ id, text, doneAt });
 
-export function memoryJsonStorage(initial: Record<string, string> = {}): { storage: JsonStorage; map: Map<string, string> } {
-    const map = new Map(Object.entries(initial));
-    const storage = createJsonStorage({
-        getItem: (k) => map.get(k) ?? null,
-        setItem: (k, v) => void map.set(k, v),
-        removeItem: (k) => void map.delete(k),
-    });
-    return { storage, map };
-}
+export const repeat = (over: Partial<Repeat> & { anchor: string }): Repeat => ({ series: 's', every: 1, unit: 'day', ...over });

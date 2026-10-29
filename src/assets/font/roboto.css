@@ -1,102 +1,41 @@
 /*
- * Roboto — локальное подключение.
- * Замените содержимое на @font-face с url() на ваши локальные woff2/ttf
- * (начертания 400 / 500 / 700, кириллица + латиница).
- * Пока файл пустой, TaoUi использует запасной sans-serif.
+ * Roboto: переменный шрифт (вес 100-900), только латиница и кириллица, обычный и курсив: 4 файла вместо 12 статических.
+ * Источник: пакет @fontsource-variable/roboto 5.3.0 (лицензия SIL OFL 1.1, см. LICENSE.txt). Имя семейства "Roboto":
+ * его ждёт токен --tao-font-family у TaoUI. unicode-range заставляет браузер брать только нужный файл.
  */
 
-/* Thin 100 */
 @font-face {
     font-family: 'Roboto';
-    src: url('./Roboto-Thin.woff2') format('woff2');
-    font-weight: 100;
     font-style: normal;
+    font-weight: 100 900;
     font-display: swap;
-}
-@font-face {
-    font-family: 'Roboto';
-    src: url('./Roboto-ThinItalic.woff2') format('woff2');
-    font-weight: 100;
-    font-style: italic;
-    font-display: swap;
+    src: url('./roboto-latin-wght-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 
-/* Light 300 */
 @font-face {
     font-family: 'Roboto';
-    src: url('./Roboto-Light.woff2') format('woff2');
-    font-weight: 300;
     font-style: normal;
+    font-weight: 100 900;
     font-display: swap;
-}
-@font-face {
-    font-family: 'Roboto';
-    src: url('./Roboto-LightItalic.woff2') format('woff2');
-    font-weight: 300;
-    font-style: italic;
-    font-display: swap;
+    src: url('./roboto-cyrillic-wght-normal.woff2') format('woff2');
+    unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
 }
 
-/* Regular 400 */
 @font-face {
     font-family: 'Roboto';
-    src: url('./Roboto-Regular.woff2') format('woff2');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'Roboto';
-    src: url('./Roboto-Italic.woff2') format('woff2');
-    font-weight: 400;
     font-style: italic;
+    font-weight: 100 900;
     font-display: swap;
+    src: url('./roboto-latin-wght-italic.woff2') format('woff2');
+    unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 
-/* Medium 500 */
 @font-face {
     font-family: 'Roboto';
-    src: url('./Roboto-Medium.woff2') format('woff2');
-    font-weight: 500;
-    font-style: normal;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'Roboto';
-    src: url('./Roboto-MediumItalic.woff2') format('woff2');
-    font-weight: 500;
     font-style: italic;
+    font-weight: 100 900;
     font-display: swap;
-}
-
-/* Bold 700 */
-@font-face {
-    font-family: 'Roboto';
-    src: url('./Roboto-Bold.woff2') format('woff2');
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'Roboto';
-    src: url('./Roboto-BoldItalic.woff2') format('woff2');
-    font-weight: 700;
-    font-style: italic;
-    font-display: swap;
-}
-
-/* Black 900 */
-@font-face {
-    font-family: 'Roboto';
-    src: url('./Roboto-Black.woff2') format('woff2');
-    font-weight: 900;
-    font-style: normal;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'Roboto';
-    src: url('./Roboto-BlackItalic.woff2') format('woff2');
-    font-weight: 900;
-    font-style: italic;
-    font-display: swap;
+    src: url('./roboto-cyrillic-wght-italic.woff2') format('woff2');
+    unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
 }

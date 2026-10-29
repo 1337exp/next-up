@@ -3,12 +3,20 @@ import { createPinia } from 'pinia';
 import TaoUI from '@1337exp/taoui';
 
 import '@1337exp/taoui/styles.css';
-import '@/assets/fontello/css/fontello.css';
-import '@/assets/fontello/css/animation.css';
+import '@1337exp/taoui/palettes.css';
 import '@/assets/font/roboto.css';
-import '@/styles/app.css';
-import '@/styles/theme.css';
+import '@/styles.css';
 
 import App from '@/App.vue';
+import { registerAppIcons } from '@/app/icons';
+import { initLocale } from '@/i18n';
+
+registerAppIcons();
+initLocale();
+
+// офлайн-оболочка и оповещения; в режиме разработки worker не регистрируем: кеш мешал бы правкам
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+    window.addEventListener('load', () => void navigator.serviceWorker.register(new URL('sw.js', document.baseURI)).catch(() => {}));
+}
 
 createApp(App).use(createPinia()).use(TaoUI).mount('#app');
