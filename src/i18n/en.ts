@@ -36,6 +36,8 @@ export default {
         runHide: 'Hide',
     },
 
+    week: { label: 'Week', prev: 'Previous week', next: 'Next week', count: 'notes: {0}' },
+
     quick: { label: 'Quick note', placeholder: 'What to remember?', add: 'Add', full: 'More options', added: 'Added: {0}' },
 
     search: { placeholder: 'Search', clear: 'Clear search' },
@@ -141,6 +143,7 @@ export default {
         done: 'Done',
         edit: 'Edit',
         clone: 'Make a copy',
+        swipeCopy: 'Copy',
         items: 'Items · {0} of {1}',
         created: 'Created {0}',
         createdChanged: 'Created {0} · changed {1}',
@@ -162,6 +165,7 @@ export default {
         title: 'Settings',
         appearance: 'Appearance',
         notifications: 'Notifications',
+        showWeek: 'Week above the list',
         gesturesGroup: 'Gestures',
         fullSwipe: { label: 'A long swipe left opens editing', hint: 'Swipe right completes a note, left shows copy, delete, edit. When off, a long swipe only opens the actions.' },
         searchGroup: 'Search',

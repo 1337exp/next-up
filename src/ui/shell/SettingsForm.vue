@@ -74,6 +74,10 @@ async function fillDemo(): Promise<void> {
 
         <TaoDivider />
 
+        <TaoSwitch v-model="settings.showWeek" :label="t('settings.showWeek')" />
+
+        <TaoDivider />
+
         <h3 class="tao-heading-6 group">{{ t('settings.gesturesGroup') }}</h3>
 
         <div class="notify">

@@ -117,3 +117,14 @@ export function parseUserDate(input: string, today: IsoDate): IsoDate | null {
     const candidate = toIso(year, month, day);
     return isValidIsoDate(candidate) ? candidate : null;
 }
+
+/** Понедельник недели, в которой лежит `iso`. */
+export function weekStart(iso: IsoDate): IsoDate {
+    return addDays(iso, -weekdayIndex(iso));
+}
+
+/** Семь дней недели с понедельника; `offset` — на сколько недель сдвинуться от недели, где лежит `from` (−1 прошлая, 1 следующая). */
+export function weekDays(from: IsoDate, offset = 0): IsoDate[] {
+    const first = addDays(weekStart(from), offset * 7);
+    return Array.from({ length: 7 }, (_, i) => addDays(first, i));
+}

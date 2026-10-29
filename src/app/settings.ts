@@ -15,6 +15,8 @@ export interface Settings {
     palette: string;
     /** Размер интерфейса: класс `tao-size-*` на `<html>`. */
     size: Size;
+    /** Недельная лента над списком «Скоро». */
+    showWeek: boolean;
     /** Длинный свайп влево сразу запускает последнее действие строки («Изменить»). */
     fullSwipe: boolean;
     /** Поиск без поправки на опечатки: слово находится только как подстрока. */
@@ -30,7 +32,7 @@ export interface Settings {
 export const SETTINGS_KEY = 'nextup.settings';
 
 export function defaultSettings(): Settings {
-    return { mode: 'auto', palette: '', size: 'medium', fullSwipe: true, exactSearch: false, notifyToday: false, lastNotified: '', sync: { enabled: false, url: '', authorization: '' } };
+    return { mode: 'auto', palette: '', size: 'medium', showWeek: true, fullSwipe: true, exactSearch: false, notifyToday: false, lastNotified: '', sync: { enabled: false, url: '', authorization: '' } };
 }
 
 const isMode = (v: unknown): v is Mode => typeof v === 'string' && (MODES as readonly string[]).includes(v);
@@ -45,6 +47,7 @@ export function parseSettings(raw: unknown): Settings {
     if (isMode(record.mode)) result.mode = record.mode;
     if (isPalette(record.palette)) result.palette = record.palette;
     if (isSize(record.size)) result.size = record.size;
+    if (typeof record.showWeek === 'boolean') result.showWeek = record.showWeek;
     if (typeof record.fullSwipe === 'boolean') result.fullSwipe = record.fullSwipe;
     if (typeof record.exactSearch === 'boolean') result.exactSearch = record.exactSearch;
     if (typeof record.notifyToday === 'boolean') result.notifyToday = record.notifyToday;

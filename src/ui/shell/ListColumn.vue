@@ -8,6 +8,8 @@ import NoteList from '@/ui/notes/NoteList.vue';
 import QuickAdd from '@/ui/notes/QuickAdd.vue';
 import RecentTags from '@/ui/notes/RecentTags.vue';
 import SearchBar from '@/ui/notes/SearchBar.vue';
+import WeekStrip from '@/ui/notes/WeekStrip.vue';
+import { useSettingsStore } from '@/app/settings';
 import { useSearch } from '@/ui/notes/useNotes';
 import TrashView from '@/ui/notes/TrashView.vue';
 import { usePhone } from './useWide';
@@ -17,6 +19,7 @@ const props = defineProps<{ section: 'active' | 'archive' | 'trash' }>();
 const { t, locale } = useI18n();
 const store = useNotesStore();
 const phone = usePhone();
+const { settings } = useSettingsStore();
 const { searching } = useSearch();
 
 // шапка отвечает на главный вопрос одним взглядом: какой сегодня день и сколько на нём
@@ -45,6 +48,7 @@ const showSearchField = computed(() => hasSearch.value && (!phone.value || searc
             <TaoButton v-else-if="phone && hasSearch" variant="ghost" icon="tao-search" :pressed="searchOpen" :aria-label="t('search.placeholder')" @click="searchOpen = !searchOpen" />
         </header>
         <SearchBar v-if="showSearchField && phone" autofocus />
+        <WeekStrip v-if="section === 'active' && settings.showWeek" />
         <QuickAdd v-if="section === 'active'" />
         <RecentTags v-if="section === 'active'" />
         <TrashView v-if="section === 'trash'" />

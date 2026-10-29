@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addDays } from '@/core/date';
+import { addDays, weekDays, weekStart } from '@/core/date';
 import { bucketOf, groupByBucket, groupByMonth, groupRuns, isArchived, normalize, splitNotes, trashed, urgency } from '@/core/lifecycle';
 import { mergeNotes } from '@/core/merge';
 import { nextOccurrence, occurrence, occurrenceId } from '@/core/repeat';
@@ -136,5 +136,21 @@ describe('группы по времени', () => {
     it('группирует отсортированный список и не создаёт пустых групп', () => {
         const groups = groupByBucket([{ due: '2026-10-29' }, { due: '2026-10-29' }, { due: '2026-10-31' }, { due: '2026-11-10' }], today);
         expect(groups.map((g) => [g.key, g.items.length])).toEqual([['today', 2], ['week', 1], ['later', 1]]);
+    });
+});
+
+describe('неделя', () => {
+    it('семь дней с понедельника той недели, где лежит дата', () => {
+        // 29 октября 2026 — четверг
+        expect(weekStart('2026-10-29')).toBe('2026-10-26');
+        expect(weekStart('2026-11-01')).toBe('2026-10-26'); // воскресенье принадлежит прошлой неделе
+        expect(weekStart('2026-10-26')).toBe('2026-10-26');
+        expect(weekDays('2026-10-29')).toEqual(['2026-10-26', '2026-10-27', '2026-10-28', '2026-10-29', '2026-10-30', '2026-10-31', '2026-11-01']);
+    });
+
+    it('сдвиг на недели, в том числе через границу месяца и года', () => {
+        expect(weekDays('2026-10-29', 1)[0]).toBe('2026-11-02');
+        expect(weekDays('2026-10-29', -1)[6]).toBe('2026-10-25');
+        expect(weekDays('2026-12-30', 1)).toEqual(['2027-01-04', '2027-01-05', '2027-01-06', '2027-01-07', '2027-01-08', '2027-01-09', '2027-01-10']);
     });
 });

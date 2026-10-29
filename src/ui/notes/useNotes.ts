@@ -8,16 +8,18 @@ import { useI18n } from '@/i18n';
 
 // поиск общий для списка, навигации и тегов, поэтому живёт на уровне модуля
 const query = ref('');
+/** День из недельной ленты: в «Скоро» остаются только его заметки. */
+const day = ref<string | null>(null);
 
 export function useSearch() {
     const store = useNotesStore();
     const { settings } = useSettingsStore();
     const searching = computed(() => isSearchable(query.value));
     const found = computed(() => ({
-        active: filterByQuery(store.active, query.value, { exact: settings.exactSearch }),
+        active: filterByQuery(store.active, query.value, { exact: settings.exactSearch }).filter((note) => !day.value || note.due === day.value),
         archive: filterByQuery(store.archive, query.value, { exact: settings.exactSearch }),
     }));
-    return { query, searching, found };
+    return { query, day, searching, found };
 }
 
 /** Клик по хештегу ищет по нему; повторный клик по тому же тегу снимает поиск. */

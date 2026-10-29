@@ -33,6 +33,8 @@ export default {
         runHide: 'Скрыть',
     },
 
+    week: { label: 'Неделя', prev: 'Прошлая неделя', next: 'Следующая неделя', count: 'заметок: {0}' },
+
     quick: { label: 'Быстрая заметка', placeholder: 'Что запомнить?', add: 'Добавить', full: 'Подробнее', added: 'Добавлено: {0}' },
 
     search: { placeholder: 'Поиск', clear: 'Очистить поиск' },
@@ -139,6 +141,7 @@ export default {
         done: 'Выполнено',
         edit: 'Изменить',
         clone: 'Сделать копию',
+        swipeCopy: 'Копия',
         items: 'Пункты · {0} из {1}',
         created: 'Создано {0}',
         createdChanged: 'Создано {0} · изменено {1}',
@@ -160,6 +163,7 @@ export default {
         title: 'Настройки',
         appearance: 'Внешний вид',
         notifications: 'Оповещения',
+        showWeek: 'Неделя над списком',
         gesturesGroup: 'Жесты',
         fullSwipe: { label: 'Длинный свайп влево открывает правку', hint: 'Свайп вправо завершает заметку, влево — копия, удаление, правка. Если выключить, длинный свайп просто раскрывает действия.' },
         searchGroup: 'Поиск',

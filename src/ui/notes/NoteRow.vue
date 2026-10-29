@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onMounted, onUpdated, ref } from 'vue';
 import { TaoContextMenu, TaoDropdownMenu, TaoIcon, type TaoMenuItem } from '@1337exp/taoui';
 import { formatUserDate, type IsoDate } from '@/core/date';
 import { daysLeft as calcDaysLeft, isArchived } from '@/core/lifecycle';
@@ -15,6 +15,8 @@ const props = defineProps<{
     today: IsoDate;
     /** Открыта в редакторе. */
     selected?: boolean;
+    /** Единственная остановка `Tab` на весь список: остальные строки берутся стрелками. */
+    tabStop?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -76,13 +78,22 @@ function onRowClick(event: MouseEvent): void {
 // свайп (TaoUX): вправо — завершить (в архиве — вернуть в работу), влево — копия, удаление, правка.
 // «Удалить» стоит не последним, чтобы длинный свайп запускал безобидное «Изменить», а не удаление
 const swipeOpen = ref(false);
+const swipe = ref<{ $el: HTMLElement } | null>(null);
+
+// у списка своя клавиатура (стрелки, Пробел, Delete, ContextMenu), поэтому всё нажимаемое внутри строки — кружок, меню, теги и
+// кнопки свайпа (их оставляет в порядке Tab сама библиотека) — выводим из порядка Tab: иначе на каждой строке было бы несколько остановок.
+// Нажимаются они по-прежнему
+const skipSwipeTab = (): void =>
+    swipe.value?.$el.querySelectorAll('button, a[href], input').forEach((control) => control.setAttribute('tabindex', '-1'));
+onMounted(skipSwipeTab);
+onUpdated(skipSwipeTab);
 const startAction = computed<SwipeRowAction | undefined>(() => {
     if (!archived.value) return { id: 'done', label: t('read.done'), icon: 'tao-check', tone: 'success' };
     if (done.value && left.value >= 0) return { id: 'reopen', label: t('ui.button.reopen'), icon: 'tao-undo', tone: 'info' };
     return undefined;
 });
 const endActions = computed<SwipeRowAction[]>(() => [
-    { id: 'clone', label: t('ui.button.clone'), icon: 'tao-copy', tone: 'neutral' },
+    { id: 'clone', label: t('read.swipeCopy'), icon: 'tao-copy', tone: 'neutral' },
     { id: 'remove', label: t('ui.button.delete'), icon: 'tao-trash', tone: 'danger' },
     { id: 'edit', label: t('ui.button.change'), icon: 'tao-edit', tone: 'accent' },
 ]);
@@ -99,10 +110,10 @@ function onMenu(id: string): void {
 
 <template>
     <TaoContextMenu :items="menu" :menu-label="t('list.menu')" @select="onMenu">
-        <TaoxSwipeRow v-model:open="swipeOpen" class="swipe-row" :start="startAction" :end="endActions" :full-swipe="settings.fullSwipe" @action="onMenu">
-            <div class="row" :class="{ selected, done }" :data-note-id="note.id" tabindex="0" role="article" :aria-current="selected ? 'true' : undefined" @click="onRowClick" @keydown.enter.self="emit('open', note)">
+        <TaoxSwipeRow ref="swipe" v-model:open="swipeOpen" class="swipe-row" :start="startAction" :end="endActions" :full-swipe="settings.fullSwipe" @action="onMenu">
+            <div class="row" :class="{ selected, done }" :data-note-id="note.id" :tabindex="tabStop ? 0 : -1" role="article" :aria-current="selected ? 'true' : undefined" @click="onRowClick" @keydown.enter.self="emit('open', note)" @keydown.space.self.prevent="canToggle && onToggle()" @keydown.delete.self="emit('remove', note)">
                 <span class="hit">
-                    <button type="button" class="check" :disabled="!canToggle" :aria-label="checkLabel" :aria-pressed="done" @click.stop="onToggle">
+                    <button type="button" class="check" tabindex="-1" :disabled="!canToggle" :aria-label="checkLabel" :aria-pressed="done" @click.stop="onToggle">
                         <TaoIcon v-if="done" name="tao-check" class="check-icon" />
                     </button>
                 </span>
@@ -113,7 +124,7 @@ function onMenu(id: string): void {
                         <div v-if="checked || repeatLabel || tags.length" class="meta">
                             <span v-if="checked">{{ checked }}</span>
                             <span v-if="repeatLabel" class="repeat"><TaoIcon name="tao-repeat" />{{ repeatLabel }}</span>
-                            <button v-for="tag in tags" :key="tag" type="button" class="tag" @click.stop="emit('tag', tag)">#{{ tag }}</button>
+                            <button v-for="tag in tags" :key="tag" type="button" class="tag" tabindex="-1" @click.stop="emit('tag', tag)">#{{ tag }}</button>
                         </div>
                     </div>
 
@@ -121,7 +132,7 @@ function onMenu(id: string): void {
                         <div v-if="when" class="in-days">{{ when }}</div>
                         <div class="date">{{ dateText }}</div>
                     </div>
-                    <TaoDropdownMenu :items="menu" :menu-label="t('list.menu')" class="more" @select="onMenu" />
+                    <TaoDropdownMenu :items="menu" :menu-label="t('list.menu')" class="more" tabindex="-1" @select="onMenu" />
                 </div>
             </div>
         </TaoxSwipeRow>

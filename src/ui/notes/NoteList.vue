@@ -18,6 +18,27 @@ const { found, searching, query } = useSearch();
 const actions = useNoteActions();
 const editor = useEditor();
 
+// одна остановка Tab на весь список (roving tabindex): Tab входит в список, стрелки ходят по строкам.
+// Кружок, меню и теги в строке остаются нажимаемыми, но из порядка Tab убраны; меню — клавиша ContextMenu или Shift+F10
+const activeId = ref<string | null>(null);
+const listEl = ref<HTMLElement | null>(null);
+
+function onFocusIn(event: FocusEvent): void {
+    const id = (event.target as HTMLElement).closest<HTMLElement>('[data-note-id]')?.dataset.noteId;
+    if (id) activeId.value = id;
+}
+
+function onListKeydown(event: KeyboardEvent): void {
+    const row = (event.target as HTMLElement).closest<HTMLElement>('.row[data-note-id]');
+    if (!row || !listEl.value || (event.target as HTMLElement) !== row) return;
+    const rows = [...listEl.value.querySelectorAll<HTMLElement>('.row[data-note-id]')];
+    const at = rows.indexOf(row);
+    const next = event.key === 'ArrowDown' ? at + 1 : event.key === 'ArrowUp' ? at - 1 : event.key === 'Home' ? 0 : event.key === 'End' ? rows.length - 1 : null;
+    if (next === null) return;
+    event.preventDefault();
+    rows[Math.max(0, Math.min(rows.length - 1, next))]?.focus();
+}
+
 const visible = computed(() => found.value[props.section]);
 const emptyHint = computed(() => (searching.value ? t('list.searchEmptyHint') : props.section === 'active' ? t('list.emptyActiveHint') : ''));
 const emptyText = computed(() => (searching.value ? t('list.searchEmpty') : props.section === 'active' ? t('list.emptyActive') : t('list.emptyArchive')));
@@ -47,6 +68,12 @@ const groups = computed<Group[]>(() => {
     }));
 });
 
+// строка, на которой стоит Tab: последняя выбранная, а если её нет в списке — первая
+const tabStopId = computed(() => {
+    const ids = groups.value.flatMap((group) => group.entries.flatMap((entry) => (entry.kind === 'note' ? [entry.note.id] : [])));
+    return activeId.value && ids.includes(activeId.value) ? activeId.value : (ids[0] ?? null);
+});
+
 const openRuns = ref(new Set<string>());
 function toggleRun(key: string): void {
     const next = new Set(openRuns.value);
@@ -69,7 +96,7 @@ const runTitle = (entry: Extract<ArchiveEntry, { kind: 'run' }>): string => {
         </template>
     </EmptyState>
 
-    <div v-else class="list">
+    <div v-else ref="listEl" class="list" @focusin="onFocusIn" @keydown="onListKeydown">
         <section v-for="group in groups" :key="group.key" class="group" :aria-label="group.label">
             <h2 class="group-title">
                 <span v-if="group.today" class="dot" aria-hidden="true" />
@@ -83,6 +110,7 @@ const runTitle = (entry: Extract<ArchiveEntry, { kind: 'run' }>): string => {
                     :note="entry.note"
                     :today="store.today"
                     :selected="editor.state.value?.activeId === entry.note.id"
+                    :tab-stop="tabStopId === entry.note.id"
                     @open="editor.openRead" @edit="editor.openEdit"
                     @clone="editor.openClone"
                     @done="actions.done"
@@ -105,6 +133,7 @@ const runTitle = (entry: Extract<ArchiveEntry, { kind: 'run' }>): string => {
                             :note="note"
                             :today="store.today"
                             :selected="editor.state.value?.activeId === note.id"
+                            :tab-stop="tabStopId === note.id"
                             @open="editor.openRead" @edit="editor.openEdit"
                             @clone="editor.openClone"
                             @done="actions.done"
