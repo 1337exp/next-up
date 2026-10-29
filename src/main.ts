@@ -4,6 +4,7 @@ import TaoUI from '@1337exp/taoui';
 
 import '@1337exp/taoui/styles.css';
 import '@1337exp/taoui/palettes.css';
+import '@1337exp/taoux/swiperow.css';
 import '@/assets/font/roboto.css';
 import '@/styles.css';
 

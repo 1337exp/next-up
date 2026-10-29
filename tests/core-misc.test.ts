@@ -3,7 +3,7 @@ import { parseUserDate } from '@/core/date';
 import { mergeNotes } from '@/core/merge';
 import { cloneInput, createNote, removeNote, rowTitle, toggleItem, updateNote } from '@/core/notes';
 import { filterByQuery, matchesQuery } from '@/core/search';
-import { extractTags, tagIndex } from '@/core/tags';
+import { extractTags, recentTags, tagIndex } from '@/core/tags';
 import { createUndoStack, diffEntry } from '@/core/undo';
 import { item, note } from './helpers';
 
@@ -187,5 +187,27 @@ describe('заголовок строки списка', () => {
   it('без текста берёт первый пункт, без всего — пустую строку', () => {
     expect(title('', [item('a', 'молоко')])).toBe('молоко');
     expect(title('  ')).toBe('');
+  });
+});
+
+describe('недавние теги', () => {
+  const made = (body: string, createdAt: number) => ({ body, createdAt });
+
+  it('по самой свежей заметке, новые первыми, не больше лимита', () => {
+    const list = [made('#a старая', 1), made('#b', 5), made('#c', 9), made('#d', 3), made('#e', 4), made('#f', 2)];
+    expect(recentTags(list, 3).map((t) => t.name)).toEqual(['c', 'b', 'e']);
+    expect(recentTags(list).map((t) => t.name)).toEqual(['c', 'b', 'e', 'd', 'f']);
+  });
+
+  it('счётчик считает заметки, регистр не различается', () => {
+    expect(recentTags([made('#Дом раз', 2), made('#дом два', 3)])).toEqual([{ name: 'Дом', count: 2 }]);
+  });
+
+  it('созданные приложением повторы тег не поднимают', () => {
+    expect(recentTags([made('#a', 7), made('#b', 0), made('#b', 0)]).map((t) => t.name)).toEqual(['a', 'b']);
+  });
+
+  it('без тегов — пусто', () => {
+    expect(recentTags([made('просто текст', 5)])).toEqual([]);
   });
 });

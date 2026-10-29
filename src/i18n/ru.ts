@@ -8,14 +8,16 @@ export default {
         copied: 'Скопировано',
     },
 
-    nav: { label: 'Разделы', active: 'Скоро', archive: 'Архив', tags: 'Теги', trash: 'Корзина', settings: 'Настройки', create: 'Новая заметка', more: 'Ещё' },
+    nav: { label: 'Разделы', active: 'Скоро', archive: 'Архив', trash: 'Корзина', settings: 'Настройки', create: 'Новая заметка', more: 'Ещё' },
 
     list: {
         emptyActive: 'Ничего не запланировано',
         emptyActiveHint: 'Напишите в поле выше, например: завтра позвонить маме #дом.',
         emptyArchive: 'Архив пуст',
         searchEmpty: 'Ничего не найдено',
-        searchEmptyHint: 'Попробуйте другие слова или уберите точное совпадение в фильтрах.',
+        searchEmptyHint: 'Попробуйте другие слова. Точное совпадение выключается в настройках.',
+        recentTags: 'Недавние теги',
+        allTags: 'Все теги…',
         tagsEmpty: 'Тегов пока нет',
         tagsEmptyHint: 'Напишите #тег в тексте заметки, и он появится здесь.',
         scrollTop: 'Наверх',
@@ -33,7 +35,7 @@ export default {
 
     quick: { label: 'Быстрая заметка', placeholder: 'Что запомнить?', add: 'Добавить', full: 'Подробнее', added: 'Добавлено: {0}' },
 
-    search: { placeholder: 'Поиск', clear: 'Очистить поиск', exact: 'Точное совпадение', filters: 'Фильтры' },
+    search: { placeholder: 'Поиск', clear: 'Очистить поиск' },
 
     date: {
         today: 'Сегодня',
@@ -50,7 +52,7 @@ export default {
     },
 
     editor: {
-        title: { create: 'Новая заметка', edit: 'Заметка', clone: 'Клонирование' },
+        title: { read: 'Заметка', create: 'Новая заметка', edit: 'Изменить заметку', clone: 'Клонирование' },
         done: 'Готово',
         empty: 'Выберите заметку или создайте новую',
         due: { label: 'Срок', today: 'Сегодня', tomorrow: 'Завтра', plus: '+{0} дней' },
@@ -133,7 +135,16 @@ export default {
 
     notify: { today: 'На сегодня есть заметки: {0}' },
 
-    command: { undo: 'Отменить', redo: 'Повторить', create: 'Новая заметка', search: 'Поиск', settings: 'Настройки' },
+    read: {
+        done: 'Выполнено',
+        edit: 'Изменить',
+        clone: 'Сделать копию',
+        items: 'Пункты · {0} из {1}',
+        created: 'Создано {0}',
+        createdChanged: 'Создано {0} · изменено {1}',
+    },
+
+    command: { edit: 'Изменить заметку', undo: 'Отменить', redo: 'Повторить', create: 'Новая заметка', search: 'Поиск', settings: 'Настройки' },
 
     storage: {
         corrupt: 'Сохранённые данные не удалось прочитать. Копия сохранена, список начат заново.',
@@ -149,6 +160,10 @@ export default {
         title: 'Настройки',
         appearance: 'Внешний вид',
         notifications: 'Оповещения',
+        gesturesGroup: 'Жесты',
+        fullSwipe: { label: 'Длинный свайп влево открывает правку', hint: 'Свайп вправо завершает заметку, влево — копия, удаление, правка. Если выключить, длинный свайп просто раскрывает действия.' },
+        searchGroup: 'Поиск',
+        exactSearch: { label: 'Точное совпадение', hint: 'Без поправки на опечатки: «молко» не найдёт «молоко».' },
         language: 'Язык',
         mode: { title: 'Тема', auto: 'Авто', light: 'Светлая', dark: 'Тёмная' },
         palette: { title: 'Палитра', default: 'Стандартная' },

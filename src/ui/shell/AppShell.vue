@@ -8,14 +8,15 @@ import { useSyncStore } from '@/app/sync';
 import { useI18n } from '@/i18n';
 import EmptyState from '@/ui/components/EmptyState.vue';
 import NoteEditor from '@/ui/editor/NoteEditor.vue';
+import NoteView from '@/ui/editor/NoteView.vue';
 import { useEditor } from '@/ui/editor/useEditor';
-import { toggleTag, useSearch } from '@/ui/notes/useNotes';
+import { useSearch } from '@/ui/notes/useNotes';
 import ListColumn from './ListColumn.vue';
 import SettingsDrawer from './SettingsDrawer.vue';
 import SettingsForm from './SettingsForm.vue';
 import { usePhone, useWide } from './useWide';
 
-type Section = 'active' | 'archive' | 'tags' | 'trash' | 'settings';
+type Section = 'active' | 'archive' | 'trash' | 'settings';
 
 const { t } = useI18n();
 const store = useNotesStore();
@@ -25,7 +26,7 @@ useDayNotifier();
 const editor = useEditor();
 const wide = useWide();
 const phone = usePhone();
-const { found, searching } = useSearch();
+const { found } = useSearch();
 
 const section = ref<Section>('active');
 const settingsOpen = ref(false);
@@ -35,7 +36,6 @@ const listWidth = ref(480);
 const items = computed<TaoNavItem[]>(() => [
     { id: 'active', label: t('nav.active'), icon: 'tao-file', badge: found.value.active.length || undefined },
     { id: 'archive', label: t('nav.archive'), icon: 'tao-folder', badge: found.value.archive.length || undefined },
-    { id: 'tags', label: t('nav.tags'), icon: 'tao-tag' },
     { id: 'trash', label: t('nav.trash'), icon: 'tao-trash', badge: store.trash.length || undefined },
     { id: 'settings', label: t('nav.settings'), icon: 'tao-settings', badge: sync.status === 'error' ? true : undefined },
 ]);
@@ -52,21 +52,31 @@ function onNav(id: string): void {
     else section.value = id as Section;
 }
 
-// клик по тегу в списке тегов: ищем по нему среди активных
-function onTagSelect(tag: string): void {
-    toggleTag(tag);
-    section.value = 'active';
+// из правки возвращаемся к чтению той же заметки: «Готово» и Esc не выбрасывают из неё совсем
+function currentNote() {
+    const id = editor.state.value?.source?.id;
+    return id ? store.notes.find((n) => n.id === id && n.deletedAt === null) : undefined;
 }
-
-// пока ищем, не оставляем пользователя на разделе, где поиск не работает
-watch(searching, (value) => {
-    if (value && section.value === 'tags') section.value = 'active';
-});
+function closeEditor(): void {
+    const note = editor.state.value?.mode === 'edit' ? currentNote() : undefined;
+    if (note) editor.openRead(note);
+    else editor.close();
+}
 
 const editorTitle = computed(() => (editor.state.value ? t(`editor.title.${editor.state.value.mode}`) : ''));
 
 // --- команды и горячие клавиши (TaoUX): новая заметка, отмена/повтор, поиск, настройки ---
 const commands = createCommands([
+    {
+        id: 'edit',
+        label: () => t('command.edit'),
+        shortcut: 'E',
+        enabled: () => editor.state.value?.mode === 'read',
+        run: () => {
+            const note = currentNote();
+            if (note) editor.openEdit(note);
+        },
+    },
     { id: 'create', label: () => t('command.create'), shortcut: 'N', run: editor.openCreate },
     ...historyCommands(store, { labels: { undo: () => t('command.undo'), redo: () => t('command.redo') } }),
     { id: 'search', label: () => t('command.search'), shortcut: '/', run: () => document.querySelector<HTMLInputElement>('[data-search] input')?.focus() },
@@ -95,7 +105,7 @@ watch(
 </script>
 
 <template>
-    <TaoNav :model-value="section" class="nav" :items="items" :aria-label="t('nav.label')" :more-label="t('nav.more')" @update:model-value="onNav">
+    <TaoNav :model-value="section" class="nav" :floating="phone" :surface="phone ? 'glass' : 'flat'" :items="items" :aria-label="t('nav.label')" :more-label="t('nav.more')" @update:model-value="onNav">
         <!-- на телефоне главное действие — поле ввода внизу списка, круглая «+» не нужна -->
         <template v-if="!phone" #action>
             <TaoButton icon="tao-plus" shortcut="N" @click="editor.openCreate()"><span class="tao-nav__action-label">{{ t('nav.create') }}</span></TaoButton>
@@ -111,16 +121,19 @@ watch(
         <main v-else-if="wide" class="wide">
             <TaoSplit v-model="listWidth" unit="px" :min="360" :max="760" :min-end="360">
                 <template #start>
-                    <div class="pane"><ListColumn :section="section" @tag="onTagSelect" /></div>
+                    <div class="pane"><ListColumn :section="section" /></div>
                 </template>
                 <template #end>
                     <div class="pane">
                         <section v-if="editor.state.value" class="editor-pane">
-                            <header class="editor-head">
-                                <h2 class="tao-heading-5">{{ editorTitle }}</h2>
-                                <TaoButton variant="ghost" icon="tao-close" :aria-label="t('ui.button.close')" @click="editor.close()" />
-                            </header>
-                            <NoteEditor :key="editor.state.value.key" @close="editor.close()" />
+                            <NoteView v-if="editor.state.value.mode === 'read'" :key="editor.state.value.key" @close="editor.close()" />
+                            <template v-else>
+                                <header class="editor-head">
+                                    <h2 class="tao-heading-5">{{ editorTitle }}</h2>
+                                    <TaoButton variant="ghost" icon="tao-close" :aria-label="t('ui.button.close')" @click="closeEditor" />
+                                </header>
+                                <NoteEditor :key="editor.state.value.key" @close="closeEditor" />
+                            </template>
                         </section>
                         <EmptyState v-else icon="tao-edit" :title="t('editor.empty')" />
                     </div>
@@ -129,11 +142,14 @@ watch(
         </main>
 
         <!-- телефон и планшет: список на всю ширину, редактор поверх -->
-        <main v-else class="narrow"><ListColumn :section="section" @tag="onTagSelect" /></main>
+        <main v-else class="narrow"><ListColumn :section="section" /></main>
     </TaoNav>
 
     <TaoModal v-if="!wide" fullscreen="narrow" :model-value="!!editor.state.value" :title="editorTitle" @update:model-value="(open: boolean) => !open && editor.close()">
-        <NoteEditor v-if="editor.state.value" :key="editor.state.value.key" @close="editor.close()" />
+        <template v-if="editor.state.value">
+            <NoteView v-if="editor.state.value.mode === 'read'" :key="editor.state.value.key" @close="editor.close()" />
+            <NoteEditor v-else :key="editor.state.value.key" @close="closeEditor" />
+        </template>
     </TaoModal>
 
     <SettingsDrawer v-if="phone" v-model="settingsOpen" />

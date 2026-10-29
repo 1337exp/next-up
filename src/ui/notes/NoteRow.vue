@@ -7,7 +7,8 @@ import type { Note } from '@/core/model';
 import { rowTitle } from '@/core/notes';
 import { extractTags } from '@/core/tags';
 import { dateShort, inDaysText, repeatText, useI18n } from '@/i18n';
-import SwipeRow from '@/ui/components/SwipeRow.vue';
+import { TaoxSwipeRow, type SwipeRowAction } from '@1337exp/taoux/swiperow';
+import { useSettingsStore } from '@/app/settings';
 
 const props = defineProps<{
     note: Note;
@@ -17,6 +18,8 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
+    /** Открыть для чтения (клик, Enter). */
+    open: [note: Note];
     edit: [note: Note];
     clone: [note: Note];
     done: [note: Note];
@@ -27,6 +30,7 @@ const emit = defineEmits<{
 }>();
 
 const { t, locale } = useI18n();
+const { settings } = useSettingsStore();
 
 const left = computed(() => calcDaysLeft(props.note, props.today));
 const archived = computed(() => isArchived(props.note, props.today));
@@ -66,19 +70,22 @@ const menu = computed<TaoMenuItem[]>(() => [
 // клик по строке открывает редактор, но не по её собственным кнопкам
 function onRowClick(event: MouseEvent): void {
     if ((event.target as Element).closest('a, button, input, label, [role="menu"]')) return;
-    emit('edit', props.note);
+    emit('open', props.note);
 }
 
-// свайп влево на сенсорном экране открывает самые частые действия; правка — касанием, остальное — в меню
+// свайп (TaoUX): вправо — завершить (в архиве — вернуть в работу), влево — копия, удаление, правка.
+// «Удалить» стоит не последним, чтобы длинный свайп запускал безобидное «Изменить», а не удаление
 const swipeOpen = ref(false);
-const SWIPE_WIDTH = 64;
-const swipeActions = computed(() => {
-    const list: { id: string; label: string; icon: string }[] = [];
-    if (!archived.value) list.push({ id: 'done', label: t('ui.button.done'), icon: 'tao-check' });
-    else if (left.value >= 0) list.push({ id: 'reopen', label: t('ui.button.reopen'), icon: 'tao-undo' });
-    list.push({ id: 'remove', label: t('ui.button.delete'), icon: 'tao-trash' });
-    return list;
+const startAction = computed<SwipeRowAction | undefined>(() => {
+    if (!archived.value) return { id: 'done', label: t('read.done'), icon: 'tao-check', tone: 'success' };
+    if (done.value && left.value >= 0) return { id: 'reopen', label: t('ui.button.reopen'), icon: 'tao-undo', tone: 'info' };
+    return undefined;
 });
+const endActions = computed<SwipeRowAction[]>(() => [
+    { id: 'clone', label: t('ui.button.clone'), icon: 'tao-copy', tone: 'neutral' },
+    { id: 'remove', label: t('ui.button.delete'), icon: 'tao-trash', tone: 'danger' },
+    { id: 'edit', label: t('ui.button.change'), icon: 'tao-edit', tone: 'accent' },
+]);
 
 function onMenu(id: string): void {
     swipeOpen.value = false;
@@ -92,8 +99,8 @@ function onMenu(id: string): void {
 
 <template>
     <TaoContextMenu :items="menu" :menu-label="t('list.menu')" @select="onMenu">
-        <SwipeRow v-model:open="swipeOpen" :width="SWIPE_WIDTH" :disabled="swipeActions.length === 0">
-            <div class="row" :class="{ selected, done }" :data-note-id="note.id" tabindex="0" role="article" :aria-current="selected ? 'true' : undefined" @click="onRowClick" @keydown.enter.self="emit('edit', note)">
+        <TaoxSwipeRow v-model:open="swipeOpen" class="swipe-row" :start="startAction" :end="endActions" :full-swipe="settings.fullSwipe" @action="onMenu">
+            <div class="row" :class="{ selected, done }" :data-note-id="note.id" tabindex="0" role="article" :aria-current="selected ? 'true' : undefined" @click="onRowClick" @keydown.enter.self="emit('open', note)">
                 <span class="hit">
                     <button type="button" class="check" :disabled="!canToggle" :aria-label="checkLabel" :aria-pressed="done" @click.stop="onToggle">
                         <TaoIcon v-if="done" name="tao-check" class="check-icon" />
@@ -117,16 +124,17 @@ function onMenu(id: string): void {
                     <TaoDropdownMenu :items="menu" :menu-label="t('list.menu')" class="more" @select="onMenu" />
                 </div>
             </div>
-            <template #actions>
-                <button v-for="action in swipeActions" :key="action.id" type="button" class="swipe-button" :class="{ 'swipe-button--danger': action.id === 'remove' }" :aria-label="action.label" @click="onMenu(action.id)">
-                    <TaoIcon :name="action.icon" />
-                </button>
-            </template>
-        </SwipeRow>
+        </TaoxSwipeRow>
     </TaoContextMenu>
 </template>
 
 <style scoped>
+/* лицевая панель свайпа красится библиотекой в surface-raised и скругляется по-своему: подгоняем под строку, иначе по углам видна «рамка» */
+.swipe-row {
+    --tao-color-surface-raised: var(--tao-color-bg);
+    --tx-swipe-radius: var(--tao-radius-lg);
+}
+
 .row {
     display: flex;
     align-items: flex-start;
@@ -294,23 +302,4 @@ function onMenu(id: string): void {
     }
 }
 
-.swipe-button {
-    flex: 1 1 0;
-    min-height: 0;
-    border: 0;
-    border-top: 1px solid var(--tao-color-border);
-    background: transparent;
-    color: var(--tao-color-success);
-    font: inherit;
-    font-size: var(--tao-font-size-xl);
-    cursor: pointer;
-}
-
-.swipe-button:first-child {
-    border-top: 0;
-}
-
-.swipe-button--danger {
-    color: var(--tao-color-danger);
-}
 </style>

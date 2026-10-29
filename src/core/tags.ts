@@ -45,3 +45,27 @@ export function tagIndex(notes: readonly Pick<Note, 'body'>[]): TagCount[] {
     }
     return [...map.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }
+
+/**
+ * Теги, которыми пользовались последними: по самой свежей заметке с этим тегом (дата создания), новые первыми.
+ * Повторы, созданные приложением (`createdAt: 0`), «свежесть» тега не поднимают.
+ */
+export function recentTags(notes: readonly Pick<Note, 'body' | 'createdAt'>[], limit = 5): TagCount[] {
+    const map = new Map<string, TagCount & { last: number }>();
+    for (const note of notes) {
+        const names = extractTags(note.body);
+        for (const key of new Set(names.map((tag) => tag.toLocaleLowerCase()))) {
+            const entry = map.get(key);
+            if (entry) {
+                entry.count++;
+                entry.last = Math.max(entry.last, note.createdAt);
+            } else {
+                map.set(key, { name: names.find((tag) => tag.toLocaleLowerCase() === key)!, count: 1, last: note.createdAt });
+            }
+        }
+    }
+    return [...map.values()]
+        .sort((a, b) => b.last - a.last || b.count - a.count || a.name.localeCompare(b.name))
+        .slice(0, limit)
+        .map(({ name, count }) => ({ name, count }));
+}

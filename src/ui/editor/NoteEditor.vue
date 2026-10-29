@@ -221,7 +221,7 @@ onMounted(() => {
         <!-- текст идёт первым: заметку начинают с него, а не с даты -->
         <div class="body-field">
             <TaoFormField :error="visibleError === 'empty' ? errorText : ''">
-                <TaoTextarea v-model="draft.body" class="body" variant="plain" size="large" :rows="4" :resize="false" :placeholder="t('editor.body.placeholder')" :aria-label="t('editor.body.label')" :error="visibleError === 'empty'" />
+                <TaoTextarea v-model="draft.body" class="body" variant="plain" size="large" :rows="4" :resize="false" max-height="none" :placeholder="t('editor.body.placeholder')" :aria-label="t('editor.body.label')" :error="visibleError === 'empty'" />
             </TaoFormField>
             <!-- pointerdown.prevent: кнопка не уводит фокус из поля, иначе выделение пропало бы до применения -->
             <TaoToolbar :label="t('editor.format.label')" size="small" variant="plain" class="format">
@@ -310,8 +310,9 @@ onMounted(() => {
     line-height: 1.55;
     /* где браузер умеет, поле растёт вместе с текстом */
     field-sizing: content;
-    min-height: 6.5em;
+    min-height: 4.5em;
 }
+
 
 .format {
     display: none;
@@ -473,6 +474,7 @@ onMounted(() => {
     align-items: center;
     justify-content: space-between;
     padding-block: var(--tao-space-3);
+    border-top: 1px solid var(--tao-color-border);
     background: var(--tao-color-bg);
 }
 

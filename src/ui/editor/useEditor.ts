@@ -1,7 +1,7 @@
 import { nextTick, ref } from 'vue';
 import type { Note } from '@/core/model';
 
-export type EditorMode = 'create' | 'edit' | 'clone';
+export type EditorMode = 'read' | 'create' | 'edit' | 'clone';
 
 export interface EditorState {
     mode: EditorMode;
@@ -18,12 +18,14 @@ const state = ref<EditorState | null>(null);
 let counter = 0;
 
 function open(mode: EditorMode, source: Note | null): void {
-    state.value = { mode, source, key: ++counter, activeId: mode === 'edit' ? (source?.id ?? null) : null };
+    state.value = { mode, source, key: ++counter, activeId: mode === 'edit' || mode === 'read' ? (source?.id ?? null) : null };
 }
 
 export function useEditor() {
     return {
         state,
+        /** Заметка для чтения: выделять и копировать текст можно, не заходя в правку. */
+        openRead: (note: Note) => open('read', note),
         openCreate: () => open('create', null),
         openEdit: (note: Note) => open('edit', note),
         openClone: (note: Note) => open('clone', note),

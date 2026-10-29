@@ -56,6 +56,7 @@ function submit(): void {
                 <TaoButton variant="text" icon="tao-edit" class="full" :aria-label="t('quick.full')" @click="editor.openCreate()" />
             </template>
             <template #suffix>
+                <kbd v-if="text.trim() !== ''" class="nu-kbd" aria-hidden="true">Enter</kbd>
                 <TaoButton type="submit" variant="primary" icon="tao-plus" :aria-label="t('quick.add')" :disabled="text.trim() === ''" />
             </template>
         </TaoInput>
@@ -79,7 +80,14 @@ function submit(): void {
         order: 99;
         margin-inline: calc(var(--tao-space-4) * -1);
         padding: var(--tao-space-2) var(--tao-space-4);
-        background: var(--tao-color-bg);
+        /* фон у самого поля: между ним и плашкой лента просвечивает */
+        background: transparent;
+    }
+
+    .field {
+        border-radius: var(--tao-radius-full);
+        background: var(--tao-color-surface-raised);
+        box-shadow: 0 8px 24px rgb(0 0 0 / 0.3);
     }
 }
 

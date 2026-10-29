@@ -74,6 +74,24 @@ async function fillDemo(): Promise<void> {
 
         <TaoDivider />
 
+        <h3 class="tao-heading-6 group">{{ t('settings.gesturesGroup') }}</h3>
+
+        <div class="notify">
+            <TaoSwitch v-model="settings.fullSwipe" :label="t('settings.fullSwipe.label')" />
+            <p class="hint">{{ t('settings.fullSwipe.hint') }}</p>
+        </div>
+
+        <TaoDivider />
+
+        <h3 class="tao-heading-6 group">{{ t('settings.searchGroup') }}</h3>
+
+        <div class="notify">
+            <TaoSwitch v-model="settings.exactSearch" :label="t('settings.exactSearch.label')" />
+            <p class="hint">{{ t('settings.exactSearch.hint') }}</p>
+        </div>
+
+        <TaoDivider />
+
         <h3 class="tao-heading-6 group">{{ t('settings.notifications') }}</h3>
 
         <div class="notify">

@@ -186,6 +186,7 @@ Showcase section: `#textarea`
 | `v-model` | `string` | '' | Text |
 | `placeholder` | `string` | '' | Hint |
 | `rows` | `number` | 3 | The initial height |
+| `maxHeight` | `number \| string` | 500 | How tall the field grows with its text before it scrolls: a number is px, a string any CSS length (50vh), none — no limit. Dragging the corner stops there too |
 | `maxlength` | `number` | — | Cuts the input |
 | `count` | `boolean` | false | Show “typed / maximum” (together with maxlength) |
 | `resize` | `boolean` | true | Can be dragged by the corner |

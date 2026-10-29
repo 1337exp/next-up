@@ -11,14 +11,16 @@ export default {
         copied: 'Copied',
     },
 
-    nav: { label: 'Sections', active: 'Upcoming', archive: 'Archive', tags: 'Tags', trash: 'Trash', settings: 'Settings', create: 'New note', more: 'More' },
+    nav: { label: 'Sections', active: 'Upcoming', archive: 'Archive', trash: 'Trash', settings: 'Settings', create: 'New note', more: 'More' },
 
     list: {
         emptyActive: 'Nothing planned',
         emptyActiveHint: 'Write in the field above, for example: call mom tomorrow #home.',
         emptyArchive: 'The archive is empty',
         searchEmpty: 'Nothing found',
-        searchEmptyHint: 'Try other words or turn off exact match in the filters.',
+        searchEmptyHint: 'Try other words. Exact match can be turned off in the settings.',
+        recentTags: 'Recent tags',
+        allTags: 'All tags…',
         tagsEmpty: 'No tags yet',
         tagsEmptyHint: 'Write #tag in a note and it will show up here.',
         scrollTop: 'Back to top',
@@ -36,7 +38,7 @@ export default {
 
     quick: { label: 'Quick note', placeholder: 'What to remember?', add: 'Add', full: 'More options', added: 'Added: {0}' },
 
-    search: { placeholder: 'Search', clear: 'Clear search', exact: 'Exact match', filters: 'Filters' },
+    search: { placeholder: 'Search', clear: 'Clear search' },
 
     date: {
         today: 'Today',
@@ -52,7 +54,7 @@ export default {
     },
 
     editor: {
-        title: { create: 'New note', edit: 'Note', clone: 'Cloning' },
+        title: { read: 'Note', create: 'New note', edit: 'Edit note', clone: 'Cloning' },
         done: 'Done',
         empty: 'Pick a note or create a new one',
         due: { label: 'Due', today: 'Today', tomorrow: 'Tomorrow', plus: '+{0} days' },
@@ -135,7 +137,16 @@ export default {
 
     notify: { today: 'Notes due today: {0}' },
 
-    command: { undo: 'Undo', redo: 'Redo', create: 'New note', search: 'Search', settings: 'Settings' },
+    read: {
+        done: 'Done',
+        edit: 'Edit',
+        clone: 'Make a copy',
+        items: 'Items · {0} of {1}',
+        created: 'Created {0}',
+        createdChanged: 'Created {0} · changed {1}',
+    },
+
+    command: { edit: 'Edit note', undo: 'Undo', redo: 'Redo', create: 'New note', search: 'Search', settings: 'Settings' },
 
     storage: {
         corrupt: 'Saved data could not be read. A copy was kept and the list was started over.',
@@ -151,6 +162,10 @@ export default {
         title: 'Settings',
         appearance: 'Appearance',
         notifications: 'Notifications',
+        gesturesGroup: 'Gestures',
+        fullSwipe: { label: 'A long swipe left opens editing', hint: 'Swipe right completes a note, left shows copy, delete, edit. When off, a long swipe only opens the actions.' },
+        searchGroup: 'Search',
+        exactSearch: { label: 'Exact match', hint: 'No typo tolerance: “milk” will not find “mlik”.' },
         language: 'Language',
         mode: { title: 'Theme', auto: 'Auto', light: 'Light', dark: 'Dark' },
         palette: { title: 'Palette', default: 'Default' },

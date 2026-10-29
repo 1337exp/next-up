@@ -11,9 +11,30 @@ body {
     font-family: var(--tao-font-family);
 }
 
+/* подсказка клавиши в поле: на сенсорном экране не показывается */
+.nu-kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5em;
+    height: 1.5em;
+    padding-inline: 0.4em;
+    border: 1px solid var(--tao-color-border-strong);
+    border-radius: var(--tao-radius-sm);
+    color: var(--tao-color-text-muted);
+    font: inherit;
+    font-size: var(--tao-font-size-xs);
+}
+
+@media (pointer: coarse) {
+    .nu-kbd {
+        display: none;
+    }
+}
+
 /* предел ширины приложения: меню 240 + список 440 + колонка текста 640 */
 :root {
     --nu-app-max: 1320px;
-    /* высота нижней панели навигации на телефоне (TaoNav, 63 px): над ней липнет поле быстрого ввода */
-    --nu-bar-h: 64px;
+    /* нижняя плавающая плашка навигации на телефоне (TaoNav floating: 64 px и 12 px от края) и зазор над ней: выше липнет поле быстрого ввода */
+    --nu-bar-h: 88px;
 }
