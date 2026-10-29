@@ -107,7 +107,7 @@ watch(
         </main>
 
         <!-- ПК: список и редактор рядом, у каждого своя прокрутка -->
-        <div v-else-if="wide" class="wide">
+        <main v-else-if="wide" class="wide">
             <TaoSplit v-model="listWidth" unit="px" :min="360" :max="760" :min-end="360">
                 <template #start>
                     <div class="pane"><ListColumn :section="section" @tag="onTagSelect" /></div>
@@ -125,7 +125,7 @@ watch(
                     </div>
                 </template>
             </TaoSplit>
-        </div>
+        </main>
 
         <!-- телефон и планшет: список на всю ширину, редактор поверх -->
         <main v-else class="narrow"><ListColumn :section="section" @tag="onTagSelect" /></main>

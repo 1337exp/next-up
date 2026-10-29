@@ -101,7 +101,7 @@ function timeOf(itemId: string): string {
 <template>
     <TaoContextMenu :items="menu" :menu-label="t('list.menu')" @select="onMenu">
         <SwipeRow v-model:open="swipeOpen" :width="SWIPE_WIDTH" :disabled="swipeActions.length === 0">
-        <TaoCard class="note" :stripe="stripe" :stripe-tone="tone" :active="selected" :data-note-id="note.id" :shadow="false" surface="grain" @click="onCardClick">
+        <TaoCard class="note" :stripe="stripe" :stripe-tone="tone" :active="selected" :data-note-id="note.id" :shadow="false" surface="grain" tabindex="0" role="article" :aria-current="selected ? 'true' : undefined" @click="onCardClick" @keydown.enter.self="emit('edit', note)">
             <div class="content">
                 <header class="header">
                     <div class="meta">
@@ -145,6 +145,12 @@ function timeOf(itemId: string): string {
 <style scoped>
 .note {
     cursor: pointer;
+}
+
+/* карточку можно открыть с клавиатуры (Enter): кольцо видно только при навигации клавишами */
+.note:focus-visible {
+    outline: 2px solid var(--tao-color-accent);
+    outline-offset: 2px;
 }
 
 .swipe-button {
