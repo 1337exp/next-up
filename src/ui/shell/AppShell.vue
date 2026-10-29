@@ -172,9 +172,13 @@ watch(
 
 .wide {
     height: 100dvh;
+    /* ручка разделителя TaoSplit выступает на 1 px: без этого документ прокручивается */
+    overflow: hidden;
 }
 
 .settings-page {
+    /* контейнер для скрытых полей TaoSwitch / TaoFileDrop (position: absolute): без него они уходят за пределы прокручиваемой страницы и растягивают документ */
+    position: relative;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -201,6 +205,7 @@ watch(
 }
 
 .pane {
+    position: relative;
     box-sizing: border-box;
     height: 100%;
     overflow: auto;
