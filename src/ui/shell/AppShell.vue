@@ -164,7 +164,7 @@ watch(
 /* обёртка без коробки: нужна только чтобы передать нижней полосе редактора цвет окна */
 .modal-body {
     display: contents;
-    --nu-foot-bg: transparent;
+    --nu-foot-grain: var(--nu-grain);
 }
 
 .nav {

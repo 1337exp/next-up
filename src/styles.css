@@ -40,26 +40,13 @@ body {
 }
 
 
-/* окно заметки (диалог, не страница на телефоне) — стекло: те же токены, что у .tao-surface-glass в TaoUI.
-   Класс на панель не повесить (атрибуты TaoModal уходят на подложку), поэтому токены берём напрямую.
-   При «меньше прозрачности» сам токен --tao-glass-fill становится сплошным, а размытие выключаем здесь. */
-@media (min-width: 600px) {
-    /* подложка светлее обычной: сквозь стекло должна быть видна размытая страница */
-    .tao-modal-overlay {
-        background: color-mix(in srgb, var(--tao-color-overlay) 55%, transparent);
-    }
-
-    .tao-modal-overlay .tao-modal {
-        background-color: var(--tao-glass-fill);
-        box-shadow: inset 0 0 0 1px var(--tao-glass-border), var(--tao-shadow-lg, 0 24px 60px rgb(0 0 0 / 0.35));
-        -webkit-backdrop-filter: blur(var(--tao-glass-blur)) saturate(1.4);
-        backdrop-filter: blur(var(--tao-glass-blur)) saturate(1.4);
-    }
+/* зерно: тонкий шум поверх плотной панели окна заметки. Заливка остаётся сплошной (контраст текста не страдает),
+   а плоская поверхность получает фактуру. Шум — SVG-фрактал в data-URI, без файлов; на футер ложится тем же слоем, чтобы не было шва. */
+:root {
+    --nu-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-@media (prefers-reduced-transparency: reduce) {
-    .tao-modal-overlay .tao-modal {
-        -webkit-backdrop-filter: none;
-        backdrop-filter: none;
-    }
+.tao-modal-overlay .tao-modal {
+    background-image: var(--nu-grain);
+    box-shadow: inset 0 0 0 1px var(--tao-color-border), var(--tao-shadow-lg, 0 24px 60px rgb(0 0 0 / 0.35));
 }
