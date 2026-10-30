@@ -56,8 +56,12 @@ function collapse(): void {
     if (phone.value && !hasText.value) open.value = false;
 }
 
-function onFocusOut(event: FocusEvent): void {
-    if (!form.value?.contains(event.relatedTarget as Node | null)) collapse();
+// фокус при раскрытии переходит с кнопки «+» (она заменяется другой) в поле: пока он не ушёл из формы совсем, не сворачиваем.
+// Проверяем после того, как браузер и Vue успели его переставить, а не по relatedTarget (при тапе он бывает пустым)
+function onFocusOut(): void {
+    window.setTimeout(() => {
+        if (!form.value?.contains(document.activeElement)) collapse();
+    }, 0);
 }
 
 function openFull(): void {
