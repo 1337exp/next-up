@@ -106,9 +106,9 @@ function onTag(tag: string): void {
         <p v-if="times" class="times">{{ times }}</p>
 
         <div v-if="!wide" class="bottom">
-            <TaoButton variant="secondary" icon="tao-edit" block @click="edit">{{ t('read.edit') }}</TaoButton>
+            <TaoButton variant="ghost" class="neutral" icon="tao-edit" block @click="edit">{{ t('read.edit') }}</TaoButton>
             <!-- «Закрыть» под правым большим пальцем: тянуться к крестику вверху неудобно, а читают и закрывают чаще всего -->
-            <TaoButton variant="ghost" icon="tao-close" block @click="emit('close')">{{ t('ui.button.close') }}</TaoButton>
+            <TaoButton variant="secondary" icon="tao-close" block @click="emit('close')">{{ t('ui.button.close') }}</TaoButton>
         </div>
     </article>
 </template>
@@ -127,6 +127,11 @@ function onTag(tag: string): void {
     gap: var(--tao-space-2);
     align-items: center;
     justify-content: space-between;
+}
+
+/* «Изменить» — без рамки, но в нейтральном цвете: акцентный ghost здесь спорил бы с остальным окном */
+.bottom .neutral {
+    color: var(--tao-color-text);
 }
 
 .close {
