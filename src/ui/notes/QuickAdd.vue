@@ -132,7 +132,7 @@ function submit(): void {
             <template #suffix>
                 <kbd v-if="hasText" class="nu-kbd" aria-hidden="true">Enter</kbd>
                 <!-- как на телефоне: на пустом поле кнопка открывает полную заметку, с текстом добавляет -->
-                <TaoButton type="submit" variant="primary" :icon="hasText ? 'tao-plus' : 'tao-file'" :aria-label="hasText ? t('quick.add') : t('quick.full')" :title="hasText ? t('quick.add') : t('quick.full')" />
+                <TaoButton type="submit" variant="ghost" class="go" :class="{ ready: hasText }" :icon="hasText ? 'tao-plus' : 'tao-file'" :aria-label="hasText ? t('quick.add') : t('quick.full')" :title="hasText ? t('quick.add') : t('quick.full')" />
             </template>
         </TaoInput>
 
@@ -261,6 +261,20 @@ function submit(): void {
     padding: var(--tao-space-1) var(--tao-space-3) calc(var(--tao-space-3) + var(--tao-space-1));
     border-radius: var(--tao-radius-md) var(--tao-radius-md) 0 0;
     box-shadow: 0 -6px 16px rgb(0 0 0 / 0.22);
+}
+
+/* кнопка в широком поле — тихий ghost: приглушённая, при наведении светлеет, с текстом (готово к добавлению) — цвет акцента */
+.field-wide .go {
+    color: var(--tao-color-text-muted);
+}
+
+.field-wide .go:hover:not(:disabled) {
+    color: var(--tao-color-text);
+}
+
+.field-wide .go.ready,
+.field-wide .go.ready:hover:not(:disabled) {
+    color: var(--tao-color-accent-text);
 }
 
 .field-wide {
