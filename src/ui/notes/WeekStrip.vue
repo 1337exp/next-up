@@ -65,6 +65,15 @@ function pick(iso: string): void {
     align-items: center;
 }
 
+/* стрелки листания приглушены: акцент остаётся за сегодняшним днём */
+.week > :deep(.tao-button) {
+    color: var(--tao-color-text-muted);
+}
+
+.week > :deep(.tao-button:hover:not(:disabled)) {
+    color: var(--tao-color-text);
+}
+
 .days {
     display: grid;
     flex: 1;
