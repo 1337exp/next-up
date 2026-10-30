@@ -111,6 +111,8 @@ function onMenu(id: string): void {
                     <button type="button" class="check" :class="{ expired }" tabindex="-1" :disabled="!canToggle" :aria-label="checkLabel" :title="expired ? checkLabel : undefined" :aria-pressed="expired ? undefined : done" @click.stop="onToggle">
                         <TaoIcon v-if="done" name="tao-check" class="check-icon" />
                         <TaoIcon v-else-if="expired" name="tao-calendar" class="check-icon" />
+                        <!-- подсказка при наведении: в пустом кружке проступает галочка (на сенсорных экранах её нет) -->
+                        <TaoIcon v-else name="tao-check" class="check-icon check-hint" />
                     </button>
                 </span>
 
@@ -191,16 +193,28 @@ function onMenu(id: string): void {
     width: 24px;
     height: 24px;
     padding: 0;
-    border: 2px solid var(--tao-color-text-muted);
+    /* тихое кольцо: тонкое и полупрозрачное (35% цвета приглушённого текста), чтобы кружки не перетягивали взгляд; при наведении проявляется целиком */
+    border: 1px solid color-mix(in srgb, var(--tao-color-text-muted) 35%, transparent);
     border-radius: 50%;
     background: transparent;
     color: var(--tao-color-text-muted);
     cursor: pointer;
+    transition: border-color 0.12s ease;
 }
 
-.check:hover:not(:disabled) {
-    border-color: var(--tao-color-accent);
-    background: var(--tao-color-accent-subtle);
+.check-hint {
+    opacity: 0;
+    transition: opacity 0.12s ease;
+}
+
+@media (hover: hover) {
+    .hit:hover .check:not(:disabled) {
+        border-color: var(--tao-color-text-muted);
+    }
+
+    .hit:hover .check:not(:disabled) .check-hint {
+        opacity: 1;
+    }
 }
 
 .check:focus-visible {
