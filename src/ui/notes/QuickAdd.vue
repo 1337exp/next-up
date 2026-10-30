@@ -1,23 +1,33 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { useEditor } from '@/ui/editor/useEditor';
+import { computed, nextTick, ref } from 'vue';
 import { TaoButton, TaoIcon, TaoInput, toast } from '@1337exp/taoui';
 import { useNotesStore } from '@/app/notes';
 import { diffDays } from '@/core/date';
 import { newId } from '@/core/id';
 import { parseQuick } from '@/core/quick';
 import { dateShort, inDaysText, repeatText, useI18n } from '@/i18n';
+import { useEditor } from '@/ui/editor/useEditor';
+import { usePhone } from '@/ui/shell/useWide';
 
 /**
  * Быстрый ввод: пишем «завтра позвонить маме #дом», Enter, и заметка уже в списке со сроком.
- * Полная форма — кнопка «Новая заметка». Под полем видно, как понят срок и повтор.
+ * Под полем видно, как понят срок и повтор.
+ *
+ * На телефоне три ступени: «+» (таблетка у большого пальца) → по нажатию раскрывается в поле → на пустом поле кнопка
+ * превращается в «лист» и открывает полную заметку (большой текст, пункты), а как только начали печатать, снова «+»: добавить.
+ * На планшете и ПК поле всегда раскрыто.
  */
 const { t, locale } = useI18n();
 const store = useNotesStore();
-
 const editor = useEditor();
-const text = ref('');
+const phone = usePhone();
 
+const text = ref('');
+const open = ref(false);
+const form = ref<HTMLFormElement | null>(null);
+
+const expanded = computed(() => !phone.value || open.value);
+const hasText = computed(() => text.value.trim() !== '');
 const parsed = computed(() => parseQuick(text.value, store.today));
 
 function dueLabel(due: string): string {
@@ -29,15 +39,39 @@ function dueLabel(due: string): string {
 // подсказка только когда в тексте нашлось что-то про срок или повтор: иначе заметка просто «на сегодня»
 const preview = computed(() => {
     const result = parsed.value;
-    if (text.value.trim() === '' || (!result.foundDue && !result.foundRepeat)) return '';
+    if (!hasText.value || (!result.foundDue && !result.foundRepeat)) return '';
     const parts = [dueLabel(result.due)];
     if (result.repeat) parts.push(repeatText(result.repeat));
     return parts.join(' · ');
 });
 
+async function expand(): Promise<void> {
+    open.value = true;
+    await nextTick();
+    form.value?.querySelector('input')?.focus();
+}
+
+// пустое поле сворачивается обратно в «+»; с текстом остаётся раскрытым, чтобы ничего не потерять
+function collapse(): void {
+    if (phone.value && !hasText.value) open.value = false;
+}
+
+function onFocusOut(event: FocusEvent): void {
+    if (!form.value?.contains(event.relatedTarget as Node | null)) collapse();
+}
+
+function openFull(): void {
+    open.value = false;
+    editor.openCreate();
+}
+
 function submit(): void {
     const result = parsed.value;
-    if (text.value.trim() === '') return;
+    if (!hasText.value) {
+        // на телефоне кнопка пустого поля — «лист»: полная заметка
+        if (phone.value) openFull();
+        return;
+    }
 
     const added = store.add({ due: result.due, body: result.body, items: [], repeat: result.repeat }, newId());
     if (!added.ok) {
@@ -50,17 +84,38 @@ function submit(): void {
 </script>
 
 <template>
-    <form class="quick" @submit.prevent="submit">
-        <TaoInput v-model="text" class="field" variant="filled" :placeholder="t('quick.placeholder')" :aria-label="t('quick.label')" :aria-describedby="preview ? 'quick-preview' : undefined" autocomplete="off" size="large">
+    <form ref="form" class="quick" :class="{ phone, open: expanded }" @submit.prevent="submit" @keydown.esc="collapse" @focusout="onFocusOut">
+        <!-- телефон: одна таблетка, ширина которой меняется от кнопки до всего ряда -->
+        <div v-if="phone" class="pill" :class="{ open }">
+            <div class="pill-field" :inert="!open">
+                <TaoInput v-model="text" variant="plain" size="large" :placeholder="t('quick.placeholder')" :aria-label="t('quick.label')" :aria-describedby="preview ? 'quick-preview' : undefined" autocomplete="off" />
+            </div>
+            <TaoButton
+                v-if="!open"
+                type="button"
+                variant="primary"
+                size="large"
+                icon="tao-plus"
+                class="pill-button"
+                :aria-label="t('quick.open')"
+                :aria-expanded="false"
+                @click="expand"
+            />
+            <TaoButton v-else type="submit" variant="primary" size="large" class="pill-button" :icon="hasText ? 'tao-plus' : 'tao-file'" :aria-label="hasText ? t('quick.add') : t('quick.full')" />
+        </div>
+
+        <!-- планшет и ПК: поле всегда раскрыто -->
+        <TaoInput v-else v-model="text" class="field" variant="filled" :placeholder="t('quick.placeholder')" :aria-label="t('quick.label')" :aria-describedby="preview ? 'quick-preview' : undefined" autocomplete="off" size="large">
             <template #prefix>
-                <TaoButton variant="text" icon="tao-edit" class="full" :aria-label="t('quick.full')" @click="editor.openCreate()" />
+                <TaoButton variant="text" icon="tao-edit" :aria-label="t('quick.full')" @click="editor.openCreate()" />
             </template>
             <template #suffix>
-                <kbd v-if="text.trim() !== ''" class="nu-kbd" aria-hidden="true">Enter</kbd>
-                <TaoButton type="submit" variant="primary" icon="tao-plus" :aria-label="t('quick.add')" :disabled="text.trim() === ''" />
+                <kbd v-if="hasText" class="nu-kbd" aria-hidden="true">Enter</kbd>
+                <TaoButton type="submit" variant="primary" icon="tao-plus" :aria-label="t('quick.add')" :disabled="!hasText" />
             </template>
         </TaoInput>
-        <p v-if="preview" id="quick-preview" class="preview" aria-live="polite"><TaoIcon name="tao-calendar" />{{ preview }}</p>
+
+        <p v-if="preview && expanded" id="quick-preview" class="preview" aria-live="polite"><TaoIcon name="tao-calendar" />{{ preview }}</p>
     </form>
 </template>
 
@@ -80,16 +135,45 @@ function submit(): void {
         order: 99;
         margin-inline: calc(var(--tao-space-4) * -1);
         padding: var(--tao-space-2) var(--tao-space-4);
-        /* фон у самого поля: между ним и плашкой лента просвечивает */
+        /* фон у самой таблетки: между ней и плашкой лента просвечивает */
         background: transparent;
     }
+}
 
-    /* сама полоса ввода непрозрачная: TaoInput красит filled-вариант полупрозрачной заливкой, а под полем идёт лента */
-    .field {
-        border-radius: var(--tao-radius-control);
-        background: var(--tao-color-bg);
-    }
+/* таблетка: свёрнутая — только кнопка справа, раскрытая — на весь ряд; ширина меняется плавно */
+.pill {
+    display: flex;
+    align-items: center;
+    align-self: flex-end;
+    box-sizing: border-box;
+    width: calc(var(--tao-control-height-lg, 2.75rem) + var(--tao-space-2));
+    padding: var(--tao-space-1);
+    overflow: hidden;
+    border-radius: var(--tao-radius-full);
+    background: var(--tao-color-surface-raised);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.3);
+    transition: width 0.24s ease;
+}
 
+.pill.open {
+    width: 100%;
+}
+
+.pill-field {
+    flex: 1;
+    min-width: 0;
+    padding-inline-start: var(--tao-space-3);
+    opacity: 0;
+    transition: opacity 0.18s ease;
+}
+
+.pill.open .pill-field {
+    opacity: 1;
+}
+
+.pill-button {
+    flex: none;
+    border-radius: var(--tao-radius-full);
 }
 
 .preview {
@@ -100,5 +184,12 @@ function submit(): void {
     padding-inline: var(--tao-space-2);
     color: var(--tao-color-text-muted);
     font-size: var(--tao-font-size-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pill,
+    .pill-field {
+        transition: none;
+    }
 }
 </style>

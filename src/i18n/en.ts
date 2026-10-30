@@ -39,7 +39,7 @@ export default {
 
     week: { label: 'Week', prev: 'Previous week', next: 'Next week', count: 'notes: {0}' },
 
-    quick: { label: 'Quick note', placeholder: 'What to remember?', add: 'Add', full: 'More options', added: 'Added: {0}' },
+    quick: { label: 'Quick note', placeholder: 'What to remember?', add: 'Add', open: 'Quick note', full: 'Open the full note', added: 'Added: {0}' },
 
     search: { placeholder: 'Search', clear: 'Clear search' },
 
