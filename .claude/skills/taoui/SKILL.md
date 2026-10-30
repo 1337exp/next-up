@@ -108,7 +108,7 @@ choose a text colour, WCAG 2 to promise a number.
 
 ## Data and display
 
-`TaoTable` (columns, sort, row click), `TaoPagination` (`pageInput` for hundreds of pages), `TaoList` / `TaoListItem`,
+`TaoTable` (columns, sort, row click), `TaoPagination` (`pageInput` for hundreds of pages), `TaoList` / `TaoListItem` (`roving`: one Tab stop, arrows between the rows),
 `TaoTree` (expand, select, tri-state `checkable`, lazy `load`), `TaoStages`, `TaoTimeline` (`active` makes it a progress),
 `TaoTag`, `TaoAvatar`, `TaoImage`, `TaoCarousel`, `TaoCard` (`#media`, `#title`, `#sub`, `#footer`, `#corner`, `closable`,
 `stripe` + `stripeTone`), `TaoBlock`, `TaoTabs`, `TaoBreadcrumb`, `TaoLink`, `TaoSpoiler` / `TaoSpoilerGroup`, `TaoCounter`,

@@ -245,8 +245,9 @@ onMounted(() => {
                         <TaoInput v-model="item.text" class="item-text" variant="plain" :placeholder="t('editor.items.placeholder')" :aria-label="t('editor.items.label')" @keydown.enter.prevent="addItem(index)" @keydown.backspace="onItemBackspace($event, index)" />
                         <span v-if="item.doneAt" class="item-time">{{ doneTime(item) }}</span>
                     </div>
-                    <TaoButton variant="ghost" icon="tao-grip" class="grip" :aria-label="t('editor.items.move')" data-sortable-handle />
+                    <!-- ручка перестановки у самого края: на сенсорном экране задевают крайнюю кнопку, а захват простит промах, удаление нет -->
                     <TaoButton variant="ghost" icon="tao-close" class="drop" :aria-label="t('editor.items.remove')" @click="removeItem(index)" />
+                    <TaoButton variant="ghost" icon="tao-grip" class="grip" :aria-label="t('editor.items.move')" data-sortable-handle />
                 </div>
             </div>
             <TaoButton variant="ghost" icon="tao-plus" class="add-item" @click="addItem()">{{ t('editor.items.add') }}</TaoButton>
@@ -371,7 +372,8 @@ onMounted(() => {
     display: flex;
     align-items: center;
     gap: var(--tao-space-1);
-    padding-inline: var(--tao-space-2);
+    /* слева отступ равен отступу значка справа (кнопка 36 px вокруг значка 14–20 px): колонка галочек и колонка ручек стоят на одном расстоянии от краёв */
+    padding-inline: var(--tao-space-4) var(--tao-space-1);
     border-bottom: 1px solid var(--tao-color-border);
     background: var(--tao-color-bg);
 }
@@ -418,6 +420,7 @@ onMounted(() => {
     align-self: stretch;
     justify-content: flex-start;
     border-radius: 0;
+    padding-inline-start: var(--tao-space-4);
     color: var(--tao-color-text-muted);
 }
 

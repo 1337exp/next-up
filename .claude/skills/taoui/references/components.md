@@ -680,6 +680,7 @@ Showcase section: `#list`
 | `maxHeight` | `number \| string` | — | Scroll. A number is pixels |
 | `empty` | `boolean` | false | Show #empty instead of rows |
 | `ariaLabel` | `string` | '' | The list name |
+| `roving` | `boolean` | false | One Tab stop for the whole list: the arrows move between the rows, Home / End to the ends, disabled rows are skipped; Tab comes back to the row it left (the selected one the first time). The stop of a row is its button (clickable) or the row itself |
 
 **Slots, events, notes.** default — TaoListItem. #empty — if empty.
 

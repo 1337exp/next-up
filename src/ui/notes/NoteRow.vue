@@ -82,9 +82,8 @@ function onRowClick(event: MouseEvent): void {
 const swipeOpen = ref(false);
 const swipe = ref<{ $el: HTMLElement } | null>(null);
 
-// у списка своя клавиатура (стрелки, Пробел, Delete, ContextMenu), поэтому всё нажимаемое внутри строки — кружок, меню, теги и
-// кнопки свайпа (их оставляет в порядке Tab сама библиотека) — выводим из порядка Tab: иначе на каждой строке было бы несколько остановок.
-// Нажимаются они по-прежнему
+// у списка своя клавиатура (стрелки, Пробел, Delete, ContextMenu), поэтому кнопка меню внутри строки (атрибут tabindex уходит на её
+// обёртку, а не на кнопку) выводится из порядка Tab: иначе на каждой строке было бы ещё по остановке. Нажимается она по-прежнему
 const skipSwipeTab = (): void =>
     swipe.value?.$el.querySelectorAll('button, a[href], input').forEach((control) => control.setAttribute('tabindex', '-1'));
 onMounted(skipSwipeTab);
@@ -112,7 +111,7 @@ function onMenu(id: string): void {
 
 <template>
     <TaoContextMenu :items="menu" :menu-label="t('list.menu')" @select="onMenu">
-        <TaoxSwipeRow ref="swipe" v-model:open="swipeOpen" class="swipe-row" :start="startAction" :end="endActions" :full-swipe="settings.fullSwipe" @action="onMenu">
+        <TaoxSwipeRow ref="swipe" v-model:open="swipeOpen" class="swipe-row" :tabbable="false" :start="startAction" :end="endActions" :full-swipe="settings.fullSwipe" @action="onMenu">
             <div class="row" :class="{ selected, done }" :data-note-id="note.id" :tabindex="tabStop ? 0 : -1" role="article" :aria-current="selected ? 'true' : undefined" @click="onRowClick" @keydown.enter.self="emit('open', note)" @keydown.space.self.prevent="canToggle && onToggle()" @keydown.delete.self="emit('remove', note)">
                 <span class="hit">
                     <button type="button" class="check" :class="{ expired }" tabindex="-1" :disabled="!canToggle" :aria-label="checkLabel" :title="expired ? checkLabel : undefined" :aria-pressed="expired ? undefined : done" @click.stop="onToggle">
@@ -147,8 +146,6 @@ function onMenu(id: string): void {
 .swipe-row {
     --tx-swipe-bg: var(--tao-color-bg);
     --tx-swipe-radius: var(--tao-radius-lg);
-    /* лицевая панель свайпа имеет z-index: 1; без своего контекста наложения она оказывалась поверх плавающей панели навигации */
-    isolation: isolate;
 }
 
 .row {

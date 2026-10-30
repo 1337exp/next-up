@@ -2,6 +2,8 @@
 
 Найдено на TaoUI 5.13.0 и TaoUX 0.5.4. Первый список (все пять пунктов закрыты): [library-issues.md](library-issues.md).
 
+> **Статус: все три закрыты** в TaoUX 0.5.5 (`isolation: isolate` у строки, проп `tabbable`) и TaoUI 5.14.0 (`TaoList roving`). Обходы с `isolation` и ручным отключением Tab у кнопок свайпа убраны; свой roving-список в Next Up оставлен: у нас группы и свайп-строки, а не плоский `TaoList`.
+
 ## TaoUX
 
 ### 1. `TaoxSwipeRow`: лицевая панель перекрывает плавающий `TaoNav` (баг)

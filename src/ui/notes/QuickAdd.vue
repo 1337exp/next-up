@@ -84,11 +84,6 @@ function submit(): void {
         background: transparent;
     }
 
-    .field {
-        border-radius: var(--tao-radius-full);
-        background: var(--tao-color-surface-raised);
-        box-shadow: 0 8px 24px rgb(0 0 0 / 0.3);
-    }
 }
 
 .preview {
