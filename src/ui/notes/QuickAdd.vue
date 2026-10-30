@@ -64,6 +64,18 @@ function onFocusOut(): void {
     }, 0);
 }
 
+// крестик в поле: с текстом очищает, на пустом поле закрывает (фокус возвращается на «+»)
+async function clearOrClose(): Promise<void> {
+    if (hasText.value) {
+        text.value = '';
+        form.value?.querySelector('input')?.focus();
+        return;
+    }
+    open.value = false;
+    await nextTick();
+    form.value?.querySelector<HTMLElement>('.pill-button')?.focus();
+}
+
 function openFull(): void {
     open.value = false;
     editor.openCreate();
@@ -93,6 +105,7 @@ function submit(): void {
         <div v-if="phone" class="pill tao-size-large" :class="{ open }">
             <div class="pill-field" :inert="!open">
                 <TaoInput v-model="text" variant="plain" size="large" :placeholder="t('quick.placeholder')" :aria-label="t('quick.label')" :aria-describedby="preview ? 'quick-preview' : undefined" autocomplete="off" />
+                <TaoButton type="button" variant="ghost" size="small" icon="tao-close" class="pill-clear" :aria-label="hasText ? t('quick.clear') : t('quick.dismiss')" :title="hasText ? t('quick.clear') : t('quick.dismiss')" @click="clearOrClose" />
             </div>
             <TaoButton
                 v-if="!open"
@@ -157,17 +170,32 @@ function submit(): void {
     padding: var(--tao-space-1);
     overflow: hidden;
     border-radius: var(--tao-radius-full);
-    background: var(--tao-color-surface-raised);
-    box-shadow: 0 8px 24px rgb(0 0 0 / 0.3);
-    transition: width 0.24s ease;
+    /* свёрнутая — просто кнопка, без рамки и тени: подложка и тень проявляются при раскрытии */
+    background: transparent;
+    box-shadow: none;
+    /* сворачиваясь: сначала сужается, потом гаснет подложка */
+    transition: width 0.24s ease, background-color 0.12s ease 0.2s, box-shadow 0.12s ease 0.2s;
 }
 
+/* раскрываясь: подложка с тенью вспыхивает сразу коротким импульсом, затем таблетка выезжает в сторону */
 .pill.open {
     width: 100%;
+    background: var(--tao-color-surface-raised);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.3);
+    transition: width 0.24s ease 0.1s, background-color 0.08s ease, box-shadow 0.08s ease;
+    animation: pill-pulse 0.18s ease-out;
+}
+
+@keyframes pill-pulse {
+    50% {
+        scale: 1.08;
+    }
 }
 
 .pill-field {
+    display: flex;
     flex: 1;
+    align-items: center;
     min-width: 0;
     padding-inline-start: 0;
     opacity: 0;
@@ -177,6 +205,16 @@ function submit(): void {
 .pill.open .pill-field {
     padding-inline-start: var(--tao-space-3);
     opacity: 1;
+}
+
+.pill-field > :first-child {
+    flex: 1;
+    min-width: 0;
+}
+
+.pill-clear {
+    flex: none;
+    color: var(--tao-color-text-muted);
 }
 
 .pill-button {
@@ -210,6 +248,10 @@ function submit(): void {
     .pill,
     .pill-field {
         transition: none;
+    }
+
+    .pill.open {
+        animation: none;
     }
 }
 </style>
