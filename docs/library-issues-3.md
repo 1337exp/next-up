@@ -60,3 +60,11 @@
 **Предложение.** Второй признак по умолчанию: жирность подписи (`font-weight: 600–700`) у `.tao-nav__item--active` и/или тонкая полоса у края пункта; заодно чуть темнее акцентный текст в светлой теме.
 
 **Сейчас в Next Up.** `font-weight: 700` у подписи активного пункта через `:deep` в `AppShell.vue`.
+
+### 8. Фон поля в светлой теме не следует за панелью (улучшение)
+
+**Что.** `--tao-color-input-bg` в тёмной теме равен `--tao-color-surface-sunken` и идёт за поверхностью, а в светлой зашит как чисто белый (`--tao-gray-0`). Если панель окна окрашена иначе (`--tao-surface-fill`, зерно, тёмный тон), `TaoInput` и `TaoSelect` остаются белыми и «выпрыгивают» на фоне остальных компонентов, которые берут цвета от шкалы поверхностей.
+
+**Предложение.** В светлой теме считать `--tao-color-input-bg` от поверхности (например `color-mix(in srgb, var(--tao-surface-fill, var(--tao-color-surface)) 40%, white)`) либо давать панелям (`TaoModal`, `TaoDrawer`) переопределять его по `--tao-surface-fill`.
+
+**Сейчас в Next Up.** На `.tao-modal` и `.tao-drawer__panel` ставим `--tao-color-input-bg: color-mix(in srgb, var(--nu-sunken) 55%, var(--tao-color-bg))`.

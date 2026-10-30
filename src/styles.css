@@ -52,4 +52,6 @@ body {
 .tao-modal,
 .tao-drawer__panel {
     --tao-surface-fill: var(--nu-sunken);
+    /* в светлой теме фон поля — чистый белый независимо от панели, и на более тёмном окне оно «выпрыгивает»: подмешиваем тон панели */
+    --tao-color-input-bg: color-mix(in srgb, var(--nu-sunken) 55%, var(--tao-color-bg));
 }
