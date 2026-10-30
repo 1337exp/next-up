@@ -64,7 +64,8 @@ async function removeAll(): Promise<void> {
             <TaoButton variant="secondary" icon="tao-arrow-down" @click="exportMarkdown">{{ t('data.exportMarkdown') }}</TaoButton>
         </div>
 
-        <TaoFileDrop v-model="files" accept=".json,application/json" :list="false" @change="onFiles">{{ t('data.importHint') }}</TaoFileDrop>
+        <!-- принимаем любой файл: TaoFileDrop молча отбрасывает то, что не подошло под accept (старые файлы бывают .txt), а верность содержимого проверяет сам разбор -->
+        <TaoFileDrop v-model="files" :list="false" @change="onFiles">{{ t('data.importHint') }}</TaoFileDrop>
 
         <TaoButton variant="ghost" tone="danger" icon="tao-trash" class="remove-all" @click="removeAll">{{ t('data.removeAll') }}</TaoButton>
     </section>

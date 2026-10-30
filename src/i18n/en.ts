@@ -96,7 +96,7 @@ export default {
         title: 'Data',
         exportJson: 'Download JSON',
         exportMarkdown: 'Download Markdown',
-        importHint: 'Import: a JSON file from this app or its earlier version. Drop it here or click',
+        importHint: 'Import: a notes file from this app or its earlier version (JSON, a .txt works too). Drop it here or click',
         removeAll: 'Delete everything',
         removeAllMessage: 'All notes go to the trash for {0} days. The deletion can be undone.',
         removeAllDone: 'All notes deleted',
