@@ -240,12 +240,13 @@ function onTag(tag: string): void {
 /* на телефоне главные действия внизу, у большого пальца, и остаются на виду при прокрутке */
 .bottom {
     position: sticky;
-    bottom: 0;
+    bottom: calc(var(--nu-bleed, 0px) * -1);
     z-index: 1;
     display: flex;
     gap: var(--tao-space-2);
     margin-top: auto;
-    padding-block: var(--tao-space-3);
+    margin-bottom: calc(var(--nu-bleed, 0px) * -1);
+    padding-block: var(--tao-space-3) calc(var(--tao-space-3) + var(--nu-bleed, 0px));
     border-top: 1px solid var(--tao-color-border);
     background: var(--nu-foot-bg, var(--tao-color-bg)) var(--nu-foot-grain, none);
 }

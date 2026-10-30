@@ -168,6 +168,13 @@ watch(
     --nu-foot-bg: var(--tao-modal-bg, var(--tao-color-surface-raised));
 }
 
+/* окно-диалог (от 600 px): нижний отступ области прокрутки равен --tao-space-5, полоса выходит за него */
+@media (min-width: 600px) {
+    .modal-body {
+        --nu-bleed: var(--tao-space-5);
+    }
+}
+
 @media (prefers-contrast: more) {
     .modal-body {
         --nu-foot-grain: none;
