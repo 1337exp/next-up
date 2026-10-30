@@ -144,7 +144,6 @@ export default {
     read: {
         done: 'Done',
         edit: 'Edit',
-        clone: 'Make a copy',
         swipeCopy: 'Copy',
         items: 'Items · {0} of {1}',
         created: 'Created {0}',

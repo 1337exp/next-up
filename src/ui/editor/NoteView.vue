@@ -7,7 +7,7 @@ import { daysLeft as calcDaysLeft, isArchived } from '@/core/lifecycle';
 import { UNKNOWN_TIME } from '@/core/model';
 import { extractTags } from '@/core/tags';
 import { dateShort, formatDateTime, inDaysText, repeatText, useI18n } from '@/i18n';
-import { usePhone } from '@/ui/shell/useWide';
+import { useWide } from '@/ui/shell/useWide';
 import MarkdownView from '@/ui/notes/MarkdownView.vue';
 import { toggleTag, useNoteActions } from '@/ui/notes/useNotes';
 import { useEditor } from './useEditor';
@@ -22,7 +22,8 @@ const { t, locale } = useI18n();
 const store = useNotesStore();
 const editor = useEditor();
 const actions = useNoteActions();
-const phone = usePhone();
+// в панели справа (широкий экран) кнопки сверху и своя «Закрыть»; в окне (телефон, планшет) — внизу, а закрывает рамка окна
+const wide = useWide();
 
 const root = ref<HTMLElement | null>(null);
 const sourceId = editor.state.value?.source?.id ?? '';
@@ -74,15 +75,6 @@ function toggleDone(): void {
 const edit = (): void => {
     if (note.value) editor.openEdit(note.value);
 };
-const clone = (): void => {
-    if (note.value) editor.openClone(note.value);
-};
-
-function remove(): void {
-    if (!note.value) return;
-    actions.remove(note.value);
-    emit('close');
-}
 
 // клик по тегу в тексте ищет по нему и возвращает к списку
 function onTag(tag: string): void {
@@ -93,16 +85,12 @@ function onTag(tag: string): void {
 
 <template>
     <article v-if="note" ref="root" class="read" tabindex="-1" @keydown.esc="emit('close')">
-        <div class="top">
-            <div v-if="!phone" class="primary">
+        <!-- копия и удаление — в ленте (свайп, меню строки), а не здесь: здесь только то, что относится к чтению -->
+        <div v-if="wide" class="top">
+            <div class="primary">
                 <TaoButton v-if="canToggle" variant="primary" icon="tao-check" @click="toggleDone">{{ done ? t('ui.button.reopen') : t('read.done') }}</TaoButton>
                 <TaoButton variant="secondary" icon="tao-edit" shortcut="E" @click="edit">{{ t('read.edit') }}</TaoButton>
-                <!-- «Закрыть» сразу после «Изменить»: читается без раздумий и далеко от «Удалить» -->
                 <TaoButton variant="ghost" icon="tao-close" :aria-label="t('ui.button.close')" :title="t('ui.button.close')" @click="emit('close')" />
-            </div>
-            <div class="tools">
-                <TaoButton variant="ghost" icon="tao-copy" :aria-label="t('read.clone')" :title="t('read.clone')" @click="clone" />
-                <TaoButton variant="ghost" tone="danger" icon="tao-trash" :aria-label="t('ui.button.delete')" :title="t('ui.button.delete')" @click="remove" />
             </div>
         </div>
 
@@ -130,7 +118,7 @@ function onTag(tag: string): void {
 
         <p v-if="times" class="times">{{ times }}</p>
 
-        <div v-if="phone" class="bottom">
+        <div v-if="!wide" class="bottom">
             <TaoButton variant="secondary" icon="tao-edit" block @click="edit">{{ t('read.edit') }}</TaoButton>
             <TaoButton v-if="canToggle" variant="primary" icon="tao-check" block @click="toggleDone">{{ done ? t('ui.button.reopen') : t('read.done') }}</TaoButton>
         </div>
@@ -153,15 +141,10 @@ function onTag(tag: string): void {
     justify-content: space-between;
 }
 
-.primary,
-.tools {
+.primary {
     display: flex;
     gap: var(--tao-space-2);
     align-items: center;
-}
-
-.tools {
-    margin-inline-start: auto;
 }
 
 .title {
@@ -273,6 +256,6 @@ function onTag(tag: string): void {
     margin-top: auto;
     padding-block: var(--tao-space-3);
     border-top: 1px solid var(--tao-color-border);
-    background: var(--tao-color-bg);
+    background: var(--nu-foot-bg, var(--tao-color-bg));
 }
 </style>

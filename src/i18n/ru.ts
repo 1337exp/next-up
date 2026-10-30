@@ -142,7 +142,6 @@ export default {
     read: {
         done: 'Выполнено',
         edit: 'Изменить',
-        clone: 'Сделать копию',
         swipeCopy: 'Копия',
         items: 'Пункты · {0} из {1}',
         created: 'Создано {0}',

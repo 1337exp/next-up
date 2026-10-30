@@ -84,6 +84,12 @@ function submit(): void {
         background: transparent;
     }
 
+    /* сама полоса ввода непрозрачная: TaoInput красит filled-вариант полупрозрачной заливкой, а под полем идёт лента */
+    .field {
+        border-radius: var(--tao-radius-control);
+        background: var(--tao-color-bg);
+    }
+
 }
 
 .preview {
