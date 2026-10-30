@@ -242,6 +242,6 @@ function onTag(tag: string): void {
     margin-top: auto;
     padding-block: var(--tao-space-3);
     border-top: 1px solid var(--tao-color-border);
-    background: var(--tao-color-bg) var(--nu-foot-grain, none);
+    background: var(--nu-foot-bg, var(--tao-color-bg)) var(--nu-foot-grain, none);
 }
 </style>

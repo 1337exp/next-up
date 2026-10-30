@@ -165,6 +165,14 @@ watch(
 .modal-body {
     display: contents;
     --nu-foot-grain: var(--nu-grain);
+    --nu-foot-bg: var(--tao-color-surface-raised);
+}
+
+/* на широком виде боковое меню тоже с зерном (на телефоне там стеклянная плашка) */
+@media (min-width: 600px) {
+    .nav {
+        background-image: var(--nu-grain);
+    }
 }
 
 .nav {
