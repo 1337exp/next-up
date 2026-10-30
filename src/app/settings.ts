@@ -32,7 +32,7 @@ export interface Settings {
 export const SETTINGS_KEY = 'nextup.settings';
 
 export function defaultSettings(): Settings {
-    return { mode: 'auto', palette: '', size: 'medium', showWeek: true, fullSwipe: true, exactSearch: false, notifyToday: false, lastNotified: '', sync: { enabled: false, url: '', authorization: '' } };
+    return { mode: 'dark', palette: '', size: 'medium', showWeek: true, fullSwipe: true, exactSearch: false, notifyToday: false, lastNotified: '', sync: { enabled: false, url: '', authorization: '' } };
 }
 
 const isMode = (v: unknown): v is Mode => typeof v === 'string' && (MODES as readonly string[]).includes(v);

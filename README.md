@@ -1,78 +1,93 @@
-# Next Up
+<h1 align="center">Next Up</h1>
 
-Заметки со сроками: текст в Markdown, пункты списка с временем отметки, повторы, поиск с поправкой на опечатки, теги. Работает на ПК, планшете и телефоне, ставится как приложение (PWA) и открывается без сети. Vue 3 + TypeScript + Vite + [TaoUI](https://www.npmjs.com/package/@1337exp/taoui) и [TaoUX](https://www.npmjs.com/package/@1337exp/taoux).
+<p align="center">
+  <b>Notes with due dates.</b><br>
+  What to do, when, and how long is left.
+</p>
 
-Устройство и принятые решения: [docs/PLAN-v3.md](docs/PLAN-v3.md). Дизайн интерфейса (аудит, решения, правила): [docs/DESIGN.md](docs/DESIGN.md).
+<p align="center">
+  <b>English</b> · <a href="README.ru.md">Русский</a> ·
+  <a href="#how-it-works">How it works</a> ·
+  <a href="#data-and-versions">Data</a> ·
+  <a href="#sync-between-devices">Sync</a> ·
+  <a href="docs/DESIGN.md">Design</a>
+</p>
 
-## Команды
+Markdown text, checklist items with the time they were ticked, repeats, search that forgives typos, tags. It works on a desktop, a tablet and a phone, installs as an app (PWA) and opens without a network. Vue 3 + TypeScript + Vite + [TaoUI](https://www.npmjs.com/package/@1337exp/taoui) and [TaoUX](https://www.npmjs.com/package/@1337exp/taoux). The interface is in Russian and English.
+
+The structure and the decisions taken: [docs/PLAN-v3.md](docs/PLAN-v3.md). The interface design (audit, decisions, rules): [docs/DESIGN.md](docs/DESIGN.md). Notes for the libraries found along the way: [docs/library-issues.md](docs/library-issues.md), [-2](docs/library-issues-2.md), [-3](docs/library-issues-3.md). The docs are in Russian.
+
+## Commands
 
 ```bash
 npm install
-npm run dev        # разработка
-npm run build      # vue-tsc + vite build (в dist/ лежат и service worker с офлайн-кешем)
-npm test           # vitest
-npm run example:server   # демо-сервер синхронизации, см. examples/README.md
+npm run dev              # development
+npm run build            # vue-tsc + vite build (dist/ holds the service worker with the offline cache too)
+npm test                 # vitest
+npm run example:server   # demo sync server, see examples/README.md
 ```
 
-## Как это устроено
+## How it works
 
-- **Заметка** — срок (календарный день), текст в Markdown, пункты списка, правило повтора. Раздел «Скоро» — срок сегодня и позже, архив — срок прошёл или заметка завершена.
-- **Список по времени.** «Сегодня», «Завтра», «На этой неделе» (до воскресенья), «Позже»; в каждой строке видно, сколько осталось («через 3 дня»), и дата. Кружок слева завершает заметку в один тап. Архив — по месяцам.
-- **Быстрый ввод.** Поле «Что запомнить?»: `купить подарок в пятницу #дом каждую неделю` → заметка с сроком, повтором и тегом; под полем видно, как понят текст. Понимает «сегодня / завтра / послезавтра», «в пятницу», «через 3 дня», «5 ноября», «30.10», «каждый день / неделю / понедельник», «каждые 2 недели» (и то же по-английски). Разбор: `src/core/quick.ts`.
-- **Повторы** — «каждые N дней / недель / месяцев / лет» (есть пресеты и свой период). Каждый повтор — отдельная запись с id вида `серия@дата`, поэтому два устройства создают одни и те же записи, а не дубли. Подряд идущие архивные повторы одной серии сворачиваются в строку.
-- **Теги** — `#слово` прямо в тексте; клик по тегу ищет по нему; над списком чипы пяти последних тегов, остальные с числом заметок — за чипом «Все теги…».
-- **Поиск** — все слова в любом порядке, без различия «е» и «ё», с прощением опечаток (`молко` найдёт `молоко`); `#тег` ищется точно; «Точное совпадение» в фильтрах.
-- **Неделя.** Над списком семь дней текущей недели (стрелки листают недели), точки показывают, где есть заметки; тап по дню оставляет в списке только его, повторный тап снимает. Выключается в настройках.
-- **Клавиатура в списке.** Одна остановка `Tab` на весь список: стрелки ходят по строкам, `Home` / `End` — в начало и конец, `Enter` открывает, `Пробел` завершает, `Delete` удаляет (с отменой), клавиша меню — действия строки.
-- **Чтение.** Клик по строке (или `Enter`) открывает заметку для чтения: текст отрисован как документ, его можно выделять и копировать, ссылки и теги нажимаются, пункты отмечаются здесь же. `E` или «Изменить» — правка, `Esc` из правки возвращает к чтению.
-- **Свайпы** (TaoUX `swiperow`, сенсорные экраны): вправо — завершить (в архиве — вернуть в работу), влево — копия, удаление, правка. Длинный свайп влево запускает «Изменить» (не удаление); в настройках его можно выключить.
-- **Редактор** — без кнопки «Сохранить»: правка уходит сама через короткую паузу, внизу видно «Сохранено». Текст идёт первым; срок (кнопки «Сегодня / Завтра / +7 дней» и дата) и повтор — одним блоком. Пункты с галочками, перестановкой перетаскиванием (или клавиатурой) и удалением по `Backspace` в пустом. Панель Markdown появляется, пока курсор в тексте; `Ctrl+B` / `Ctrl+I` / `Ctrl+K`. На ПК он справа от списка, на телефоне и планшете поверх списка.
-- **Отмена вместо подтверждений** — удаление, завершение и импорт сразу, внизу «Отменить»; `Ctrl+Z` / `Ctrl+Shift+Z` по записям, а не по снимкам списка. Единственный диалог — «Удалить всё».
-- **Корзина** — удалённое хранится 30 дней: можно восстановить или удалить навсегда.
+- **A note** is a due date (a calendar day), Markdown text, checklist items and a repeat rule. «Upcoming» is the notes due today or later; the archive is the notes whose date has passed or that are done.
+- **A list by time.** «Today», «Tomorrow», «This week» (till Sunday), «Later»; every row shows how long is left («in 3 days») and the date. The circle on the left finishes a note in one tap. Rows are separated by a thin line. The archive is grouped by month.
+- **Quick input.** The «What to remember?» field: `buy a gift on friday #home every week` → a note with a date, a repeat and a tag; under the field you see how the text was read. It understands «today / tomorrow», «on friday», «in 3 days», «nov 5», «30.10», «every day / week / monday», «every 2 weeks» (and the same in Russian). The parser: `src/core/quick.ts`. On a phone the field starts as a «+» button under the thumb: a tap opens it, and on an empty field the button opens the full note.
+- **Repeats** are «every N days / weeks / months / years» (presets and your own period). Every repeat is a separate record with an id like `series@date`, so two devices create the same records, not duplicates. Archived repeats of one series in a row fold into one line.
+- **Tags** are `#word` right in the text; a click on a tag searches by it; over the list are chips of the five latest tags, and the rest, with the number of notes, are behind the «All tags…» chip (it shows up only when there is something to show).
+- **Search** takes all words in any order, does not tell «е» from «ё», forgives typos (`mlik` finds `milk`); `#tag` is matched exactly; «Exact match» is in the settings.
+- **The week.** Over the list are the seven days of the current week (the arrows turn the weeks), the dots show where the notes are, today is marked with a line; a tap on a day leaves only that day in the list, another tap clears it. It can be switched off in the settings.
+- **Keyboard in the list.** One `Tab` stop for the whole list: the arrows move between rows, `Home` / `End` go to the start and the end, `Enter` opens, `Space` finishes, `Delete` deletes (with undo), the menu key opens the row's actions.
+- **Reading.** A click on a row (or `Enter`) opens the note for reading: the text is drawn as a document, you can select and copy it, links and tags are clickable, items are ticked right there. `E` or «Edit» is editing, `Esc` from editing goes back to reading. Finishing, copying and deleting a note happen in the list.
+- **Swipes** (TaoUX `swiperow`, touch screens): right to finish (in the archive, to bring back), left for a copy, delete and edit. A long swipe to the left runs «Edit» (not delete); it can be turned off in the settings.
+- **The editor** has no «Save» button: a change goes by itself after a short pause, and «Saved» shows at the bottom. The text comes first with the Markdown bar over it (`Ctrl+B` / `Ctrl+I` / `Ctrl+K`). The date and the repeat are one block: «Today», «Tomorrow», an «Add» button (+1, +7, +30, +90 days to the date) and the date. Items have checkboxes, reordering by drag (or the keyboard) and delete by `Backspace` in an empty one. On a desktop the editor is to the right of the list, on a tablet a window over the list, on a phone the full screen.
+- **Undo instead of confirmations.** Delete, finish and import happen at once, with «Undo» at the bottom; `Ctrl+Z` / `Ctrl+Shift+Z` go by records, not by snapshots of the list. The only dialog is «Delete everything».
+- **The trash** keeps deleted notes for 30 days: restore or delete for good.
 
-Клавиши (общие): `N` — новая заметка (полная форма), `/` — поиск, `Ctrl+,` — настройки, `Enter` на строке — открыть, `Esc` в тексте заметки — закрыть редактор (фокус возвращается на строку).
+Keys (global): `N` is a new note (the full form), `/` is search, `Ctrl+,` is the settings, `Enter` on a row opens it, `Esc` in the note text closes the editor (the focus goes back to the row).
 
-## Данные и версии
+## Data and versions
 
-Всё хранится в браузере (`localStorage`), отдельного сервера не нужно. Формат версионирован: файл экспорта, содержимое хранилища и ответ сервера проходят один конвейер, который определяет версию и поднимает данные до текущей (файл самого первого приложения → прежний Next Up → текущая). Файл более новой версии не трогается, приложение просит обновиться. Ключи прежней версии при первом запуске копируются, а не переносятся.
+Everything is stored in the browser (`localStorage`); no server is needed. The format is versioned: an export file, the content of the storage and a server reply go through one pipeline that finds the version and lifts the data to the current one (the very first app's file → the previous Next Up → the current). A file of a newer version is left alone, and the app asks you to update. The keys of the previous version are copied on the first start, not moved.
 
-Настройки → Данные: экспорт JSON (для переноса и резервных копий) и Markdown (читаемый дамп), импорт с отчётом («добавлено / обновлено / пропущено», какая версия файла поднята).
+Settings → Data: export as JSON (to move and to back up) and as Markdown (a readable dump), import with a report («added / updated / skipped», which file version was lifted).
 
-## Синхронизация между устройствами
+## Sync between devices
 
-Настройки → Синхронизация: адрес документа и, если нужно, заголовок `Authorization`. Протокол — обычные условные запросы HTTP (`GET` и `PUT` с `ETag` / `If-Match`), поэтому подойдёт WebDAV (Nextcloud) или любой сервер с ETag; для пробы есть демо-сервер. Правка уходит через 3 секунды, чужие правки приходят при старте, возврате на вкладку и появлении сети. Конфликтов-диалогов нет: слияние идёт по записям (побеждает более поздняя правка, удаление не воскресает). Протокол и требования к своему серверу: [examples/README.md](examples/README.md).
+Settings → Sync: the address of a document and, if needed, an `Authorization` header. The protocol is plain conditional HTTP (`GET` and `PUT` with `ETag` / `If-Match`), so WebDAV (Nextcloud) or any server with ETag will do; there is a demo server to try. A change goes out in 3 seconds, other people's changes come on start, on return to the tab and when the network is back. There are no conflict dialogs: the merge goes by records (the later change wins, a delete does not come back to life). The protocol and what your own server needs: [examples/README.md](examples/README.md).
 
-## Оповещения и офлайн
+## Notifications and offline
 
-- **Офлайн.** После первой загрузки приложение открывается без сети: service worker (`public/sw.js`) кеширует оболочку, список файлов и версию подставляет сборка (`build/precache.ts`). Его можно поставить на экран телефона или планшета.
-- **Оповещения.** Настройки → «Оповещать о заметках на сегодня»: раз в день, когда сменилась дата, если вкладка в фоне. Разрешение запрашивается по клику на переключатель; нужен `https` или `localhost`. Оповещения при полностью закрытом приложении потребовали бы push-сервера, этого здесь нет.
+- **Offline.** After the first load the app opens without a network: the service worker (`public/sw.js`) caches the shell, and the file list and the version are put in by the build (`build/precache.ts`). It can be put on the home screen of a phone or a tablet.
+- **Notifications.** Settings → «Notify about notes due today»: once a day, when the date changes, if the tab is in the background. The permission is asked on the click of the switch; `https` or `localhost` is needed. Notifications with the app fully closed would need a push server, which is not here.
 
-## Внешний вид
+## Look
 
-Тема (авто / светлая / тёмная), палитра и размер интерфейса (мелко / средне / крупно) в настройках; всё делают контексты TaoUI (`data-tao-mode`, `data-tao-theme`, `tao-size-*`), собственных множителей нет. Раскладка выбирается по ширине: на телефоне плавающая стеклянная панель (поле быстрого ввода закреплено над ней), рельса на планшете, боковая панель и редактор рядом со списком на ПК. Ширина приложения ограничена 1320 px (`--nu-app-max`), на очень широком мониторе оно стоит по центру. Второстепенный текст держит контраст не ниже 4,5:1 в светлой и тёмной темах (проверено на TaoUI 5.11.1).
+The dark theme is the default; in the settings it changes to light or «as in the system», and there are the palette and the interface size (small / medium / large). It is all done by TaoUI contexts (`data-tao-mode`, `data-tao-theme`, `tao-size-*`), with no multipliers of our own.
 
-Шрифт — Roboto, переменный (вес 100–900), латиница и кириллица: `src/assets/font` (лицензия SIL OFL 1.1 рядом).
+The layout is picked by width: on a phone a floating glass bar (the quick input is pinned above it), a rail on a tablet, a side panel and the editor beside the list on a desktop. The app is capped at 1320 px (`--nu-app-max`) and stands in the centre on a very wide monitor. The side menu and the note window have a light grain (`surface="grain"`); glass goes off with «reduce transparency» in the system, the grain with «more contrast». Secondary text keeps the contrast of at least 4.5:1 in the light and the dark themes, and the current section in the menu differs not by colour alone but by weight as well.
 
-## Режим разработки
+The font is Roboto, variable (weight 100–900), Latin and Cyrillic: `src/assets/font` (the SIL OFL 1.1 licence is next to it).
 
-В настройках появляется блок «Разработка» (демо-данные, проверка оповещения). Режим включается сам: в `npm run dev`, при заходе на `localhost` или по IP-адресу, либо флагом:
+## Development mode
+
+A «Development» block shows up in the settings (demo data, a notification check). The mode turns on by itself: in `npm run dev`, on `localhost` or on an IP address, or with a flag:
 
 ```js
-localStorage.setItem('nextup-dev', '1');   // включить где угодно
-localStorage.setItem('nextup-dev', '0');   // выключить (в том числе при заходе по IP)
-localStorage.removeItem('nextup-dev');     // вернуть автоматику
+localStorage.setItem('nextup-dev', '1');   // on anywhere
+localStorage.setItem('nextup-dev', '0');   // off (also on an IP address)
+localStorage.removeItem('nextup-dev');     // back to automatic
 ```
 
-В режиме разработки service worker не регистрируется (кеш мешал бы правкам); проверить офлайн можно на собранной версии: `npx vite preview`.
+In development mode the service worker is not registered (its cache would get in the way of edits); check offline on the built version: `npx vite preview`.
 
-## Структура
+## Structure
 
 ```
-src/core/      чистый TypeScript: модель, даты, повторы, слияние, отмена, поиск, теги, форматирование Markdown, импорт и синхронизация (без Vue и DOM)
-src/app/       стор заметок, хранилище, настройки, синхронизация, оповещения
-src/ui/        оболочка (TaoNav + TaoSplit), список, карточка, редактор, настройки
-src/i18n/      словари ru / en (типизированные, на createI18n из TaoUX)
-build/         плагин сборки для офлайн-кеша
-examples/      демо-сервер синхронизации
-tests/         vitest: ядро, стор, редактор, синхронизация (в том числе на настоящем сервере), миграции на замороженных файлах
+src/core/      plain TypeScript: model, dates, repeats, merge, undo, search, tags, Markdown formatting, import and sync (no Vue, no DOM)
+src/app/       the notes store, storage, settings, sync, notifications
+src/ui/        the shell (TaoNav + TaoSplit), the list, the row, the editor and the reader, the settings
+src/i18n/      ru / en dictionaries (typed, on createI18n from TaoUX)
+build/         the build plugin for the offline cache
+examples/      the demo sync server
+tests/         vitest: core, store, editor, sync (also against a real server), migrations on frozen files
 ```
