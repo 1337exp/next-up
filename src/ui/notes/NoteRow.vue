@@ -38,10 +38,13 @@ const done = computed(() => props.note.doneAt !== null);
 
 const title = computed(() => rowTitle(props.note) || t('list.untitled'));
 const tags = computed(() => [...new Set(extractTags(props.note.body).map((tag) => tag.toLocaleLowerCase()))].slice(0, 3));
-const checked = computed(() => {
+// счётчик целей: «Цели: 0 из 1» первой строкой под заголовком (прогресс заметки), а полная подпись — для скринридера и подсказки
+const checkedCounts = computed(() => {
     const items = props.note.items;
-    return items.length ? t('list.checked', [items.filter((item) => item.doneAt !== null).length, items.length]) : '';
+    return items.length ? [items.filter((item) => item.doneAt !== null).length, items.length] : null;
 });
+const checked = computed(() => (checkedCounts.value ? t('list.checked', checkedCounts.value) : ''));
+const checkedLabel = computed(() => (checkedCounts.value ? t('list.checkedLabel', checkedCounts.value) : ''));
 const repeatLabel = computed(() => (props.note.repeat ? repeatText(props.note.repeat) : ''));
 
 // сколько осталось — словами, чтобы не считать в уме; для «сегодня» подпись не нужна: так названа группа
@@ -115,7 +118,7 @@ function onMenu(id: string): void {
                     <div class="main">
                         <div class="title">{{ title }}</div>
                         <div v-if="checked || repeatLabel || tags.length" class="meta">
-                            <span v-if="checked">{{ checked }}</span>
+                            <span v-if="checked" :title="checkedLabel" :aria-label="checkedLabel" role="img">{{ checked }}</span>
                             <span v-if="repeatLabel" class="repeat"><TaoIcon name="tao-repeat" />{{ repeatLabel }}</span>
                             <!-- теги в ленте — только текст: у строки и так тап, свайп и меню; поиск по тегу — чипы над списком -->
                             <span v-for="tag in tags" :key="tag">#{{ tag }}</span>

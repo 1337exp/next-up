@@ -27,7 +27,8 @@ export default {
         markDone: 'Mark as done',
         markUndone: 'Put back to work',
         expired: 'Past due',
-        checked: '{0} of {1}',
+        checked: 'Goals: {0} of {1}',
+        checkedLabel: 'Goals: {0} of {1}',
         untitled: 'Untitled',
         summary: 'Today: {0} · later: {1}',
         summaryNone: 'Nothing left for today',
@@ -73,7 +74,7 @@ export default {
         saved: 'Saved',
         format: { label: 'Formatting', bold: 'Bold', italic: 'Italic', code: 'Code', list: 'List', quote: 'Quote', link: 'Link' },
         body: { label: 'Text', placeholder: 'Write the note', hint: 'Markdown, #tags and links are supported' },
-        items: { label: 'List', placeholder: 'Item', add: 'Add item', remove: 'Remove item', move: 'Move item', done: 'Mark item' },
+        items: { label: 'Goals', placeholder: 'Goal', add: 'Add goal', remove: 'Remove goal', move: 'Move goal', done: 'Mark goal' },
         repeat: {
             label: 'Repeat',
             none: 'Do not repeat',
@@ -86,7 +87,7 @@ export default {
             every: 'Every',
             unit: { day: 'days', week: 'weeks', month: 'months', year: 'years' },
         },
-        error: { badDate: 'Invalid date', empty: 'Enter text or add at least one item', tooOld: 'The due date cannot be earlier than {0} days ago', badRepeat: 'The repeat period is 1 to {0}' },
+        error: { badDate: 'Invalid date', empty: 'Enter text or add at least one goal', tooOld: 'The due date cannot be earlier than {0} days ago', badRepeat: 'The repeat period is 1 to {0}' },
     },
 
     trash: { empty: 'The trash is empty', hint: 'Deleted notes are kept here for {0} days.', restore: 'Restore', purge: 'Delete forever', emptyAll: 'Empty the trash' },
@@ -144,7 +145,7 @@ export default {
         },
     },
 
-    toast: { removed: 'Note deleted', done: 'Note completed', reopened: 'Back in progress', itemOn: 'Item checked', itemOff: 'Check removed', undo: 'Undo', redo: 'Redo', nothingToUndo: 'Nothing to undo', nothingToRedo: 'Nothing to redo' },
+    toast: { removed: 'Note deleted', done: 'Note completed', reopened: 'Back in progress', itemOn: 'Goal checked', itemOff: 'Check removed', undo: 'Undo', redo: 'Redo', nothingToUndo: 'Nothing to undo', nothingToRedo: 'Nothing to redo' },
 
     notify: { today: 'Notes due today: {0}' },
 
@@ -152,7 +153,7 @@ export default {
         done: 'Done',
         edit: 'Edit',
         swipeCopy: 'Copy',
-        items: 'Items · {0} of {1}',
+        items: 'Goals · {0} of {1}',
         created: 'Created {0}',
         createdChanged: 'Created {0} · changed {1}',
     },
