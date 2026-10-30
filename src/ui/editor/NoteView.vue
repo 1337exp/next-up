@@ -108,7 +108,7 @@ function onTag(tag: string): void {
         <div v-if="!wide" class="bottom">
             <TaoButton variant="secondary" icon="tao-edit" block @click="edit">{{ t('read.edit') }}</TaoButton>
             <!-- «Закрыть» под правым большим пальцем: тянуться к крестику вверху неудобно, а читают и закрывают чаще всего -->
-            <TaoButton variant="secondary" icon="tao-close" block @click="emit('close')">{{ t('ui.button.close') }}</TaoButton>
+            <TaoButton variant="ghost" icon="tao-close" block @click="emit('close')">{{ t('ui.button.close') }}</TaoButton>
         </div>
     </article>
 </template>
