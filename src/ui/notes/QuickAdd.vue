@@ -177,18 +177,22 @@ function submit(): void {
     transition: width 0.24s ease, background-color 0.12s ease 0.2s, box-shadow 0.12s ease 0.2s;
 }
 
-/* раскрываясь: подложка с тенью вспыхивает сразу коротким импульсом, затем таблетка выезжает в сторону */
+/* раскрываясь: подложка с тенью проявляется сразу, кнопка отзывается лёгким «пульсом», затем таблетка выезжает в сторону.
+   Пульсирует именно кнопка, а не вся таблетка: таблетка прижата вправо и уже растёт, её увеличение сдвигало бы край */
 .pill.open {
     width: 100%;
     background: var(--tao-color-surface-raised);
     box-shadow: 0 8px 24px rgb(0 0 0 / 0.3);
     transition: width 0.24s ease 0.1s, background-color 0.08s ease, box-shadow 0.08s ease;
+}
+
+.pill.open .pill-button {
     animation: pill-pulse 0.18s ease-out;
 }
 
 @keyframes pill-pulse {
     50% {
-        scale: 1.08;
+        scale: 1.12;
     }
 }
 
@@ -202,9 +206,11 @@ function submit(): void {
     transition: opacity 0.18s ease, padding 0.24s ease;
 }
 
+/* раскрываясь, поле ждёт, пока таблетка начнёт расти (та же задержка, что у ширины): иначе растущий отступ выдавливал кнопку вправо */
 .pill.open .pill-field {
     padding-inline-start: var(--tao-space-3);
     opacity: 1;
+    transition: opacity 0.18s ease 0.1s, padding 0.24s ease 0.1s;
 }
 
 .pill-field > :first-child {
@@ -214,6 +220,8 @@ function submit(): void {
 
 .pill-clear {
     flex: none;
+    /* отступ от основной кнопки: иначе наведение на крестик «слипается» с ней */
+    margin-inline-end: var(--tao-space-2);
     color: var(--tao-color-text-muted);
 }
 
@@ -250,7 +258,7 @@ function submit(): void {
         transition: none;
     }
 
-    .pill.open {
+    .pill.open .pill-button {
         animation: none;
     }
 }
