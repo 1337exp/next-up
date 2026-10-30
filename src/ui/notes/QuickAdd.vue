@@ -86,7 +86,7 @@ function submit(): void {
 <template>
     <form ref="form" class="quick" :class="{ phone, open: expanded }" @submit.prevent="submit" @keydown.esc="collapse" @focusout="onFocusOut">
         <!-- телефон: одна таблетка, ширина которой меняется от кнопки до всего ряда -->
-        <div v-if="phone" class="pill" :class="{ open }">
+        <div v-if="phone" class="pill tao-size-large" :class="{ open }">
             <div class="pill-field" :inert="!open">
                 <TaoInput v-model="text" variant="plain" size="large" :placeholder="t('quick.placeholder')" :aria-label="t('quick.label')" :aria-describedby="preview ? 'quick-preview' : undefined" autocomplete="off" />
             </div>
@@ -146,7 +146,8 @@ function submit(): void {
     align-items: center;
     align-self: flex-end;
     box-sizing: border-box;
-    width: calc(var(--tao-control-height-lg, 2.75rem) + var(--tao-space-2));
+    /* свёрнутая — ровно кнопка плюс отступы вокруг неё (размер контрола берём из контекста tao-size-large) */
+    width: calc(var(--tao-control-height) + var(--tao-space-1) * 2);
     padding: var(--tao-space-1);
     overflow: hidden;
     border-radius: var(--tao-radius-full);
@@ -162,12 +163,13 @@ function submit(): void {
 .pill-field {
     flex: 1;
     min-width: 0;
-    padding-inline-start: var(--tao-space-3);
+    padding-inline-start: 0;
     opacity: 0;
-    transition: opacity 0.18s ease;
+    transition: opacity 0.18s ease, padding 0.24s ease;
 }
 
 .pill.open .pill-field {
+    padding-inline-start: var(--tao-space-3);
     opacity: 1;
 }
 
