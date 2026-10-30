@@ -9,7 +9,7 @@ const { t } = useI18n();
 </script>
 
 <template>
-    <TaoDrawer v-model="open" side="bottom" :title="t('settings.title')">
+    <TaoDrawer v-model="open" side="bottom" surface="grain" :title="t('settings.title')">
         <SettingsForm />
     </TaoDrawer>
 </template>

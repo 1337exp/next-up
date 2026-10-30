@@ -40,7 +40,16 @@ body {
     --tao-radius-lg: 14px;
     --tao-radius-control: 10px;
     --tao-radius-panel: 18px;
+    /* «утопленный» тон: на ступень яркости темнее страницы, одинаково в обеих темах; им окрашены меню и окна (на нём текст выразительнее) */
+    --nu-sunken: color-mix(in srgb, var(--tao-color-bg) 94%, black);
+    --nu-sunken: oklch(from var(--tao-color-bg) calc(l - 0.04) c h);
     --nu-app-max: 1320px;
     /* нижняя плавающая плашка навигации на телефоне (TaoNav floating: 64 px и 12 px от края) и зазор над ней: выше липнет поле быстрого ввода */
     --nu-bar-h: 88px;
+}
+
+/* окно заметки и нижний лист настроек: заливка панели — утопленный тон (TaoUI читает её из --tao-surface-fill) */
+.tao-modal,
+.tao-drawer__panel {
+    --tao-surface-fill: var(--nu-sunken);
 }

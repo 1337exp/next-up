@@ -189,9 +189,7 @@ watch(
 /* на широком виде меню темнее страницы (зерно даёт surface="grain"); на телефоне там стеклянная плашка */
 @media (min-width: 600px) {
     .nav :deep(.tao-nav__panel) {
-        /* темнее на одинаковую ступень яркости в любой теме (доля чёрного на светлом давала бы серый бетон) */
-        background-color: color-mix(in srgb, var(--tao-color-bg) 94%, black);
-        background-color: oklch(from var(--tao-color-bg) calc(l - 0.04) c h);
+        background-color: var(--nu-sunken);
     }
 }
 
