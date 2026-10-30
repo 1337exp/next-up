@@ -1,6 +1,6 @@
 # Черновики issue для TaoUI и TaoUX, часть 3
 
-Найдено на TaoUI 5.14.0 и TaoUX 0.5.5, пока в Next Up делались зерно, стекло и правки меню и окна заметки. Прошлые списки (всё закрыто): [library-issues.md](library-issues.md), [library-issues-2.md](library-issues-2.md).
+Найдено на TaoUI 5.14.0 и TaoUX 0.5.5 (пункты 7 и 8 закрыты в TaoUI 5.16.0 и 5.16.1: жирный текущий пункт меню и фон поля, идущий за панелью; наши обходы убраны), пока в Next Up делались зерно, стекло и правки меню и окна заметки. Прошлые списки (всё закрыто): [library-issues.md](library-issues.md), [library-issues-2.md](library-issues-2.md).
 
 > **Статус: все шесть закрыты** в TaoUI 5.15.0: зерно `surface="grain"` у `TaoModal`, `TaoDrawer` и `TaoNav`, атрибуты `TaoModal` на панели, прокрутка только содержимого плюс `#footer` и `--tao-modal-bg`, `badgeTone="neutral"`, у `TaoDropdownMenu` `size="small"` и `:tabbable="false"`. Свои обходы убраны. Своим осталось: нижняя полоса редактора в окне (кнопки живут внутри `NoteEditor` и `NoteView`, а не в слоте `#footer`), она берёт цвет `--tao-modal-bg` и зерно `--tao-surface-grain-image`; тон меню темнее страницы.
 
