@@ -204,7 +204,14 @@ function onMenu(id: string): void {
 
 .check-hint {
     opacity: 0;
-    transition: opacity 0.12s ease;
+    /* галочка в цвет подсветки кружка; при наведении проявляется и плавно «жирнеет» (линия толще, чем атрибут SVG 2 → 2.6) */
+    color: var(--tao-color-accent);
+    transition: opacity 0.14s ease;
+}
+
+.check-hint :deep(svg) {
+    stroke-width: 1.5;
+    transition: stroke-width 0.22s ease;
 }
 
 @media (hover: hover) {
@@ -216,6 +223,10 @@ function onMenu(id: string): void {
 
     .hit:hover .check:not(:disabled) .check-hint {
         opacity: 1;
+    }
+
+    .hit:hover .check:not(:disabled) .check-hint :deep(svg) {
+        stroke-width: 2.6;
     }
 }
 
