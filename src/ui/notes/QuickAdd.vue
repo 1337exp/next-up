@@ -109,7 +109,7 @@ function submit(): void {
         </div>
 
         <!-- планшет и ПК: поле всегда раскрыто -->
-        <TaoInput v-else v-model="text" class="field" variant="filled" :placeholder="t('quick.placeholder')" :aria-label="t('quick.label')" :aria-describedby="preview ? 'quick-preview' : undefined" autocomplete="off" size="large">
+        <TaoInput v-else v-model="text" class="field field-wide" variant="filled" :placeholder="t('quick.placeholder')" :aria-label="t('quick.label')" :aria-describedby="preview ? 'quick-preview' : undefined" autocomplete="off" size="large">
             <template #prefix>
                 <TaoButton variant="text" icon="tao-edit" :aria-label="t('quick.full')" @click="editor.openCreate()" />
             </template>
@@ -146,6 +146,8 @@ function submit(): void {
 
 /* таблетка: свёрнутая — только кнопка справа, раскрытая — на весь ряд; ширина меняется плавно */
 .pill {
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
     align-self: flex-end;
@@ -182,14 +184,26 @@ function submit(): void {
     border-radius: var(--tao-radius-full);
 }
 
+/* подсказка — ярлык под полем, справа: тот же фон, что у поля, чуть заходит под него и выглядит его частью */
 .preview {
+    position: relative;
+    z-index: 0;
     display: flex;
     gap: var(--tao-space-2);
     align-items: center;
-    margin: 0;
-    padding-inline: var(--tao-space-2);
+    align-self: flex-end;
+    margin: calc(var(--tao-space-3) * -1) var(--tao-space-4) 0;
+    padding: calc(var(--tao-space-3) + var(--tao-space-1)) var(--tao-space-3) var(--tao-space-1);
+    border-radius: 0 0 var(--tao-radius-md) var(--tao-radius-md);
+    background: var(--tao-color-surface-raised);
+    box-shadow: 0 6px 16px rgb(0 0 0 / 0.22);
     color: var(--tao-color-text-muted);
     font-size: var(--tao-font-size-sm);
+}
+
+.field-wide {
+    position: relative;
+    z-index: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {

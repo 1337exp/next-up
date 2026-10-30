@@ -226,7 +226,7 @@ onMounted(() => {
             <!-- pointerdown.prevent: кнопка не уводит фокус из поля, иначе выделение пропало бы до применения -->
             <TaoToolbar :label="t('editor.format.label')" size="small" variant="plain" class="format">
                 <TaoToolbarGroup>
-                    <TaoButton v-for="action in FORMATS" :key="action" variant="ghost" size="small" :aria-label="t(`editor.format.${action}`)" :title="formatTitle(action)" @pointerdown.prevent @click="format(action)">
+                    <TaoButton v-for="action in FORMATS" :key="action" variant="ghost" tone="neutral" size="small" :aria-label="t(`editor.format.${action}`)" :title="formatTitle(action)" @pointerdown.prevent @click="format(action)">
                         <b v-if="action === 'bold'" aria-hidden="true">B</b>
                         <i v-else-if="action === 'italic'" aria-hidden="true">I</i>
                         <TaoIcon v-else :name="action" />
@@ -320,12 +320,23 @@ onMounted(() => {
 }
 
 
+/* панель форматирования видна всегда: если её прятать и показывать, высота прыгает; нейтральные тона и тонкая подложка, чтобы не спорить с акцентом */
 .format {
-    display: none;
+    width: fit-content;
+    max-width: 100%;
+    padding: 2px;
+    border: 1px solid var(--tao-color-border);
+    border-radius: var(--tao-radius-md);
+    background: var(--tao-color-surface);
 }
 
-.body-field:focus-within .format {
-    display: flex;
+/* значки приглушены: акцентный цвет достаётся тому, на что нужно указать (срок, «Готово»), а не инструментам */
+.format :deep(.tao-button) {
+    color: var(--tao-color-text-muted);
+}
+
+.format :deep(.tao-button:hover) {
+    color: var(--tao-color-text);
 }
 
 .items {
