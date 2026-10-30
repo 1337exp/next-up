@@ -36,6 +36,13 @@ export function inDaysText(days: number): string {
     return i18n.translate(code, `date.inDays.${form === 'one' || form === 'few' || form === 'many' ? form : 'other'}`, [days]);
 }
 
+/** «+7 дней» / «+7 days»: сдвиг срока, форма по правилам склонения текущего языка. */
+export function plusDaysText(days: number): string {
+    const code = i18n.current.value;
+    const form = new Intl.PluralRules(code).select(days);
+    return i18n.translate(code, `editor.due.plusDays.${form === 'one' || form === 'few' || form === 'many' ? form : 'other'}`, [days]);
+}
+
 /** Короткая дата с днём недели без точки после месяца: «пт, 30 окт» / «Fri, Oct 30». */
 export function dateShort(locale: string, iso: string): string {
     const [year, month, day] = [Number(iso.slice(0, 4)), Number(iso.slice(5, 7)), Number(iso.slice(8, 10))] as const;

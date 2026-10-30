@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
-import { TaoButton, TaoCheckbox, TaoDate, TaoFormField, TaoIcon, TaoInput, TaoInputNumber, TaoSelect, TaoTextarea, TaoToolbar, TaoToolbarGroup } from '@1337exp/taoui';
+import { TaoButton, TaoCheckbox, TaoDate, TaoFormField, TaoIcon, TaoInput, TaoInputNumber, TaoMenu, TaoSelect, TaoTextarea, TaoToolbar, TaoToolbarGroup, type TaoMenuItem } from '@1337exp/taoui';
 import { bindHotkeys, formatHotkey } from '@1337exp/taoux/hotkeys';
 import { moveItem, sortableTextsEn, sortableTextsRu, useSortable } from '@1337exp/taoux/sortable';
 import { useNotesStore } from '@/app/notes';
@@ -10,7 +10,7 @@ import { addDays, diffDays } from '@/core/date';
 import { newId } from '@/core/id';
 import { applyMarkdown, type MdAction } from '@/core/mdFormat';
 import { cloneInput, validateInput } from '@/core/notes';
-import { formatDateTime, i18n, inDaysText, useI18n } from '@/i18n';
+import { formatDateTime, i18n, inDaysText, plusDaysText, useI18n } from '@/i18n';
 import { useEditor } from './useEditor';
 
 const AUTOSAVE_MS = 600;
@@ -105,7 +105,16 @@ function onEscape(event: KeyboardEvent): void {
 
 // --- срок: быстрые кнопки и дата рядом, сколько дней осталось — словами ---
 const minDate = computed(() => addDays(store.today, -RETENTION_DAYS));
-const QUICK_DUE = [{ days: 0, label: 'editor.due.today' }, { days: 1, label: 'editor.due.tomorrow' }, { days: 7, label: 'editor.due.plus' }] as const;
+// «Сегодня» и «Завтра» задают срок, а «Прибавить» сдвигает уже выбранный: на сколько дней — в коротком меню, а не россыпью кнопок
+const QUICK_DUE = [{ days: 0, label: 'editor.due.today' }, { days: 1, label: 'editor.due.tomorrow' }] as const;
+const SHIFT_DAYS = [1, 7, 30, 90] as const;
+const shiftItems = computed<TaoMenuItem[]>(() => [{ type: 'label', label: t('editor.due.addHint') }, ...SHIFT_DAYS.map((days) => ({ id: String(days), label: plusDaysText(days) }))]);
+const shiftOpen = ref(false);
+const shiftButton = ref<{ $el: HTMLElement } | null>(null);
+function shiftDue(id: string | number): void {
+    draft.due = addDays(draft.due, Number(id));
+    shiftOpen.value = false;
+}
 
 function setDue(value: string | null): void {
     if (value) draft.due = value; // очистить срок нельзя: он обязателен
@@ -262,7 +271,9 @@ onMounted(() => {
                 <h3 class="prop-label">{{ t('editor.due.label') }}</h3>
                 <div class="prop-value">
                     <div class="chips">
-                        <TaoButton v-for="quick in QUICK_DUE" :key="quick.days" size="small" variant="secondary" :pressed="draft.due === quickDue(quick.days)" @click="draft.due = quickDue(quick.days)">{{ t(quick.label, [quick.days]) }}</TaoButton>
+                        <TaoButton v-for="quick in QUICK_DUE" :key="quick.days" size="small" variant="secondary" :pressed="draft.due === quickDue(quick.days)" @click="draft.due = quickDue(quick.days)">{{ t(quick.label) }}</TaoButton>
+                        <TaoButton ref="shiftButton" size="small" variant="secondary" icon="tao-plus" aria-haspopup="menu" :aria-expanded="shiftOpen" @click="shiftOpen = !shiftOpen">{{ t('editor.due.add') }}</TaoButton>
+                        <TaoMenu :items="shiftItems" :open="shiftOpen" :anchor="shiftButton?.$el ?? null" placement="bottom-start" :label="t('editor.due.addHint')" @select="shiftDue" @close="shiftOpen = false" />
                     </div>
                     <TaoFormField :error="dateError ? errorText : ''">
                         <div class="date-line">
