@@ -108,7 +108,7 @@ watch(
     <TaoNav :model-value="section" class="nav" :floating="phone" :surface="phone ? 'glass' : 'flat'" :items="items" :aria-label="t('nav.label')" :more-label="t('nav.more')" @update:model-value="onNav">
         <!-- на телефоне главное действие — поле ввода внизу списка, круглая «+» не нужна -->
         <template #footer>
-            <p class="about">{{ t('app.name') }} v3</p>
+            <a class="about" href="https://github.com/1337exp/next-up" target="_blank" rel="noopener noreferrer">{{ t('app.name') }} v3</a>
         </template>
 
         <template v-if="!phone" #action>
@@ -202,11 +202,19 @@ watch(
 
 /* подпись внизу меню: едва заметная, как ссылка в подвале */
 .about {
+    display: block;
     margin: 0;
+    text-decoration: none;
     padding-inline: var(--tao-space-3);
     color: var(--tao-color-text-muted);
     font-size: var(--tao-font-size-xs);
     opacity: 0.55;
+}
+
+.about:hover,
+.about:focus-visible {
+    opacity: 1;
+    text-decoration: underline;
 }
 
 .settings-page h2 {

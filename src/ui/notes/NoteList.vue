@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, TransitionGroup } from 'vue';
 import { TaoButton } from '@1337exp/taoui';
 import { useNotesStore } from '@/app/notes';
 import { isoParts, formatUserDate } from '@/core/date';
@@ -74,6 +74,21 @@ const tabStopId = computed(() => {
     return activeId.value && ids.includes(activeId.value) ? activeId.value : (ids[0] ?? null);
 });
 
+// строка уходит плавно: высота, прозрачность и лёгкий сдвиг; при «уменьшить анимацию» в системе — сразу
+const reduceMotion = (): boolean => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function onLeave(el: Element, done: () => void): void {
+    if (reduceMotion()) return done();
+    const row = el as HTMLElement;
+    row.style.height = `${row.offsetHeight}px`;
+    row.style.overflow = 'hidden';
+    void row.offsetHeight; // зафиксировать начальную высоту до перехода
+    row.style.transition = 'height 0.26s ease, opacity 0.2s ease, transform 0.26s ease';
+    row.style.height = '0px';
+    row.style.opacity = '0';
+    row.style.transform = 'translateX(1.5rem)';
+    window.setTimeout(done, 280);
+}
+
 const openRuns = ref(new Set<string>());
 function toggleRun(key: string): void {
     const next = new Set(openRuns.value);
@@ -104,7 +119,8 @@ const runTitle = (entry: Extract<ArchiveEntry, { kind: 'run' }>): string => {
                 <span class="count">{{ group.entries.length }}</span>
             </h2>
 
-            <template v-for="entry in group.entries" :key="entry.kind === 'run' ? runKey(entry) : entry.note.id">
+            <TransitionGroup name="note" tag="div" class="rows" @leave="onLeave">
+            <div v-for="entry in group.entries" :key="entry.kind === 'run' ? runKey(entry) : entry.note.id">
                 <NoteRow
                     v-if="entry.kind === 'note'"
                     :note="entry.note"
@@ -143,7 +159,8 @@ const runTitle = (entry: Extract<ArchiveEntry, { kind: 'run' }>): string => {
                         />
                     </template>
                 </div>
-            </template>
+            </div>
+            </TransitionGroup>
         </section>
     </div>
 </template>
@@ -153,6 +170,32 @@ const runTitle = (entry: Extract<ArchiveEntry, { kind: 'run' }>): string => {
     display: flex;
     flex-direction: column;
     gap: var(--tao-space-2);
+}
+
+.rows {
+    display: flex;
+    flex-direction: column;
+}
+
+/* новая заметка появляется мягко, остальные плавно сдвигаются на её место */
+.note-enter-active {
+    transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.note-enter-from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+}
+
+.note-move {
+    transition: transform 0.26s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .note-enter-active,
+    .note-move {
+        transition: none;
+    }
 }
 
 .group,
