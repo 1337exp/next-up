@@ -15,7 +15,7 @@ import { usePhone } from '@/ui/shell/useWide';
  *
  * На телефоне три ступени: «+» (таблетка у большого пальца) → по нажатию раскрывается в поле → на пустом поле кнопка
  * превращается в «лист» и открывает полную заметку (большой текст, пункты), а как только начали печатать, снова «+»: добавить.
- * На планшете и ПК поле всегда раскрыто.
+ * На планшете и ПК поле всегда раскрыто, кнопка справа та же: «лист» на пустом поле, «+» с текстом.
  */
 const { t, locale } = useI18n();
 const store = useNotesStore();
@@ -84,8 +84,8 @@ function openFull(): void {
 function submit(): void {
     const result = parsed.value;
     if (!hasText.value) {
-        // на телефоне кнопка пустого поля — «лист»: полная заметка
-        if (phone.value) openFull();
+        // кнопка пустого поля — «лист»: полная заметка (и на телефоне, и на широком экране)
+        openFull();
         return;
     }
 
@@ -128,12 +128,11 @@ function submit(): void {
 
         <!-- планшет и ПК: поле всегда раскрыто -->
         <TaoInput v-else v-model="text" class="field field-wide" variant="filled" :placeholder="t('quick.placeholder')" :aria-label="t('quick.label')" :aria-describedby="preview ? 'quick-preview' : undefined" autocomplete="off" size="large">
-            <template #prefix>
-                <TaoButton variant="text" icon="tao-edit" :aria-label="t('quick.full')" @click="editor.openCreate()" />
-            </template>
+            <template #prefix><TaoIcon name="tao-edit" /></template>
             <template #suffix>
                 <kbd v-if="hasText" class="nu-kbd" aria-hidden="true">Enter</kbd>
-                <TaoButton type="submit" variant="primary" icon="tao-plus" :aria-label="t('quick.add')" :disabled="!hasText" />
+                <!-- как на телефоне: на пустом поле кнопка открывает полную заметку, с текстом добавляет -->
+                <TaoButton type="submit" variant="primary" :icon="hasText ? 'tao-plus' : 'tao-file'" :aria-label="hasText ? t('quick.add') : t('quick.full')" :title="hasText ? t('quick.add') : t('quick.full')" />
             </template>
         </TaoInput>
 
