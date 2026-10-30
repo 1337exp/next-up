@@ -193,7 +193,7 @@ function onMenu(id: string): void {
     width: 24px;
     height: 24px;
     padding: 0;
-    /* тихое кольцо: тонкое и полупрозрачное (35% цвета приглушённого текста), чтобы кружки не перетягивали взгляд; при наведении проявляется целиком */
+    /* тихое кольцо: тонкое и полупрозрачное (35% цвета приглушённого текста), чтобы кружки не перетягивали взгляд; при наведении подсвечивается акцентом */
     border: 1px solid color-mix(in srgb, var(--tao-color-text-muted) 35%, transparent);
     border-radius: 50%;
     background: transparent;
@@ -208,8 +208,10 @@ function onMenu(id: string): void {
 }
 
 @media (hover: hover) {
+    /* наведение: яркая подсветка акцентом (как раньше) и галочка в кружке */
     .hit:hover .check:not(:disabled) {
-        border-color: var(--tao-color-text-muted);
+        border-color: var(--tao-color-accent);
+        background: var(--tao-color-accent-subtle);
     }
 
     .hit:hover .check:not(:disabled) .check-hint {
