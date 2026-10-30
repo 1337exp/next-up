@@ -69,6 +69,8 @@ const showSearchField = computed(() => hasSearch.value && (!phone.value || searc
 /* внизу ленты запас под закреплённое поле ввода и плавающую панель */
 @media (max-width: 599px) {
     .column {
+        /* на короткой ленте поле ввода (margin-top: auto) уходит к нижней панели */
+        min-height: 100dvh;
         padding-bottom: calc(var(--nu-bar-h) + var(--tao-space-4));
     }
 }

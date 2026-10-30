@@ -15,7 +15,7 @@ export default {
 
     list: {
         emptyActive: 'Nothing planned',
-        emptyActiveHint: 'Write in the field above, for example: call mom tomorrow #home.',
+        emptyActiveHint: 'Write in the field above, for example:\ncall mom tomorrow #home',
         emptyArchive: 'The archive is empty',
         searchEmpty: 'Nothing found',
         searchEmptyHint: 'Try other words. Exact match can be turned off in the settings.',

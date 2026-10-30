@@ -23,6 +23,12 @@ defineProps<{
     margin-block: var(--tao-space-8);
 }
 
+/* подсказка может идти в две строки (
+ в тексте): пример отдельной строкой */
+.empty :deep(.tao-empty__text) {
+    white-space: pre-line;
+}
+
 .icon {
     font-size: 2.5rem;
     color: var(--tao-color-text-muted);

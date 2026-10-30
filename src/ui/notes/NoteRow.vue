@@ -144,6 +144,8 @@ function onMenu(id: string): void {
 }
 
 .row {
+    /* на сенсорных экранах браузер заливает строку синим при тапе (в том числе по кнопке меню): у нас своё состояние наведения */
+    -webkit-tap-highlight-color: transparent;
     display: flex;
     align-items: flex-start;
     padding-inline-start: var(--tao-space-1);

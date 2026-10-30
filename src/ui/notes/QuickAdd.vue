@@ -95,6 +95,11 @@ function submit(): void {
         return;
     }
     text.value = '';
+    // на телефоне после добавления таблетка сворачивается обратно в «+» (фокус — на неё, чтобы не потерять его с клавиатуры)
+    if (phone.value) {
+        open.value = false;
+        void nextTick(() => form.value?.querySelector<HTMLElement>('.pill-button')?.focus());
+    }
     toast().info().timeout(6000).message(t('quick.added', [dueLabel(result.due)])).action(t('toast.undo'), () => void store.undo());
 }
 </script>
@@ -150,6 +155,9 @@ function submit(): void {
         bottom: calc(var(--nu-bar-h) + env(safe-area-inset-bottom));
         z-index: 2;
         order: 99;
+        /* на коротком списке поле стоит у нижней панели, а не сразу под лентой; отрицательный нижний отступ гасит запас колонки (16 px), чтобы поле не прыгало, когда лента начинает прокручиваться */
+        margin-top: auto;
+        margin-bottom: calc(var(--tao-space-4) * -1);
         margin-inline: calc(var(--tao-space-4) * -1);
         padding: var(--tao-space-2) var(--tao-space-4);
         /* фон у самой таблетки: между ней и плашкой лента просвечивает */
@@ -245,6 +253,15 @@ function submit(): void {
     box-shadow: 0 6px 16px rgb(0 0 0 / 0.22);
     color: var(--tao-color-text-muted);
     font-size: var(--tao-font-size-sm);
+}
+
+/* на телефоне подсказка — ярлык НАД таблеткой: снизу она поднимала бы поле и уводила взгляд; сверху поле стоит на месте (прижато к низу), а ярлык вырастает вверх */
+.quick.phone .preview {
+    order: -1;
+    margin: 0 var(--tao-space-4) calc(var(--tao-space-3) * -1);
+    padding: var(--tao-space-1) var(--tao-space-3) calc(var(--tao-space-3) + var(--tao-space-1));
+    border-radius: var(--tao-radius-md) var(--tao-radius-md) 0 0;
+    box-shadow: 0 -6px 16px rgb(0 0 0 / 0.22);
 }
 
 .field-wide {
