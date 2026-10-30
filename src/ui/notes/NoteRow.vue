@@ -27,8 +27,6 @@ const emit = defineEmits<{
     done: [note: Note];
     reopen: [note: Note];
     remove: [note: Note];
-    /** Клик по тегу в строке: `работа` (без `#`). */
-    tag: [tag: string];
 }>();
 
 const { t, locale } = useI18n();
@@ -126,7 +124,8 @@ function onMenu(id: string): void {
                         <div v-if="checked || repeatLabel || tags.length" class="meta">
                             <span v-if="checked">{{ checked }}</span>
                             <span v-if="repeatLabel" class="repeat"><TaoIcon name="tao-repeat" />{{ repeatLabel }}</span>
-                            <button v-for="tag in tags" :key="tag" type="button" class="tag" tabindex="-1" @click.stop="emit('tag', tag)">#{{ tag }}</button>
+                            <!-- теги в ленте — только текст: у строки и так тап, свайп и меню; поиск по тегу — чипы над списком -->
+                            <span v-for="tag in tags" :key="tag">#{{ tag }}</span>
                         </div>
                     </div>
 
@@ -269,20 +268,6 @@ function onMenu(id: string): void {
     display: inline-flex;
     gap: 4px;
     align-items: center;
-}
-
-.tag {
-    padding: 0;
-    border: 0;
-    background: none;
-    color: inherit;
-    font: inherit;
-    cursor: pointer;
-}
-
-.tag:hover {
-    color: var(--tao-color-text);
-    text-decoration: underline;
 }
 
 .when {

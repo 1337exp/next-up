@@ -8,7 +8,7 @@ import { monthName, useI18n } from '@/i18n';
 import { useEditor } from '@/ui/editor/useEditor';
 import EmptyState from '@/ui/components/EmptyState.vue';
 import NoteRow from './NoteRow.vue';
-import { toggleTag, useNoteActions, useSearch } from './useNotes';
+import { useNoteActions, useSearch } from './useNotes';
 
 const props = defineProps<{ section: 'active' | 'archive' }>();
 
@@ -132,7 +132,6 @@ const runTitle = (entry: Extract<ArchiveEntry, { kind: 'run' }>): string => {
                     @done="actions.done"
                     @reopen="actions.reopen"
                     @remove="actions.remove"
-                    @tag="toggleTag"
                 />
 
                 <div v-else class="run">
@@ -155,7 +154,6 @@ const runTitle = (entry: Extract<ArchiveEntry, { kind: 'run' }>): string => {
                             @done="actions.done"
                             @reopen="actions.reopen"
                             @remove="actions.remove"
-                            @tag="toggleTag"
                         />
                     </template>
                 </div>

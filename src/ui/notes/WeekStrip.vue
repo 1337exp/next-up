@@ -50,6 +50,7 @@ function pick(iso: string): void {
             <button v-for="cell in cells" :key="cell.iso" type="button" class="day" :class="{ today: cell.today, on: day === cell.iso, past: cell.past }" :disabled="cell.past" :aria-label="cell.label" :aria-pressed="day === cell.iso" @click="pick(cell.iso)">
                 <span class="dow">{{ cell.weekday }}</span>
                 <span class="num">{{ cell.number }}</span>
+                <span class="line" aria-hidden="true" />
                 <span class="dots" aria-hidden="true"><i v-for="n in 3" :key="n" :class="{ full: n <= cell.dots }" /></span>
             </button>
         </div>
@@ -109,10 +110,17 @@ function pick(iso: string): void {
     box-sizing: border-box;
     width: 2.25rem;
     height: 2.25rem;
-    border: 2px solid transparent;
     border-radius: 50%;
     font-size: var(--tao-font-size-md);
     font-weight: 500;
+}
+
+/* сегодня — короткая линия под числом (тихая метка), а не яркий круг */
+.line {
+    width: 1.25rem;
+    height: 3px;
+    border-radius: 2px;
+    background: transparent;
 }
 
 .past .num {
@@ -121,17 +129,16 @@ function pick(iso: string): void {
 }
 
 .today .num {
-    background: var(--tao-color-accent);
-    color: var(--tao-color-on-accent);
     font-weight: 700;
 }
 
-.on .num {
-    border-color: var(--tao-color-accent);
+.today .line {
+    background: var(--tao-color-accent);
 }
 
-.today.on .num {
-    box-shadow: 0 0 0 2px var(--tao-color-bg), 0 0 0 4px var(--tao-color-accent);
+/* выбранный день — мягкая подложка под числом */
+.on .num {
+    background: var(--tao-color-surface-raised);
 }
 
 .dots {
