@@ -157,12 +157,17 @@ function onMenu(id: string): void {
     cursor: pointer;
 }
 
+/* наведение — лёгкая подсветка (45%) поверх сплошной основы: основа нужна, чтобы панель свайпа не просвечивала */
 .row:hover {
-    background: var(--tao-color-surface-hover);
+    background-image: linear-gradient(color-mix(in srgb, var(--tao-color-surface-hover) 45%, transparent), color-mix(in srgb, var(--tao-color-surface-hover) 45%, transparent));
 }
 
 .row.selected {
     background: var(--tao-color-surface-raised);
+}
+
+.row.selected .body {
+    border-bottom-color: transparent;
 }
 
 /* карточку можно открыть с клавиатуры (Enter): кольцо видно только при навигации клавишами */
@@ -223,7 +228,9 @@ function onMenu(id: string): void {
     font-size: 0.8rem;
 }
 
+/* строки разделены тонкой линией (как в макете A4); у выбранной строки линии нет */
 .body {
+    border-bottom: 1px solid var(--tao-color-border);
     display: flex;
     flex: 1;
     gap: var(--tao-space-3);

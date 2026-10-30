@@ -170,9 +170,21 @@ watch(
 
 /* на широком виде боковое меню тоже с зерном (на телефоне там стеклянная плашка) */
 @media (min-width: 600px) {
-    .nav {
-        background-image: var(--nu-grain);
+    .nav :deep(.tao-nav__panel) {
+        /* темнее страницы + зерно: меню чуть «утоплено» */
+        background: color-mix(in srgb, var(--tao-color-bg) 78%, black) var(--nu-grain);
     }
+}
+
+/* счётчики в меню нейтральные, акцентный только у текущего раздела: внимание не бегает по всему меню */
+.nav :deep(.tao-nav__badge:not(.tao-nav__badge--dot)) {
+    background: var(--tao-color-surface-raised);
+    color: var(--tao-color-text-muted);
+}
+
+.nav :deep(.tao-nav__item--active .tao-nav__badge) {
+    background: var(--tao-color-accent);
+    color: var(--tao-color-on-accent);
 }
 
 .nav {
