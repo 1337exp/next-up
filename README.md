@@ -13,7 +13,7 @@
   <a href="docs/DESIGN.md">Design</a>
 </p>
 
-Markdown text, checklist items with the time they were ticked, repeats, search that forgives typos, tags. It works on a desktop, a tablet and a phone, installs as an app (PWA) and opens without a network. Vue 3 + TypeScript + Vite + [TaoUI](https://www.npmjs.com/package/@1337exp/taoui) and [TaoUX](https://www.npmjs.com/package/@1337exp/taoux). The interface is in Russian and English.
+Markdown text, goals (checklist items) with the time they were ticked, repeats, search that forgives typos, tags. It works on a desktop, a tablet and a phone, installs as an app (PWA) and opens without a network. Vue 3 + TypeScript + Vite + [TaoUI](https://www.npmjs.com/package/@1337exp/taoui) and [TaoUX](https://www.npmjs.com/package/@1337exp/taoux). The interface is in Russian and English.
 
 The structure and the decisions taken: [docs/PLAN-v3.md](docs/PLAN-v3.md). The interface design (audit, decisions, rules): [docs/DESIGN.md](docs/DESIGN.md). Notes for the libraries found along the way: [docs/library-issues.md](docs/library-issues.md), [-2](docs/library-issues-2.md), [-3](docs/library-issues-3.md). The docs are in Russian.
 
@@ -29,7 +29,7 @@ npm run example:server   # demo sync server, see examples/README.md
 
 ## How it works
 
-- **A note** is a due date (a calendar day), Markdown text, checklist items and a repeat rule. «Upcoming» is the notes due today or later; the archive is the notes whose date has passed or that are done.
+- **A note** is a due date (a calendar day), Markdown text, goals (checklist items) and a repeat rule. «Upcoming» is the notes due today or later; the archive is the notes whose date has passed or that are done.
 - **A list by time.** «Today», «Tomorrow», «This week» (till Sunday), «Later»; every row shows how long is left («in 3 days») and the date. The circle on the left finishes a note in one tap. Rows are separated by a thin line. The archive is grouped by month.
 - **Quick input.** The «What to remember?» field: `buy a gift on friday #home every week` → a note with a date, a repeat and a tag; under the field you see how the text was read. It understands «today / tomorrow», «on friday», «in 3 days», «nov 5», «30.10», «every day / week / monday», «every 2 weeks» (and the same in Russian). The parser: `src/core/quick.ts`. On a phone the field starts as a «+» button under the thumb: a tap opens it, and on an empty field the button opens the full note.
 - **Repeats** are «every N days / weeks / months / years» (presets and your own period). Every repeat is a separate record with an id like `series@date`, so two devices create the same records, not duplicates. Archived repeats of one series in a row fold into one line.
@@ -37,9 +37,9 @@ npm run example:server   # demo sync server, see examples/README.md
 - **Search** takes all words in any order, does not tell «е» from «ё», forgives typos (`mlik` finds `milk`); `#tag` is matched exactly; «Exact match» is in the settings.
 - **The week.** Over the list are the seven days of the current week (the arrows turn the weeks), the dots show where the notes are, today is marked with a line; a tap on a day leaves only that day in the list, another tap clears it. It can be switched off in the settings.
 - **Keyboard in the list.** One `Tab` stop for the whole list: the arrows move between rows, `Home` / `End` go to the start and the end, `Enter` opens, `Space` finishes, `Delete` deletes (with undo), the menu key opens the row's actions.
-- **Reading.** A click on a row (or `Enter`) opens the note for reading: the text is drawn as a document, you can select and copy it, links and tags are clickable, items are ticked right there. `E` or «Edit» is editing, `Esc` from editing goes back to reading. Finishing, copying and deleting a note happen in the list.
+- **Reading.** A click on a row (or `Enter`) opens the note for reading: the text is drawn as a document, you can select and copy it, links and tags are clickable, goals are ticked right there. `E` or «Edit» is editing, `Esc` from editing goes back to reading. Finishing, copying and deleting a note happen in the list.
 - **Swipes** (TaoUX `swiperow`, touch screens): right to finish (in the archive, to bring back), left for a copy, delete and edit. A long swipe to the left runs «Edit» (not delete); it can be turned off in the settings.
-- **The editor** has no «Save» button: a change goes by itself after a short pause, and «Saved» shows at the bottom. The text comes first with the Markdown bar over it (`Ctrl+B` / `Ctrl+I` / `Ctrl+K`). The date and the repeat are one block: «Today», «Tomorrow», an «Add» button (+1, +7, +30, +90 days to the date) and the date. Items have checkboxes, reordering by drag (or the keyboard) and delete by `Backspace` in an empty one. On a desktop the editor is to the right of the list, on a tablet a window over the list, on a phone the full screen.
+- **The editor** has no «Save» button: a change goes by itself after a short pause, and «Saved» shows at the bottom. The text comes first with the Markdown bar over it (`Ctrl+B` / `Ctrl+I` / `Ctrl+K`). The date and the repeat are one block: «Today», «Tomorrow», an «Add» button (+1, +7, +30, +90 days to the date) and the date. Goals have checkboxes, reordering by drag (or the keyboard) and delete by `Backspace` in an empty one. On a desktop the editor is to the right of the list, on a tablet a window over the list, on a phone the full screen.
 - **Undo instead of confirmations.** Delete, finish and import happen at once, with «Undo» at the bottom; `Ctrl+Z` / `Ctrl+Shift+Z` go by records, not by snapshots of the list. The only dialog is «Delete everything».
 - **The trash** keeps deleted notes for 30 days: restore or delete for good.
 
