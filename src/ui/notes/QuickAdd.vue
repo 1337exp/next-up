@@ -51,7 +51,7 @@ function submit(): void {
 
 <template>
     <form class="quick" @submit.prevent="submit">
-        <TaoInput v-model="text" class="field" :placeholder="t('quick.placeholder')" :aria-label="t('quick.label')" :aria-describedby="preview ? 'quick-preview' : undefined" autocomplete="off" size="large">
+        <TaoInput v-model="text" class="field" variant="filled" :placeholder="t('quick.placeholder')" :aria-label="t('quick.label')" :aria-describedby="preview ? 'quick-preview' : undefined" autocomplete="off" size="large">
             <template #prefix>
                 <TaoButton variant="text" icon="tao-edit" class="full" :aria-label="t('quick.full')" @click="editor.openCreate()" />
             </template>

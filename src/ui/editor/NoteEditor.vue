@@ -236,7 +236,8 @@ onMounted(() => {
         </div>
 
         <fieldset class="items">
-            <legend class="sr-only">{{ t('editor.items.label') }}</legend>
+            <legend class="caption">{{ t('editor.items.label') }}</legend>
+            <div class="items-card">
             <div ref="itemsEl" class="item-list">
                 <div v-for="(item, index) in draft.items" :key="item.id" class="item-row" data-sortable-item>
                     <TaoCheckbox :model-value="item.doneAt !== null" class="item-check" :aria-label="t('editor.items.done')" @update:model-value="setItemDone(item, $event)" />
@@ -249,9 +250,12 @@ onMounted(() => {
                 </div>
             </div>
             <TaoButton variant="ghost" icon="tao-plus" class="add-item" @click="addItem()">{{ t('editor.items.add') }}</TaoButton>
+            </div>
         </fieldset>
 
         <!-- срок и повтор — один блок: подписи слева, значения справа -->
+        <div class="props-group">
+        <h3 class="caption">{{ t('editor.propsCaption') }}</h3>
         <section class="props" :aria-label="t('editor.props')">
             <div class="prop">
                 <h3 class="prop-label">{{ t('editor.due.label') }}</h3>
@@ -284,6 +288,7 @@ onMounted(() => {
                 </div>
             </div>
         </section>
+        </div>
 
         <!-- «Готово» внизу, у большого пальца; при прокрутке остаётся на виду -->
         <div class="foot">
@@ -331,6 +336,32 @@ onMounted(() => {
     border: 0;
 }
 
+/* подпись раздела над карточкой, как на макете E1 */
+.caption {
+    margin: 0 0 var(--tao-space-2);
+    padding: 0;
+    color: var(--tao-color-text-muted);
+    font-size: var(--tao-font-size-sm);
+    font-weight: 500;
+}
+
+.props-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.props-group .caption {
+    margin-bottom: var(--tao-space-2);
+}
+
+/* пункты — строки одной карточки с разделителями, а не россыпь плашек */
+.items-card {
+    overflow: hidden;
+    border: 1px solid var(--tao-color-border);
+    border-radius: var(--tao-radius-lg);
+    background: var(--tao-color-bg);
+}
+
 .item-list {
     display: flex;
     flex-direction: column;
@@ -340,7 +371,8 @@ onMounted(() => {
     display: flex;
     align-items: center;
     gap: var(--tao-space-1);
-    border-radius: var(--tao-radius-md);
+    padding-inline: var(--tao-space-2);
+    border-bottom: 1px solid var(--tao-color-border);
     background: var(--tao-color-bg);
 }
 
@@ -383,7 +415,9 @@ onMounted(() => {
 }
 
 .add-item {
-    align-self: flex-start;
+    align-self: stretch;
+    justify-content: flex-start;
+    border-radius: 0;
     color: var(--tao-color-text-muted);
 }
 
@@ -475,7 +509,7 @@ onMounted(() => {
     justify-content: space-between;
     padding-block: var(--tao-space-3);
     border-top: 1px solid var(--tao-color-border);
-    background: var(--tao-color-bg);
+    background: var(--nu-foot-bg, var(--tao-color-bg));
 }
 
 .status {

@@ -52,7 +52,9 @@ const dateText = computed(() => (archived.value ? formatUserDate(props.note.due)
 
 // кружок: у активной завершает, у завершённой до срока возвращает; у просроченной уже ничего не сделать
 const canToggle = computed(() => !archived.value || (done.value && left.value >= 0));
-const checkLabel = computed(() => (done.value ? t('list.markUndone') : t('list.markDone')));
+// в архиве заметка без отметки — не «невыполненная задача», а просто прошедшая: срок вышел, отметить её уже нельзя
+const expired = computed(() => archived.value && !done.value);
+const checkLabel = computed(() => (expired.value ? t('list.expired') : done.value ? t('list.markUndone') : t('list.markDone')));
 
 function onToggle(): void {
     if (done.value) emit('reopen', props.note);
@@ -113,8 +115,9 @@ function onMenu(id: string): void {
         <TaoxSwipeRow ref="swipe" v-model:open="swipeOpen" class="swipe-row" :start="startAction" :end="endActions" :full-swipe="settings.fullSwipe" @action="onMenu">
             <div class="row" :class="{ selected, done }" :data-note-id="note.id" :tabindex="tabStop ? 0 : -1" role="article" :aria-current="selected ? 'true' : undefined" @click="onRowClick" @keydown.enter.self="emit('open', note)" @keydown.space.self.prevent="canToggle && onToggle()" @keydown.delete.self="emit('remove', note)">
                 <span class="hit">
-                    <button type="button" class="check" tabindex="-1" :disabled="!canToggle" :aria-label="checkLabel" :aria-pressed="done" @click.stop="onToggle">
+                    <button type="button" class="check" :class="{ expired }" tabindex="-1" :disabled="!canToggle" :aria-label="checkLabel" :title="expired ? checkLabel : undefined" :aria-pressed="expired ? undefined : done" @click.stop="onToggle">
                         <TaoIcon v-if="done" name="tao-check" class="check-icon" />
+                        <TaoIcon v-else-if="expired" name="tao-calendar" class="check-icon" />
                     </button>
                 </span>
 
@@ -144,6 +147,8 @@ function onMenu(id: string): void {
 .swipe-row {
     --tx-swipe-bg: var(--tao-color-bg);
     --tx-swipe-radius: var(--tao-radius-lg);
+    /* лицевая панель свайпа имеет z-index: 1; без своего контекста наложения она оказывалась поверх плавающей панели навигации */
+    isolation: isolate;
 }
 
 .row {
@@ -206,6 +211,11 @@ function onMenu(id: string): void {
 
 .check:disabled {
     cursor: default;
+}
+
+.check.expired {
+    border-color: transparent;
+    background: transparent;
 }
 
 .done .check {

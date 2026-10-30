@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 import { TaoPopover, TaoTag } from '@1337exp/taoui';
 import { useNotesStore } from '@/app/notes';
-import { recentTags } from '@/core/tags';
+import { recentTags, tagIndex } from '@/core/tags';
 import { useI18n } from '@/i18n';
 import TagsView from './TagsView.vue';
 import { toggleTag, useSearch } from './useNotes';
@@ -18,6 +18,8 @@ const { query } = useSearch();
 const live = computed(() => store.notes.filter((note) => note.deletedAt === null));
 const tags = computed(() => recentTags(live.value));
 const hasTags = computed(() => tags.value.length > 0);
+// чип «Все теги…» нужен, только если тегов больше, чем чипов: иначе в списке нечего добавить
+const hasMore = computed(() => tagIndex(live.value).length > tags.value.length);
 const isOn = (name: string): boolean => query.value.trim().toLocaleLowerCase() === `#${name}`.toLocaleLowerCase();
 
 const allOpen = ref(false);
@@ -32,7 +34,7 @@ function pick(name: string): void {
         <li v-for="tag in tags" :key="tag.name.toLocaleLowerCase()">
             <TaoTag :tone="isOn(tag.name) ? undefined : 'neutral'" clickable role="button" tabindex="0" :aria-pressed="isOn(tag.name)" @click="toggleTag(tag.name)" @keydown.enter="toggleTag(tag.name)">#{{ tag.name }}</TaoTag>
         </li>
-        <li>
+        <li v-if="hasMore">
             <TaoPopover v-model="allOpen" placement="bottom-start">
                 <template #trigger>
                     <TaoTag tone="neutral" clickable role="button" tabindex="0" aria-haspopup="true" @keydown.enter="allOpen = !allOpen">{{ t('list.allTags') }}</TaoTag>

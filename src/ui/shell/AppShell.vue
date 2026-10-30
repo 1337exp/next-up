@@ -150,10 +150,10 @@ watch(
     </TaoNav>
 
     <TaoModal v-if="!wide" fullscreen="narrow" :model-value="!!editor.state.value" :title="editorTitle" @update:model-value="(open: boolean) => !open && editor.close()">
-        <template v-if="editor.state.value">
+        <div v-if="editor.state.value" class="modal-body">
             <NoteView v-if="editor.state.value.mode === 'read'" :key="editor.state.value.key" @close="editor.close()" />
             <NoteEditor v-else :key="editor.state.value.key" @close="closeEditor" />
-        </template>
+        </div>
     </TaoModal>
 
     <SettingsDrawer v-if="phone" v-model="settingsOpen" />
@@ -161,6 +161,12 @@ watch(
 </template>
 
 <style scoped>
+/* обёртка без коробки: нужна только чтобы передать нижней полосе редактора цвет окна */
+.modal-body {
+    display: contents;
+    --nu-foot-bg: var(--tao-color-surface-raised);
+}
+
 .nav {
     /* на короткой странице (пустой раздел) нижняя панель остаётся внизу окна */
     min-height: 100dvh;
