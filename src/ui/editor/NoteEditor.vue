@@ -338,7 +338,7 @@ onMounted(() => {
     padding: 2px;
     border: 1px solid var(--tao-color-border);
     border-radius: var(--tao-radius-md);
-    background: var(--tao-color-surface);
+    background: var(--nu-card-bg, var(--tao-color-surface));
 }
 
 /* значки приглушены: акцентный цвет достаётся тому, на что нужно указать (срок, «Готово»), а не инструментам */
@@ -382,7 +382,7 @@ onMounted(() => {
     overflow: hidden;
     border: 1px solid var(--tao-color-border);
     border-radius: var(--tao-radius-lg);
-    background: var(--tao-color-bg);
+    background: var(--nu-card-bg, var(--tao-color-bg));
 }
 
 .item-list {
@@ -452,7 +452,7 @@ onMounted(() => {
     padding: var(--tao-space-2) var(--tao-space-4);
     border: 1px solid var(--tao-color-border);
     border-radius: var(--tao-radius-lg);
-    background: var(--tao-color-surface);
+    background: var(--nu-card-bg, var(--tao-color-surface));
 }
 
 .prop {
