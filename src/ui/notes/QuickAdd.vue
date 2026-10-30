@@ -161,10 +161,17 @@ function submit(): void {
         padding: var(--tao-space-2) var(--tao-space-4);
         /* фон у самой таблетки: между ней и плашкой лента просвечивает */
         background: transparent;
+        /* контейнер на всю ширину невидим, но не должен перехватывать клики по ленте за ним: кликабельны только таблетка и подсказка */
+        pointer-events: none;
     }
 }
 
 /* таблетка: свёрнутая — только кнопка справа, раскрытая — на весь ряд; ширина меняется плавно */
+.pill,
+.preview {
+    pointer-events: auto;
+}
+
 .pill {
     position: relative;
     z-index: 1;

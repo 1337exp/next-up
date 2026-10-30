@@ -47,7 +47,6 @@ interface Group {
     key: string;
     label: string;
     /** Группа «Сегодня» отмечается точкой акцента. */
-    today: boolean;
     entries: ArchiveEntry[];
 }
 
@@ -56,13 +55,12 @@ const asEntries = (notes: readonly (typeof visible.value)[number][]): ArchiveEnt
 // активные группируются по времени («Сегодня», «Завтра», …), архив — по месяцам: год добавляем, если он не текущий
 const groups = computed<Group[]>(() => {
     if (props.section === 'active') {
-        return groupByBucket(visible.value, store.today).map((group) => ({ key: group.key, label: t(`date.${group.key}`), today: group.key === 'today', entries: asEntries(group.items) }));
+        return groupByBucket(visible.value, store.today).map((group) => ({ key: group.key, label: t(`date.${group.key}`), entries: asEntries(group.items) }));
     }
     const currentYear = isoParts(store.today).year;
     return groupByMonth(visible.value).map((group) => ({
         key: group.key,
         label: group.year === currentYear ? monthName(locale.value, group.month) : `${monthName(locale.value, group.month)} ${group.year}`,
-        today: false,
         // в архиве подряд идущие повторы одной серии сворачиваются в одну строку
         entries: groupRuns(group.items),
     }));
@@ -113,8 +111,7 @@ const runTitle = (entry: Extract<ArchiveEntry, { kind: 'run' }>): string => {
 
     <div v-else ref="listEl" class="list" @focusin="onFocusIn" @keydown="onListKeydown">
         <section v-for="group in groups" :key="group.key" class="group" :aria-label="group.label">
-            <h2 class="group-title">
-                <span v-if="group.today" class="dot" aria-hidden="true" />
+            <h2 class="group-title" :class="'when-' + group.key">
                 {{ group.label }}
                 <span class="count">{{ group.entries.length }}</span>
             </h2>
@@ -212,11 +209,13 @@ const runTitle = (entry: Extract<ArchiveEntry, { kind: 'run' }>): string => {
     font-weight: 700;
 }
 
-.dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--tao-color-accent);
+/* заголовки групп режут ленту цветом: «Сегодня» зелёный, «Завтра» оранжевый, остальные нейтральные (роли *-text из TaoUI, читаемы в обеих темах) */
+.when-today {
+    color: var(--tao-color-success-text);
+}
+
+.when-tomorrow {
+    color: var(--tao-color-warning-text);
 }
 
 .count {
