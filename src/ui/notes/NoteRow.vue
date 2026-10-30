@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUpdated, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { TaoContextMenu, TaoDropdownMenu, TaoIcon, type TaoMenuItem } from '@1337exp/taoui';
 import { formatUserDate, type IsoDate } from '@/core/date';
 import { daysLeft as calcDaysLeft, isArchived } from '@/core/lifecycle';
@@ -78,14 +78,7 @@ function onRowClick(event: MouseEvent): void {
 // свайп (TaoUX): вправо — завершить (в архиве — вернуть в работу), влево — копия, удаление, правка.
 // «Удалить» стоит не последним, чтобы длинный свайп запускал безобидное «Изменить», а не удаление
 const swipeOpen = ref(false);
-const swipe = ref<{ $el: HTMLElement } | null>(null);
 
-// у списка своя клавиатура (стрелки, Пробел, Delete, ContextMenu), поэтому кнопка меню внутри строки (атрибут tabindex уходит на её
-// обёртку, а не на кнопку) выводится из порядка Tab: иначе на каждой строке было бы ещё по остановке. Нажимается она по-прежнему
-const skipSwipeTab = (): void =>
-    swipe.value?.$el.querySelectorAll('button, a[href], input').forEach((control) => control.setAttribute('tabindex', '-1'));
-onMounted(skipSwipeTab);
-onUpdated(skipSwipeTab);
 const startAction = computed<SwipeRowAction | undefined>(() => {
     if (!archived.value) return { id: 'done', label: t('read.done'), icon: 'tao-check', tone: 'success' };
     if (done.value && left.value >= 0) return { id: 'reopen', label: t('ui.button.reopen'), icon: 'tao-undo', tone: 'info' };
@@ -109,7 +102,7 @@ function onMenu(id: string): void {
 
 <template>
     <TaoContextMenu :items="menu" :menu-label="t('list.menu')" @select="onMenu">
-        <TaoxSwipeRow ref="swipe" v-model:open="swipeOpen" class="swipe-row" :tabbable="false" :start="startAction" :end="endActions" :full-swipe="settings.fullSwipe" @action="onMenu">
+        <TaoxSwipeRow v-model:open="swipeOpen" class="swipe-row" :tabbable="false" :start="startAction" :end="endActions" :full-swipe="settings.fullSwipe" @action="onMenu">
             <div class="row" :class="{ selected, done }" :data-note-id="note.id" :tabindex="tabStop ? 0 : -1" role="article" :aria-current="selected ? 'true' : undefined" @click="onRowClick" @keydown.enter.self="emit('open', note)" @keydown.space.self.prevent="canToggle && onToggle()" @keydown.delete.self="emit('remove', note)">
                 <span class="hit">
                     <button type="button" class="check" :class="{ expired }" tabindex="-1" :disabled="!canToggle" :aria-label="checkLabel" :title="expired ? checkLabel : undefined" :aria-pressed="expired ? undefined : done" @click.stop="onToggle">
@@ -133,7 +126,7 @@ function onMenu(id: string): void {
                         <div v-if="when" class="in-days">{{ when }}</div>
                         <div class="date">{{ dateText }}</div>
                     </div>
-                    <TaoDropdownMenu :items="menu" :menu-label="t('list.menu')" class="more" tabindex="-1" @select="onMenu" />
+                    <TaoDropdownMenu :items="menu" :menu-label="t('list.menu')" class="more" size="small" :tabbable="false" @select="onMenu" />
                 </div>
             </div>
         </TaoxSwipeRow>

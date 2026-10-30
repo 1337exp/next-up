@@ -38,15 +38,3 @@ body {
     /* нижняя плавающая плашка навигации на телефоне (TaoNav floating: 64 px и 12 px от края) и зазор над ней: выше липнет поле быстрого ввода */
     --nu-bar-h: 88px;
 }
-
-
-/* зерно: тонкий шум поверх плотной панели окна заметки. Заливка остаётся сплошной (контраст текста не страдает),
-   а плоская поверхность получает фактуру. Шум — SVG-фрактал в data-URI, без файлов; на футер ложится тем же слоем, чтобы не было шва. */
-:root {
-    --nu-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-.tao-modal-overlay .tao-modal {
-    background-image: var(--nu-grain);
-    box-shadow: inset 0 0 0 1px var(--tao-color-border), var(--tao-shadow-lg, 0 24px 60px rgb(0 0 0 / 0.35));
-}

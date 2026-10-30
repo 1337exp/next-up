@@ -893,6 +893,7 @@ Showcase section: `#modal`
 | `closable` | `boolean` | true | The cross, Esc, a click on the backdrop |
 | `closeLabel` | `string` | 'Close' | aria-label of the cross |
 | `fullscreen` | `boolean \| 'narrow'` | false | true — the whole screen: square corners, the header and the footer stay while the content scrolls, the safe areas kept. narrow — only on a screen narrower than 600px: a dialog on a computer, a page on a phone |
+| `surface` | `'flat' \| 'grain' \| 'glass'` | 'flat' | What the panel is made of, as on TaoCard. class, style and the other attributes go to the panel; the content scrolls, the header and #footer stay. --tao-modal-bg is the panel colour for a bar of your own that sticks inside |
 
 **Slots, events, notes.** default — the body. #footer — buttons. #close-icon — the cross icon.
 
@@ -907,6 +908,7 @@ Showcase section: `#drawer`
 | `side` | `'left' \| 'right' \| 'bottom'` | 'right' | Where it slides in from. bottom is a sheet: as wide as the screen up to 640px, as tall as its content up to 90% of the screen, rounded top, a grip, above the safe area |
 | `closable` | `boolean` | true | Esc, the backdrop, the cross |
 | `closeLabel` | `string` | 'Close' | aria-label of the cross |
+| `surface` | `'flat' \| 'grain' \| 'glass'` | 'flat' | What the panel is made of, as on TaoCard. class, style and the other attributes go to the panel; --tao-drawer-bg is its colour |
 
 **Slots, events, notes.** default — the body. #footer — buttons. #close-icon — the cross icon.
 
@@ -956,6 +958,8 @@ Showcase section: `#dropdown`
 | `placement` | `TaoPlacement` | 'bottom-end' | Where the list opens. Flips at the screen edge |
 | `menuLabel` | `string` | 'Menu' | aria-label of the button and of the menu |
 | `closeOnScroll` | `boolean` | false | Close when the page scrolls. Off: the menu follows its button |
+| `size` | `'small' \| 'medium' \| 'large'` | — | The button becomes a square of that control height: a compact kebab for a list row. Without it — the padding round the icon |
+| `tabbable` | `boolean` | true | The button is a Tab stop. Off: it leaves the Tab order (the row has its own menu key) and still opens by a click |
 
 **Slots, events, notes.** #icon — the trigger icon, #button — the whole button content, #item="{ item, id, label, icon }" — your own item face. The select event — the item id. shortcut is a ready string to show: the menu neither parses nor listens to it.
 
@@ -1067,9 +1071,10 @@ Showcase section: `#tao-nav`
 | `moreLabel` | `string` | 'More' | The label of «More» |
 | `indicator` | `'pill' \| 'line'` | 'pill' | How the current section is marked: a tint behind the item, or the accent colour and a short line (under the item in the bar, along its start edge on the side; auto moves it) |
 | `floating` | `boolean` | false | In the bar look, a detached pill above the page: inset from the edges and above the safe area, round, with a shadow; the active item is a pill too. The rail and the side panel do not change. The main action of the screen goes beside it as your own round button, not into the bar |
+| `badgeTone` | `'accent' \| 'neutral'` | 'accent' | The counters: accent on every item, or neutral — grey, the accent on the current item only. A dot (badge: true) stays the accent |
 | `surface` | `'flat' \| 'glass' \| 'grain'` | 'flat' | What the panel is made of, as on TaoCard: glass lets the page show blurred through the bar as it scrolls under it (solid where blur is not supported or less transparency is asked) |
 
-**Slots, events, notes.** default — the page: TaoNav lays it out next to the navigation (the bar sticks to the bottom, on the side the list sticks to the top; env(safe-area-inset-bottom) is kept). Without the slot it is a standalone panel with a border. #label — your own item label ({ item, active }). #footer — a small line under the items in the rail and the side panel (the version, «About», a link); the bar does not show it. #action — the main action of the screen: a TaoButton with icon and its text in <span class="tao-nav__action-label">; the bar puts it round above itself at the end side (above the pill with floating), the rail round at the top, the side panel extended with the text at the top; in the round looks the text is hidden but stays the name of the button (a shortcut on it too). The side panel gives the button its own corners; --tao-nav-action-radius: var(--tao-radius-full) makes it a pill. --tao-nav-rail-width (80px) and --tao-nav-drawer-width (240px) set the widths. Events: update:modelValue, select(id, event) — event.preventDefault() keeps a link from navigating, to route it yourself.
+**Slots, events, notes.** default — the page: TaoNav lays it out next to the navigation (the bar sticks to the bottom, on the side the list sticks to the top; env(safe-area-inset-bottom) is kept). Without the slot it is a standalone panel with a border. #label — your own item label ({ item, active }). Structure: .tao-nav is the whole layout (the navigation and the page), .tao-nav__panel the navigation, .tao-nav__content the page; a style for the menu goes on the panel (or use surface), not on the root. #footer — a small line under the items in the rail and the side panel (the version, «About», a link); the bar does not show it. #action — the main action of the screen: a TaoButton with icon and its text in <span class="tao-nav__action-label">; the bar puts it round above itself at the end side (above the pill with floating), the rail round at the top, the side panel extended with the text at the top; in the round looks the text is hidden but stays the name of the button (a shortcut on it too). The side panel gives the button its own corners; --tao-nav-action-radius: var(--tao-radius-full) makes it a pill. --tao-nav-rail-width (80px) and --tao-nav-drawer-width (240px) set the widths. Events: update:modelValue, select(id, event) — event.preventDefault() keeps a link from navigating, to route it yourself.
 
 ## TaoTabs
 

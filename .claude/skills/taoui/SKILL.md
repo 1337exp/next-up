@@ -73,7 +73,8 @@ choose a text colour, WCAG 2 to promise a number.
   it). `select(id, event)` + `event.preventDefault()` to route with a router. Widths `--tao-nav-rail-width` /
   `--tao-nav-drawer-width`; the action button may take `shortcut="N"` (shown in the side panel, hidden when round). `surface="glass"` for a
   translucent bar over the page (as on TaoCard; it turns solid where blur is off). `#footer`: a small line under the
-  items (version, About) in the rail and the side panel.
+  items (version, About) in the rail and the side panel. `badgeTone="neutral"`: grey counters, the accent on the
+  current item. `.tao-nav` is the whole layout (navigation + page); style the menu with `surface`, not on the root.
 
 ## Forms
 

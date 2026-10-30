@@ -105,7 +105,7 @@ watch(
 </script>
 
 <template>
-    <TaoNav :model-value="section" class="nav" :floating="phone" :surface="phone ? 'glass' : 'flat'" :items="items" :aria-label="t('nav.label')" :more-label="t('nav.more')" @update:model-value="onNav">
+    <TaoNav :model-value="section" class="nav" :floating="phone" :surface="phone ? 'glass' : 'grain'" badge-tone="neutral" :items="items" :aria-label="t('nav.label')" :more-label="t('nav.more')" @update:model-value="onNav">
         <!-- на телефоне главное действие — поле ввода внизу списка, круглая «+» не нужна -->
         <template #footer>
             <a class="about" href="https://github.com/1337exp/next-up" target="_blank" rel="noopener noreferrer">{{ t('app.name') }} v3</a>
@@ -149,7 +149,7 @@ watch(
         <main v-else class="narrow"><ListColumn :section="section" /></main>
     </TaoNav>
 
-    <TaoModal v-if="!wide" fullscreen="narrow" :model-value="!!editor.state.value" :title="editorTitle" @update:model-value="(open: boolean) => !open && editor.close()">
+    <TaoModal v-if="!wide" fullscreen="narrow" surface="grain" :model-value="!!editor.state.value" :title="editorTitle" @update:model-value="(open: boolean) => !open && editor.close()">
         <div v-if="editor.state.value" class="modal-body">
             <NoteView v-if="editor.state.value.mode === 'read'" :key="editor.state.value.key" @close="editor.close()" />
             <NoteEditor v-else :key="editor.state.value.key" @close="closeEditor" />
@@ -164,27 +164,21 @@ watch(
 /* обёртка без коробки: нужна только чтобы передать нижней полосе редактора цвет окна */
 .modal-body {
     display: contents;
-    --nu-foot-grain: var(--nu-grain);
-    --nu-foot-bg: var(--tao-color-surface-raised);
+    --nu-foot-grain: var(--tao-surface-grain-image, none);
+    --nu-foot-bg: var(--tao-modal-bg, var(--tao-color-surface-raised));
 }
 
-/* на широком виде боковое меню тоже с зерном (на телефоне там стеклянная плашка) */
-@media (min-width: 600px) {
-    .nav :deep(.tao-nav__panel) {
-        /* темнее страницы + зерно: меню чуть «утоплено» */
-        background: color-mix(in srgb, var(--tao-color-bg) 78%, black) var(--nu-grain);
+@media (prefers-contrast: more) {
+    .modal-body {
+        --nu-foot-grain: none;
     }
 }
 
-/* счётчики в меню нейтральные, акцентный только у текущего раздела: внимание не бегает по всему меню */
-.nav :deep(.tao-nav__badge:not(.tao-nav__badge--dot)) {
-    background: var(--tao-color-surface-raised);
-    color: var(--tao-color-text-muted);
-}
-
-.nav :deep(.tao-nav__item--active .tao-nav__badge) {
-    background: var(--tao-color-accent);
-    color: var(--tao-color-on-accent);
+/* на широком виде меню темнее страницы (зерно даёт surface="grain"); на телефоне там стеклянная плашка */
+@media (min-width: 600px) {
+    .nav :deep(.tao-nav__panel) {
+        background-color: color-mix(in srgb, var(--tao-color-bg) 78%, black);
+    }
 }
 
 .nav {
