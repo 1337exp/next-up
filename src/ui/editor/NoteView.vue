@@ -9,7 +9,7 @@ import { extractTags } from '@/core/tags';
 import { dateShort, formatDateTime, inDaysText, repeatText, useI18n } from '@/i18n';
 import { useWide } from '@/ui/shell/useWide';
 import MarkdownView from '@/ui/notes/MarkdownView.vue';
-import { toggleTag, useNoteActions } from '@/ui/notes/useNotes';
+import { toggleTag } from '@/ui/notes/useNotes';
 import { useEditor } from './useEditor';
 
 /**
@@ -21,7 +21,6 @@ const emit = defineEmits<{ close: [] }>();
 const { t, locale } = useI18n();
 const store = useNotesStore();
 const editor = useEditor();
-const actions = useNoteActions();
 // в панели справа (широкий экран) кнопки сверху и своя «Закрыть»; в окне (телефон, планшет) — внизу, а закрывает рамка окна
 const wide = useWide();
 
@@ -45,8 +44,6 @@ const parts = computed(() => {
 
 const left = computed(() => (note.value ? calcDaysLeft(note.value, store.today) : 0));
 const archived = computed(() => (note.value ? isArchived(note.value, store.today) : false));
-const done = computed(() => note.value?.doneAt != null);
-const canToggle = computed(() => !archived.value || (done.value && left.value >= 0));
 const dueText = computed(() => {
     if (!note.value) return '';
     if (archived.value) return formatUserDate(note.value.due);
@@ -65,13 +62,6 @@ const times = computed(() => {
 });
 const itemTime = (doneAt: number | null): string => (doneAt && doneAt > UNKNOWN_TIME ? formatDateTime(doneAt, locale.value) : '');
 
-function toggleDone(): void {
-    if (!note.value) return;
-    if (done.value) actions.reopen(note.value);
-    else actions.done(note.value);
-    emit('close');
-}
-
 const edit = (): void => {
     if (note.value) editor.openEdit(note.value);
 };
@@ -85,13 +75,10 @@ function onTag(tag: string): void {
 
 <template>
     <article v-if="note" ref="root" class="read" tabindex="-1" @keydown.esc="emit('close')">
-        <!-- копия и удаление — в ленте (свайп, меню строки), а не здесь: здесь только то, что относится к чтению -->
+        <!-- копия, удаление и завершение — в ленте (свайп, меню строки, кружок): способ завершить заметку один, здесь только чтение и правка -->
         <div v-if="wide" class="top">
-            <div class="primary">
-                <TaoButton v-if="canToggle" variant="primary" icon="tao-check" @click="toggleDone">{{ done ? t('ui.button.reopen') : t('read.done') }}</TaoButton>
-                <TaoButton variant="secondary" icon="tao-edit" shortcut="E" @click="edit">{{ t('read.edit') }}</TaoButton>
-                <TaoButton variant="ghost" icon="tao-close" :aria-label="t('ui.button.close')" :title="t('ui.button.close')" @click="emit('close')" />
-            </div>
+            <TaoButton variant="secondary" icon="tao-edit" shortcut="E" @click="edit">{{ t('read.edit') }}</TaoButton>
+            <TaoButton class="close" variant="secondary" tone="danger" icon="tao-close" :aria-label="t('ui.button.close')" :title="t('ui.button.close')" @click="emit('close')" />
         </div>
 
         <h1 class="title"><MarkdownView :text="parts.title || t('list.untitled')" @tag="onTag" /></h1>
@@ -120,7 +107,8 @@ function onTag(tag: string): void {
 
         <div v-if="!wide" class="bottom">
             <TaoButton variant="secondary" icon="tao-edit" block @click="edit">{{ t('read.edit') }}</TaoButton>
-            <TaoButton v-if="canToggle" variant="primary" icon="tao-check" block @click="toggleDone">{{ done ? t('ui.button.reopen') : t('read.done') }}</TaoButton>
+            <!-- «Закрыть» под правым большим пальцем: тянуться к крестику вверху неудобно, а читают и закрывают чаще всего -->
+            <TaoButton variant="secondary" icon="tao-close" block @click="emit('close')">{{ t('ui.button.close') }}</TaoButton>
         </div>
     </article>
 </template>
@@ -141,10 +129,8 @@ function onTag(tag: string): void {
     justify-content: space-between;
 }
 
-.primary {
-    display: flex;
-    gap: var(--tao-space-2);
-    align-items: center;
+.close {
+    margin-inline-start: auto;
 }
 
 .title {

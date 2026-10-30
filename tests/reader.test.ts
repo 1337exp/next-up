@@ -57,10 +57,12 @@ describe('режим чтения', () => {
         expect(useEditor().state.value).toMatchObject({ mode: 'edit', source: { id: live(store)[0]!.id } });
     });
 
-    it('«Выполнено» завершает заметку и закрывает чтение', async () => {
-        const { store, wrapper } = openRead({ body: 'сделать' });
-        await wrapper.findAll('button').find((b) => b.text().includes('Выполнено'))!.trigger('click');
-        expect(live(store)[0]!.doneAt).not.toBeNull();
+    it('в чтении только правка и закрытие: завершить, копировать и удалить можно в ленте', async () => {
+        const { wrapper } = openRead({ body: 'сделать' });
+        const labels = wrapper.findAll('button').map((b) => (b.attributes('aria-label') ?? b.text()).trim());
+        expect(labels.some((l) => l.includes('Выполнено') || l.includes('Удалить') || l.includes('копи'))).toBe(false);
+        expect(labels.some((l) => l.includes('Изменить'))).toBe(true);
+        await wrapper.findAll('button').find((b) => (b.attributes('aria-label') ?? b.text()).includes('Закрыть'))!.trigger('click');
         expect(wrapper.emitted('close')).toBeTruthy();
     });
 
