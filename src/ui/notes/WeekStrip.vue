@@ -119,6 +119,8 @@ function pick(iso: string): void {
 .line {
     width: 1.25rem;
     height: 3px;
+    /* линия поднята под само число (круг `.num` выше цифры), а высота ячейки сохранена нижним отступом: найдено подбором в devtools */
+    margin-block: -0.45rem 0.45rem;
     border-radius: 2px;
     background: transparent;
 }
