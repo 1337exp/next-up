@@ -261,13 +261,16 @@ function submit(): void {
     font-size: var(--tao-font-size-sm);
 }
 
-/* на телефоне подсказка — ярлык НАД таблеткой: снизу она поднимала бы поле и уводила взгляд; сверху поле стоит на месте (прижато к низу), а ярлык вырастает вверх */
+/* на телефоне подсказка — ярлык НАД таблеткой и вне потока: в потоке он добавлял бы высоту и сдвигал поле вниз (когда лента прокручена до конца); так поле стоит на месте, а ярлык «висит» над ним */
 .quick.phone .preview {
-    order: -1;
-    margin: 0 var(--tao-space-4) calc(var(--tao-space-3) * -1);
+    position: absolute;
+    top: calc(var(--tao-space-2) + var(--tao-space-3));
+    right: calc(var(--tao-space-4) * 2);
+    margin: 0;
     padding: var(--tao-space-1) var(--tao-space-3) calc(var(--tao-space-3) + var(--tao-space-1));
     border-radius: var(--tao-radius-md) var(--tao-radius-md) 0 0;
     box-shadow: 0 -6px 16px rgb(0 0 0 / 0.22);
+    transform: translateY(-100%);
 }
 
 /* кнопка в широком поле — тихий ghost: приглушённая, при наведении светлеет, с текстом (готово к добавлению) — цвет акцента */
