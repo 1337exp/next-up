@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { TaoButton, TaoFormField, TaoInput, TaoSwitch, toast } from '@1337exp/taoui';
+import { TaoButton, TaoFormField, TaoIcon, TaoInput, TaoSwitch, toast } from '@1337exp/taoui';
 import { useSettingsStore } from '@/app/settings';
 import { useSyncStore } from '@/app/sync';
 import { normalizeEndpoint } from '@/app/syncHttp';
@@ -28,48 +28,87 @@ async function syncNow(): Promise<void> {
 </script>
 
 <template>
-    <section class="sync">
-        <h3 class="tao-heading-6">{{ t('sync.title') }}</h3>
+    <section class="nu-sec">
+        <h3 class="nu-sec-title">{{ t('sync.title') }}</h3>
 
-        <TaoFormField :label="t('sync.url')" :hint="t('sync.urlHint')" :error="urlInvalid ? t('sync.urlInvalid') : ''">
-            <TaoInput v-model="settings.sync.url" type="text" placeholder="https://…" :error="urlInvalid" autocomplete="off" spellcheck="false" />
-        </TaoFormField>
+        <!-- свёрнуто, пока синхронизация не настроена: поля нужны один раз -->
+        <details class="nu-card sync" :open="settings.sync.enabled || settings.sync.url !== ''">
+            <summary class="nu-row summary">
+                <span class="summary-text">
+                    <span>{{ t('sync.enable') }}</span>
+                    <span class="status" :class="{ 'status--error': sync.status === 'error' }" role="status">{{ statusText }}</span>
+                </span>
+                <TaoIcon name="tao-chevron-down" class="chevron" />
+            </summary>
 
-        <TaoFormField :label="t('sync.authorization')" :hint="t('sync.authorizationHint')">
-            <TaoInput v-model="settings.sync.authorization" type="password" autocomplete="off" />
-        </TaoFormField>
+            <div class="fields">
+                <TaoFormField :label="t('sync.url')" :hint="t('sync.urlHint')" :error="urlInvalid ? t('sync.urlInvalid') : ''">
+                    <TaoInput v-model="settings.sync.url" type="text" placeholder="https://…" :error="urlInvalid" autocomplete="off" spellcheck="false" />
+                </TaoFormField>
 
-        <TaoSwitch v-model="settings.sync.enabled" :label="t('sync.enable')" :disabled="!canEnable && !settings.sync.enabled" :loading="sync.status === 'syncing'" />
+                <TaoFormField :label="t('sync.authorization')" :hint="t('sync.authorizationHint')">
+                    <TaoInput v-model="settings.sync.authorization" type="password" autocomplete="off" />
+                </TaoFormField>
 
-        <p class="status" :class="{ 'status--error': sync.status === 'error' }" role="status">{{ statusText }}</p>
+                <TaoSwitch v-model="settings.sync.enabled" :label="t('sync.enable')" :disabled="!canEnable && !settings.sync.enabled" :loading="sync.status === 'syncing'" />
 
-        <TaoButton variant="secondary" :disabled="sync.status === 'off' || sync.status === 'syncing' || sync.status === 'offline'" @click="syncNow">{{ t('sync.now') }}</TaoButton>
+                <TaoButton variant="secondary" class="now" :disabled="sync.status === 'off' || sync.status === 'syncing' || sync.status === 'offline'" @click="syncNow">{{ t('sync.now') }}</TaoButton>
+            </div>
+        </details>
     </section>
 </template>
 
 <style scoped>
-.sync {
+.summary {
+    cursor: pointer;
+    list-style: none;
+}
+
+.summary::-webkit-details-marker {
+    display: none;
+}
+
+.summary-text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.chevron {
+    color: var(--tao-color-text-muted);
+    transition: transform 0.16s ease;
+}
+
+.sync[open] .chevron {
+    transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .chevron {
+        transition: none;
+    }
+}
+
+.fields {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
     gap: var(--tao-space-3);
+    padding: var(--tao-space-3);
+    border-top: 1px solid var(--tao-color-border);
 }
 
-.sync > :deep(.tao-form-field) {
-    align-self: stretch;
-}
-
-.sync h3 {
-    margin: 0;
+.now {
+    align-self: flex-start;
 }
 
 .status {
-    margin: 0;
     color: var(--tao-color-text-muted);
     font-size: var(--tao-font-size-sm);
 }
 
 .status--error {
-    color: var(--tao-color-danger);
+    color: var(--tao-color-danger-text);
 }
 </style>

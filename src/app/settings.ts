@@ -5,16 +5,12 @@ import { createSavedStorage } from '@1337exp/taoux/storage';
 
 export const MODES = ['auto', 'light', 'dark'] as const;
 export type Mode = (typeof MODES)[number];
-export const SIZES = ['small', 'medium', 'large'] as const;
-export type Size = (typeof SIZES)[number];
 
 export interface Settings {
     /** Тема: светлая, тёмная или как в системе. */
     mode: Mode;
     /** Имя палитры TaoUI; пустая строка — стандартная. */
     palette: string;
-    /** Размер интерфейса: класс `tao-size-*` на `<html>`. */
-    size: Size;
     /** Недельная лента над списком «Скоро». */
     showWeek: boolean;
     /** Длинный свайп влево сразу запускает последнее действие строки («Изменить»). */
@@ -32,11 +28,10 @@ export interface Settings {
 export const SETTINGS_KEY = 'nextup.settings';
 
 export function defaultSettings(): Settings {
-    return { mode: 'dark', palette: '', size: 'medium', showWeek: true, fullSwipe: true, exactSearch: false, notifyToday: false, lastNotified: '', sync: { enabled: false, url: '', authorization: '' } };
+    return { mode: 'dark', palette: '', showWeek: true, fullSwipe: true, exactSearch: false, notifyToday: false, lastNotified: '', sync: { enabled: false, url: '', authorization: '' } };
 }
 
 const isMode = (v: unknown): v is Mode => typeof v === 'string' && (MODES as readonly string[]).includes(v);
-const isSize = (v: unknown): v is Size => typeof v === 'string' && (SIZES as readonly string[]).includes(v);
 const isPalette = (v: unknown): v is string => typeof v === 'string' && taoPalettes.some((p) => p.name === v);
 
 /** Терпимый разбор: повреждённое поле заменяется значением по умолчанию, остальные сохраняются. */
@@ -46,7 +41,6 @@ export function parseSettings(raw: unknown): Settings {
     const record = raw as Record<string, unknown>;
     if (isMode(record.mode)) result.mode = record.mode;
     if (isPalette(record.palette)) result.palette = record.palette;
-    if (isSize(record.size)) result.size = record.size;
     if (typeof record.showWeek === 'boolean') result.showWeek = record.showWeek;
     if (typeof record.fullSwipe === 'boolean') result.fullSwipe = record.fullSwipe;
     if (typeof record.exactSearch === 'boolean') result.exactSearch = record.exactSearch;

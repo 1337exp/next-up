@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { confirm, TaoButton, TaoFileDrop, toast } from '@1337exp/taoui';
+import { confirm, TaoButton, TaoFileDrop, TaoIcon, toast } from '@1337exp/taoui';
 import { downloadText, MAX_FILE_BYTES, readTextFile } from '@1337exp/taoux/file';
 import { useNotesStore } from '@/app/notes';
 import { TRASH_DAYS } from '@/core/constants';
@@ -56,36 +56,51 @@ async function removeAll(): Promise<void> {
 </script>
 
 <template>
-    <section class="data">
-        <h3 class="tao-heading-6">{{ t('data.title') }}</h3>
+    <section class="nu-sec">
+        <h3 class="nu-sec-title">{{ t('data.title') }}</h3>
 
-        <div class="buttons">
-            <TaoButton variant="secondary" icon="tao-arrow-down" @click="exportJson">{{ t('data.exportJson') }}</TaoButton>
-            <TaoButton variant="secondary" icon="tao-arrow-down" @click="exportMarkdown">{{ t('data.exportMarkdown') }}</TaoButton>
+        <div class="nu-card">
+            <button type="button" class="nu-row action" @click="exportJson">
+                <span>{{ t('data.exportJson') }}</span>
+                <TaoIcon name="tao-arrow-down" />
+            </button>
+            <button type="button" class="nu-row action" @click="exportMarkdown">
+                <span>{{ t('data.exportMarkdown') }}</span>
+                <TaoIcon name="tao-arrow-down" />
+            </button>
+            <!-- принимаем любой файл: TaoFileDrop молча отбрасывает то, что не подошло под accept (старые файлы бывают .txt), а верность содержимого проверяет сам разбор -->
+            <div class="nu-row drop">
+                <TaoFileDrop v-model="files" :list="false" @change="onFiles">{{ t('data.importHint') }}</TaoFileDrop>
+            </div>
         </div>
-
-        <!-- принимаем любой файл: TaoFileDrop молча отбрасывает то, что не подошло под accept (старые файлы бывают .txt), а верность содержимого проверяет сам разбор -->
-        <TaoFileDrop v-model="files" :list="false" @change="onFiles">{{ t('data.importHint') }}</TaoFileDrop>
 
         <TaoButton variant="ghost" tone="danger" icon="tao-trash" class="remove-all" @click="removeAll">{{ t('data.removeAll') }}</TaoButton>
     </section>
 </template>
 
 <style scoped>
-.data {
-    display: flex;
-    flex-direction: column;
-    gap: var(--tao-space-3);
+.action {
+    width: 100%;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
 }
 
-.data h3 {
-    margin: 0;
+.action:hover {
+    background: var(--tao-color-surface-hover);
 }
 
-.buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--tao-space-2);
+.action:focus-visible {
+    outline: 2px solid var(--tao-color-accent);
+    outline-offset: -2px;
+}
+
+.drop {
+    display: block;
 }
 
 .remove-all {

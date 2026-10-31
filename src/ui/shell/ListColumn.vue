@@ -45,7 +45,7 @@ const showSearchField = computed(() => hasSearch.value && (!phone.value || searc
                 <p v-if="summary" class="summary">{{ summary }}</p>
             </div>
             <SearchBar v-if="showSearchField && !phone" class="head-search" />
-            <TaoButton v-else-if="phone && hasSearch" variant="ghost" icon="tao-search" :pressed="searchOpen" :aria-label="t('search.placeholder')" @click="searchOpen = !searchOpen" />
+            <TaoButton v-else-if="phone && hasSearch" variant="ghost" tone="neutral" icon="tao-search" :pressed="searchOpen" :aria-label="t('search.placeholder')" @click="searchOpen = !searchOpen" />
         </header>
         <SearchBar v-if="showSearchField && phone" autofocus />
         <WeekStrip v-if="section === 'active' && settings.showWeek" />

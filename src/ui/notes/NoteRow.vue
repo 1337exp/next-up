@@ -183,7 +183,7 @@ function onMenu(id: string): void {
     align-items: center;
     justify-content: center;
     width: 44px;
-    height: 44px;
+    height: var(--nu-row-min);
 }
 
 .check {
@@ -256,10 +256,13 @@ function onMenu(id: string): void {
 /* строки разделены тонкой линией (как в макете A4); у выбранной строки линии нет */
 .body {
     border-bottom: 1px solid var(--tao-color-border);
+    box-sizing: border-box;
     display: flex;
     flex: 1;
     gap: var(--tao-space-3);
-    align-items: flex-start;
+    align-items: center;
+    /* у всех строк одна минимальная высота: у «Сегодня» нет блока «через N дней», и без неё они слипались бы */
+    min-height: var(--nu-row-min);
     min-width: 0;
     padding-block: var(--tao-space-2);
     padding-inline-end: var(--tao-space-1);

@@ -46,6 +46,8 @@ body {
     /* карточки внутри окна редактора («Цели», «Срок и повтор»): в тёмной теме чуть светлее панели, в светлой — тон полей (--tao-color-input-bg), а не белый, иначе они выбиваются из полей рядом */
     --nu-card-bg: var(--tao-color-surface);
     --nu-app-max: 1320px;
+    /* минимальная высота строки ленты: заголовок + служебная строка; и кружок, и текст центрируются по ней */
+    --nu-row-min: 3.6rem;
     /* нижняя плавающая плашка навигации на телефоне (TaoNav floating: 64 px и 12 px от края) и зазор над ней: выше липнет поле быстрого ввода */
     --nu-bar-h: 88px;
 }
@@ -58,4 +60,61 @@ body {
 
 :root[data-tao-mode='light'] {
     --nu-card-bg: var(--tao-color-surface-sunken);
+}
+
+/* настройки: раздел = подпись над карточкой с рядами; линий между разделами нет, ритм задают отступы */
+.nu-sec {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tao-space-2);
+}
+
+.nu-sec-title {
+    margin: 0 0 0 var(--tao-space-1);
+    color: var(--tao-color-text-muted);
+    font-size: var(--tao-font-size-sm);
+    font-weight: 500;
+}
+
+.nu-card {
+    overflow: hidden;
+    border: 1px solid var(--tao-color-border);
+    border-radius: var(--tao-radius-lg);
+    background: var(--nu-card-bg);
+}
+
+.nu-row {
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tao-space-2) var(--tao-space-3);
+    align-items: center;
+    justify-content: space-between;
+    min-height: 48px;
+    padding: var(--tao-space-2) var(--tao-space-3);
+    font-size: var(--tao-font-size-md);
+}
+
+.nu-row + .nu-row {
+    border-top: 1px solid var(--tao-color-border);
+}
+
+.nu-row--col {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 2px;
+}
+
+/* переключатель справа, подпись слева: свой класс на корне TaoSwitch */
+.nu-switch {
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.nu-hint {
+    margin: 0;
+    color: var(--tao-color-text-muted);
+    font-size: var(--tao-font-size-sm);
 }

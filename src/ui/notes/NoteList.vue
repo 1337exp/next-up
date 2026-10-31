@@ -46,7 +46,6 @@ const emptyText = computed(() => (searching.value ? t('list.searchEmpty') : prop
 interface Group {
     key: string;
     label: string;
-    /** Группа «Сегодня» отмечается точкой акцента. */
     entries: ArchiveEntry[];
 }
 
@@ -112,6 +111,7 @@ const runTitle = (entry: Extract<ArchiveEntry, { kind: 'run' }>): string => {
     <div v-else ref="listEl" class="list" @focusin="onFocusIn" @keydown="onListKeydown">
         <section v-for="group in groups" :key="group.key" class="group" :aria-label="group.label">
             <h2 class="group-title" :class="'when-' + group.key">
+                <span v-if="section === 'active'" class="dot" aria-hidden="true" />
                 {{ group.label }}
                 <span class="count">{{ group.entries.length }}</span>
             </h2>
@@ -209,13 +209,21 @@ const runTitle = (entry: Extract<ArchiveEntry, { kind: 'run' }>): string => {
     font-weight: 700;
 }
 
-/* заголовки групп режут ленту цветом: «Сегодня» зелёный, «Завтра» оранжевый, остальные нейтральные (роли *-text из TaoUI, читаемы в обеих темах) */
-.when-today {
-    color: var(--tao-color-success-text);
+/* точка перед названием группы режет ленту цветом, само слово нейтральное: «Сегодня» зелёная, «Завтра» оранжевая, остальные серые */
+.dot {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--tao-color-border-strong);
 }
 
-.when-tomorrow {
-    color: var(--tao-color-warning-text);
+.when-today .dot {
+    background: var(--tao-color-success);
+}
+
+.when-tomorrow .dot {
+    background: var(--tao-color-warning);
 }
 
 .count {

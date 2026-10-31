@@ -1,9 +1,9 @@
 import { onScopeDispose, ref, watchEffect } from 'vue';
-import { SIZES, useSettingsStore } from '@/app/settings';
+import { useSettingsStore } from '@/app/settings';
 
 /**
- * Тема, палитра и размер идут атрибутами и классами на <html>: их читают и всплывающие панели, телепортированные в body.
- * Размер и плотность — контексты TaoUI: свои множители не нужны.
+ * Тема и палитра идут атрибутами и классами на <html>: их читают и всплывающие панели, телепортированные в body.
+ * Плотность — контекст TaoUI; размер интерфейса не настраивается (масштаб — у браузера и системы).
  */
 export function useAppearance(): void {
     const { settings } = useSettingsStore();
@@ -19,7 +19,7 @@ export function useAppearance(): void {
         root.setAttribute('data-tao-mode', mode);
         if (settings.palette) root.setAttribute('data-tao-theme', settings.palette);
         else root.removeAttribute('data-tao-theme');
-        for (const size of SIZES) root.classList.toggle(`tao-size-${size}`, size === settings.size);
-        root.classList.add('tao-density-auto');
+        // размер один: контекст задан явно, чтобы вся вёрстка считалась от одной шкалы
+        root.classList.add('tao-size-medium', 'tao-density-auto');
     });
 }

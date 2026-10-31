@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { confirm, TaoButton, TaoDivider, TaoFormField, TaoSegmented, TaoSegmentedOption, TaoSelect, TaoSwitch, taoPalettes } from '@1337exp/taoui';
+import { confirm, TaoButton, TaoSegmented, TaoSegmentedOption, TaoSelect, TaoSwitch, taoPalettes } from '@1337exp/taoui';
 import { buildDemoNotes } from '@/app/demo';
 import { notifySupport, requestNotifications, showTodayNotice, type NotifySupport } from '@/app/notify';
 import { isDevMode } from '@/app/dev';
 import { useNotesStore } from '@/app/notes';
-import { MODES, SIZES, useSettingsStore, type Mode, type Size } from '@/app/settings';
+import { MODES, useSettingsStore, type Mode } from '@/app/settings';
 import { i18n, LOCALE_NAMES, setLocale, useI18n, type LocaleCode } from '@/i18n';
 import DataSection from './DataSection.vue';
 import SyncSection from './SyncSection.vue';
@@ -48,77 +48,66 @@ async function fillDemo(): Promise<void> {
 
 <template>
     <div class="settings">
-        <h3 class="tao-heading-6 group">{{ t('settings.appearance') }}</h3>
+        <section class="nu-sec">
+            <h3 class="nu-sec-title">{{ t('settings.appearance') }}</h3>
+            <div class="nu-card">
+                <div class="nu-row">
+                    <span>{{ t('settings.language') }}</span>
+                    <TaoSegmented :model-value="i18n.current.value" role="group" :aria-label="t('settings.language')" @update:model-value="setLocale($event as LocaleCode)">
+                        <TaoSegmentedOption v-for="code in i18n.codes" :key="code" :value="code" :label="LOCALE_NAMES[code]" />
+                    </TaoSegmented>
+                </div>
+                <div class="nu-row">
+                    <span>{{ t('settings.mode.title') }}</span>
+                    <TaoSegmented v-model="settings.mode" role="group" :aria-label="t('settings.mode.title')" @update:model-value="settings.mode = $event as Mode">
+                        <TaoSegmentedOption v-for="mode in MODES" :key="mode" :value="mode" :label="t(`settings.mode.${mode}`)" />
+                    </TaoSegmented>
+                </div>
+                <div class="nu-row">
+                    <span>{{ t('settings.palette.title') }}</span>
+                    <TaoSelect v-model="palette" class="palette" :options="palettes" :clearable="false" :aria-label="t('settings.palette.title')" />
+                </div>
+            </div>
+        </section>
 
-        <TaoFormField :label="t('settings.language')">
-            <TaoSegmented :model-value="i18n.current.value" @update:model-value="setLocale($event as LocaleCode)">
-                <TaoSegmentedOption v-for="code in i18n.codes" :key="code" :value="code" :label="LOCALE_NAMES[code]" />
-            </TaoSegmented>
-        </TaoFormField>
+        <section class="nu-sec">
+            <h3 class="nu-sec-title">{{ t('settings.listGroup') }}</h3>
+            <div class="nu-card">
+                <div class="nu-row">
+                    <TaoSwitch v-model="settings.showWeek" class="nu-switch" :label="t('settings.showWeek')" />
+                </div>
+                <div class="nu-row nu-row--col">
+                    <TaoSwitch v-model="settings.fullSwipe" class="nu-switch" :label="t('settings.fullSwipe.label')" />
+                    <p class="nu-hint">{{ t('settings.fullSwipe.hint') }}</p>
+                </div>
+                <div class="nu-row nu-row--col">
+                    <TaoSwitch v-model="settings.exactSearch" class="nu-switch" :label="t('settings.exactSearch.label')" />
+                    <p class="nu-hint">{{ t('settings.exactSearch.hint') }}</p>
+                </div>
+            </div>
+        </section>
 
-        <TaoFormField :label="t('settings.mode.title')">
-            <TaoSegmented v-model="settings.mode" @update:model-value="settings.mode = $event as Mode">
-                <TaoSegmentedOption v-for="mode in MODES" :key="mode" :value="mode" :label="t(`settings.mode.${mode}`)" />
-            </TaoSegmented>
-        </TaoFormField>
-
-        <TaoFormField :label="t('settings.palette.title')">
-            <TaoSelect v-model="palette" :options="palettes" :clearable="false" />
-        </TaoFormField>
-
-        <TaoFormField :label="t('settings.size.title')">
-            <TaoSegmented v-model="settings.size" @update:model-value="settings.size = $event as Size">
-                <TaoSegmentedOption v-for="size in SIZES" :key="size" :value="size" :label="t(`settings.size.${size}`)" />
-            </TaoSegmented>
-        </TaoFormField>
-
-        <TaoDivider />
-
-        <TaoSwitch v-model="settings.showWeek" :label="t('settings.showWeek')" />
-
-        <TaoDivider />
-
-        <h3 class="tao-heading-6 group">{{ t('settings.gesturesGroup') }}</h3>
-
-        <div class="notify">
-            <TaoSwitch v-model="settings.fullSwipe" :label="t('settings.fullSwipe.label')" />
-            <p class="hint">{{ t('settings.fullSwipe.hint') }}</p>
-        </div>
-
-        <TaoDivider />
-
-        <h3 class="tao-heading-6 group">{{ t('settings.searchGroup') }}</h3>
-
-        <div class="notify">
-            <TaoSwitch v-model="settings.exactSearch" :label="t('settings.exactSearch.label')" />
-            <p class="hint">{{ t('settings.exactSearch.hint') }}</p>
-        </div>
-
-        <TaoDivider />
-
-        <h3 class="tao-heading-6 group">{{ t('settings.notifications') }}</h3>
-
-        <div class="notify">
-            <TaoSwitch :model-value="settings.notifyToday" :label="t('settings.notify.label')" :loading="asking" :disabled="support === 'unsupported' || support === 'denied'" @update:model-value="onNotify" />
-            <p class="hint">{{ notifyHint }}</p>
-        </div>
+        <section class="nu-sec">
+            <h3 class="nu-sec-title">{{ t('settings.notifications') }}</h3>
+            <div class="nu-card">
+                <div class="nu-row nu-row--col">
+                    <TaoSwitch :model-value="settings.notifyToday" class="nu-switch" :label="t('settings.notify.label')" :loading="asking" :disabled="support === 'unsupported' || support === 'denied'" @update:model-value="onNotify" />
+                    <p class="nu-hint">{{ notifyHint }}</p>
+                </div>
+            </div>
+        </section>
 
         <SyncSection />
 
-        <TaoDivider />
-
         <DataSection />
 
-        <TaoDivider v-if="dev" />
-
-        <section v-if="dev" class="dev">
-            <h3 class="tao-heading-6">{{ t('settings.dev.title') }}</h3>
+        <section v-if="dev" class="nu-sec">
+            <h3 class="nu-sec-title">{{ t('settings.dev.title') }}</h3>
             <div class="dev-buttons">
                 <TaoButton variant="secondary" @click="fillDemo">{{ t('settings.dev.demo') }}</TaoButton>
                 <TaoButton variant="secondary" @click="showTodayNotice">{{ t('settings.dev.notice') }}</TaoButton>
             </div>
         </section>
-
     </div>
 </template>
 
@@ -126,34 +115,17 @@ async function fillDemo(): Promise<void> {
 .settings {
     display: flex;
     flex-direction: column;
-    gap: var(--tao-space-5);
+    gap: var(--tao-space-6);
 }
 
-.group {
-    margin: 0;
-}
-
-.notify {
-    display: flex;
-    flex-direction: column;
-    gap: var(--tao-space-1);
-}
-
-.hint {
-    margin: 0;
-    color: var(--tao-color-text-muted);
-    font-size: var(--tao-font-size-sm);
+.palette {
+    flex: 0 1 11rem;
+    min-width: 8rem;
 }
 
 .dev-buttons {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--tao-space-2);
-}
-
-.dev {
-    display: flex;
-    flex-direction: column;
     gap: var(--tao-space-2);
 }
 </style>
