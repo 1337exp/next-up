@@ -7,8 +7,8 @@ import { dateLong, useI18n } from '@/i18n';
 import { useSearch } from './useNotes';
 
 /**
- * Неделя над списком: семь дней, точки показывают, где есть заметки. Тап по дню оставляет в списке только его,
- * повторный тап снимает. Стрелки листают недели; прошедшие дни недоступны (активных заметок в них нет).
+ * Неделя над списком: семь дней подряд, начиная с сегодня, точки показывают, где есть заметки. Тап по дню оставляет в списке
+ * только его, повторный тап снимает. Стрелки листают по семь дней; назад дальше сегодня не уйти (активных заметок в прошлом нет).
  */
 const { t, locale } = useI18n();
 const store = useNotesStore();
@@ -32,7 +32,6 @@ const cells = computed(() =>
             weekday: new Intl.DateTimeFormat(locale.value, { weekday: 'short', timeZone: 'UTC' }).format(Date.parse(`${iso}T00:00:00Z`)),
             dots: Math.min(count, 3),
             today: iso === store.today,
-            past: iso < store.today,
             label: `${dateLong(locale.value, iso)}, ${t('week.count', [count])}`,
         };
     }),
@@ -47,7 +46,7 @@ function pick(iso: string): void {
     <div class="week" role="group" :aria-label="t('week.label')">
         <TaoButton variant="ghost" icon="tao-chevron-left" :disabled="offset <= 0" :aria-label="t('week.prev')" @click="offset--" />
         <div class="days">
-            <button v-for="cell in cells" :key="cell.iso" type="button" class="day" :class="{ today: cell.today, on: day === cell.iso, past: cell.past }" :disabled="cell.past" :aria-label="cell.label" :aria-pressed="day === cell.iso" @click="pick(cell.iso)">
+            <button v-for="cell in cells" :key="cell.iso" type="button" class="day" :class="{ today: cell.today, on: day === cell.iso }" :aria-label="cell.label" :aria-pressed="day === cell.iso" @click="pick(cell.iso)">
                 <span class="dow">{{ cell.weekday }}</span>
                 <span class="num">{{ cell.number }}</span>
                 <span class="line" aria-hidden="true" />
@@ -95,17 +94,13 @@ function pick(iso: string): void {
     cursor: pointer;
 }
 
-.day:hover:not(:disabled) {
+.day:hover {
     background: var(--tao-color-surface-hover);
 }
 
 .day:focus-visible {
     outline: 2px solid var(--tao-color-accent);
     outline-offset: 1px;
-}
-
-.day:disabled {
-    cursor: default;
 }
 
 .dow {
@@ -134,22 +129,14 @@ function pick(iso: string): void {
     background: transparent;
 }
 
-.past .num {
-    color: var(--tao-color-text-muted);
-    font-weight: 400;
-}
-
 .today .num {
     font-weight: 700;
 }
 
-.today .line {
+/* полоса под числом одна: стоит под сегодняшним днём, а когда день выбран, переезжает под него (круга под числом нет) */
+.week:not(:has(.on)) .today .line,
+.on .line {
     background: var(--tao-color-accent);
-}
-
-/* выбранный день — мягкая подложка под числом */
-.on .num {
-    background: var(--tao-color-surface-raised);
 }
 
 .dots {
