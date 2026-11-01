@@ -13,6 +13,10 @@
   <a href="docs/DESIGN.md">Дизайн</a>
 </p>
 
+<p align="center">
+  <img src="docs/media/next-up.png" width="460" alt="Next Up на телефоне: быстрый ввод с датой из текста и нижняя навигация">
+</p>
+
 Текст в Markdown, цели (пункты списка) с временем отметки, повторы, поиск с поправкой на опечатки, теги. Работает на ПК, планшете и телефоне, ставится как приложение (PWA) и открывается без сети. Vue 3 + TypeScript + Vite + [TaoUI](https://www.npmjs.com/package/@1337exp/taoui) и [TaoUX](https://www.npmjs.com/package/@1337exp/taoux).
 
 Устройство и принятые решения: [docs/PLAN-v3.md](docs/PLAN-v3.md). Дизайн интерфейса (аудит, решения, правила): [docs/DESIGN.md](docs/DESIGN.md). Заметки для библиотек, найденные по ходу работы: [docs/library-issues.md](docs/library-issues.md), [-2](docs/library-issues-2.md), [-3](docs/library-issues-3.md).

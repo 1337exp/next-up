@@ -13,6 +13,10 @@
   <a href="docs/DESIGN.md">Design</a>
 </p>
 
+<p align="center">
+  <img src="docs/media/next-up.png" width="460" alt="Next Up on a phone: quick entry with the due date understood from the text, and the bottom navigation">
+</p>
+
 Markdown text, goals (checklist items) with the time they were ticked, repeats, search that forgives typos, tags. It works on a desktop, a tablet and a phone, installs as an app (PWA) and opens without a network. Vue 3 + TypeScript + Vite + [TaoUI](https://www.npmjs.com/package/@1337exp/taoui) and [TaoUX](https://www.npmjs.com/package/@1337exp/taoux). The interface is in Russian and English.
 
 The structure and the decisions taken: [docs/PLAN-v3.md](docs/PLAN-v3.md). The interface design (audit, decisions, rules): [docs/DESIGN.md](docs/DESIGN.md). Notes for the libraries found along the way: [docs/library-issues.md](docs/library-issues.md), [-2](docs/library-issues-2.md), [-3](docs/library-issues-3.md). The docs are in Russian.
