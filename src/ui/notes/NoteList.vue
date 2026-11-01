@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, TransitionGroup } from 'vue';
+import { computed, ref, TransitionGroup, watch } from 'vue';
 import { TaoButton } from '@1337exp/taoui';
 import { useNotesStore } from '@/app/notes';
 import { isoParts, formatUserDate } from '@/core/date';
@@ -14,7 +14,7 @@ const props = defineProps<{ section: 'active' | 'archive' }>();
 
 const { t, locale } = useI18n();
 const store = useNotesStore();
-const { found, searching, query } = useSearch();
+const { found, searching, query, day } = useSearch();
 const actions = useNoteActions();
 const editor = useEditor();
 
@@ -38,6 +38,23 @@ function onListKeydown(event: KeyboardEvent): void {
     event.preventDefault();
     rows[Math.max(0, Math.min(rows.length - 1, next))]?.focus();
 }
+
+// смена фильтра (день на ленте недели, поиск) перестраивает весь список: заметки при этом не «переезжают», а просто сдвигаются
+// из-за появившихся сверху групп, и анимации появления и перемещения тут лишние: новые группы возникают сразу, и одна строка в старой группе не должна выделяться;
+// они нужны только внутри группы (новая заметка, завершённая)
+// класс ставится сразу и в обход шаблона: Vue обновляет класс списка уже после вставки строк, и правило опоздало бы
+const filtering = ref(false);
+let filteringTimer = 0;
+watch([day, query], () => {
+    filtering.value = true;
+    listEl.value?.classList.add('filtering');
+    window.clearTimeout(filteringTimer);
+    // дольше самой длинной из анимаций (0.26 с): Vue заканчивает начальную фазу появления спустя пару кадров
+    filteringTimer = window.setTimeout(() => {
+        filtering.value = false;
+        listEl.value?.classList.remove('filtering');
+    }, 400);
+}, { flush: 'sync' });
 
 const visible = computed(() => found.value[props.section]);
 const emptyHint = computed(() => (searching.value ? t('list.searchEmptyHint') : props.section === 'active' ? t('list.emptyActiveHint') : ''));
@@ -74,7 +91,8 @@ const tabStopId = computed(() => {
 // строка уходит плавно: высота, прозрачность и лёгкий сдвиг; при «уменьшить анимацию» в системе — сразу
 const reduceMotion = (): boolean => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 function onLeave(el: Element, done: () => void): void {
-    if (reduceMotion()) return done();
+    // смена фильтра убирает строки без полёта: они не завершены и не удалены, а просто не подошли
+    if (reduceMotion() || filtering.value) return done();
     const row = el as HTMLElement;
     row.style.height = `${row.offsetHeight}px`;
     row.style.overflow = 'hidden';
@@ -170,6 +188,9 @@ const runTitle = (entry: Extract<ArchiveEntry, { kind: 'run' }>): string => {
 .rows {
     display: flex;
     flex-direction: column;
+    /* уходящая строка улетает вправо: без обрезки страница на миг становилась шире окна */
+    overflow-x: clip;
+    overflow-clip-margin: var(--tao-space-1);
 }
 
 /* новая заметка появляется мягко, остальные плавно сдвигаются на её место */
@@ -184,6 +205,16 @@ const runTitle = (entry: Extract<ArchiveEntry, { kind: 'run' }>): string => {
 
 .note-move {
     transition: transform 0.26s ease;
+}
+
+.filtering .note-enter-active,
+.filtering .note-move {
+    transition: none;
+}
+
+.filtering .note-enter-from {
+    opacity: 1;
+    transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

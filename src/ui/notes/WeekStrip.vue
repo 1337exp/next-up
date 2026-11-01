@@ -119,7 +119,7 @@ function pick(iso: string): void {
     font-weight: 500;
 }
 
-/* сегодня — короткая линия под числом (тихая метка), а не яркий круг */
+/* выбранный день — короткая линия под числом и подложка всей ячейки, как при наведении, но прозрачнее; сегодняшний отличается только жирным числом */
 .line {
     width: 1.25rem;
     height: 3px;
@@ -133,10 +133,16 @@ function pick(iso: string): void {
     font-weight: 700;
 }
 
-/* полоса под числом одна: стоит под сегодняшним днём, а когда день выбран, переезжает под него (круга под числом нет) */
-.week:not(:has(.on)) .today .line,
 .on .line {
     background: var(--tao-color-accent);
+}
+
+.on {
+    background: color-mix(in srgb, var(--tao-color-surface-hover) 55%, transparent);
+}
+
+.on:hover {
+    background: var(--tao-color-surface-hover);
 }
 
 .dots {
