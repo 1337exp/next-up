@@ -244,7 +244,7 @@ function submit(): void {
     border-radius: var(--tao-radius-full);
 }
 
-/* подсказка — ярлык под полем, справа: тот же фон, что у поля, чуть заходит под него и выглядит его частью */
+/* подсказка — ярлык под полем, справа. Под поле он не заходит: заливка поля полупрозрачная, и ярлык просвечивал бы сквозь неё */
 .preview {
     position: relative;
     z-index: 0;
@@ -252,9 +252,9 @@ function submit(): void {
     gap: var(--tao-space-2);
     align-items: center;
     align-self: flex-end;
-    margin: calc(var(--tao-space-3) * -1) var(--tao-space-4) 0;
-    padding: calc(var(--tao-space-3) + var(--tao-space-1)) var(--tao-space-3) var(--tao-space-1);
-    border-radius: 0 0 var(--tao-radius-md) var(--tao-radius-md);
+    margin: 0 var(--tao-space-4);
+    padding: var(--tao-space-1) var(--tao-space-3);
+    border-radius: var(--tao-radius-md);
     background: var(--tao-color-surface-raised);
     box-shadow: 0 6px 16px rgb(0 0 0 / 0.22);
     color: var(--tao-color-text-muted);
