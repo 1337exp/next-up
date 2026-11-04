@@ -10,6 +10,7 @@ import { createUndoStack, diffEntry } from '@/core/undo';
 import { createTodayClock } from '@/app/clock';
 import { createNotesRepository, type LoadStatus } from '@/app/persistence';
 import type { StorageFailure } from '@1337exp/taoux/storage';
+import { useUndoStack } from '@1337exp/taoux/undovue';
 
 const PERSIST_DELAY_MS = 300;
 
@@ -48,16 +49,11 @@ ull — удалась. */
         timer = setTimeout(flush, PERSIST_DELAY_MS);
     }
 
-    // --- отмена: по затронутым заметкам; флаги реактивны, сам стек нет ---
-    const stack = createUndoStack();
+    // --- отмена: по затронутым заметкам; обёртка `useUndoStack` держит флаги реактивными после каждого хода ---
+    const stack = useUndoStack(createUndoStack());
     /** Растёт при каждой правке пользователя (в том числе отмене): по нему синхронизация узнаёт, что пора отправлять. */
     const revision = ref(0);
-    const canUndo = ref(false);
-    const canRedo = ref(false);
-    const syncFlags = (): void => {
-        canUndo.value = stack.canUndo;
-        canRedo.value = stack.canRedo;
-    };
+    const { canUndo, canRedo } = stack;
 
     /** Применить изменение пользователя: пересчитать, запомнить для отмены, сохранить. */
     function commit(next: Note[], key?: string): void {
@@ -66,7 +62,6 @@ ull — удалась. */
         if (entry) stack.record(entry, key);
         notes.value = normalized;
         revision.value++;
-        syncFlags();
         schedule();
     }
 
@@ -78,7 +73,6 @@ ull — удалась. */
             if (entry) stack.record(entry);
         }
         notes.value = normalized;
-        syncFlags();
         schedule();
     }
 
