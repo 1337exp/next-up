@@ -1,0 +1,4 @@
+fast-sans.woff: подмножество (латиница и кириллица) шрифта Fast Sans.
+Copyright 2020 The Inter Project Authors (https://github.com/rsms/inter).
+Лицензия: SIL Open Font License, Version 1.1 — https://openfontlicense.org
+Шрифт переименован (Fast_Sans), оригинальное имя не используется.

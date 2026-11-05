@@ -81,7 +81,7 @@ function onTag(tag: string): void {
             <TaoButton class="close" variant="secondary" tone="danger" icon="tao-close" :aria-label="t('ui.button.close')" :title="t('ui.button.close')" @click="emit('close')" />
         </div>
 
-        <h1 class="title"><MarkdownView :text="parts.title || t('list.untitled')" @tag="onTag" /></h1>
+        <h1 class="title nu-text"><MarkdownView :text="parts.title || t('list.untitled')" @tag="onTag" /></h1>
 
         <div class="chips">
             <span class="chip">
@@ -92,13 +92,13 @@ function onTag(tag: string): void {
             <button v-for="tag in tags" :key="tag" type="button" class="chip tag" @click="onTag(tag)">#{{ tag }}</button>
         </div>
 
-        <MarkdownView v-if="parts.rest" class="body" :text="parts.rest" @tag="onTag" />
+        <MarkdownView v-if="parts.rest" class="body nu-text" :text="parts.rest" @tag="onTag" />
 
         <section v-if="note.items.length" class="items" :aria-label="t('editor.items.label')">
             <h2 class="caption">{{ t('read.items', [checkedCount, note.items.length]) }}</h2>
             <label v-for="item in note.items" :key="item.id" class="item" :class="{ done: item.doneAt !== null }">
                 <TaoCheckbox :model-value="item.doneAt !== null" :aria-label="item.text" @update:model-value="store.toggleItem(note.id, item.id)" />
-                <span class="item-text">{{ item.text }}</span>
+                <span class="item-text nu-text">{{ item.text }}</span>
                 <span v-if="itemTime(item.doneAt)" class="item-time">{{ itemTime(item.doneAt) }}</span>
             </label>
         </section>

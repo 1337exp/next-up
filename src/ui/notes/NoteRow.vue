@@ -118,7 +118,7 @@ function onMenu(id: string): void {
 
                 <div class="body">
                     <div class="main">
-                        <div class="title">{{ title }}</div>
+                        <div class="title nu-text">{{ title }}</div>
                         <div v-if="checked || repeatLabel || tags.length" class="meta">
                             <span v-if="checked" :title="checkedLabel" :aria-label="checkedLabel" role="img">{{ checked }}</span>
                             <span v-if="repeatLabel" class="repeat"><TaoIcon name="tao-repeat" />{{ repeatLabel }}</span>

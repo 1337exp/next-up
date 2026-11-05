@@ -21,5 +21,6 @@ export function useAppearance(): void {
         else root.removeAttribute('data-tao-theme');
         // размер один: контекст задан явно, чтобы вся вёрстка считалась от одной шкалы
         root.classList.add('tao-size-medium', 'tao-density-auto');
+        root.classList.toggle('nu-fast-text', settings.fastFont);
     });
 }

@@ -67,6 +67,10 @@ async function fillDemo(): Promise<void> {
                     <span>{{ t('settings.palette.title') }}</span>
                     <TaoSelect v-model="palette" class="palette" :options="palettes" :clearable="false" :aria-label="t('settings.palette.title')" />
                 </div>
+                <div class="nu-row nu-row--col">
+                    <TaoSwitch v-model="settings.fastFont" class="nu-switch" :label="t('settings.fastFont.label')" />
+                    <p class="nu-hint">{{ t('settings.fastFont.hint') }}</p>
+                </div>
             </div>
         </section>
 

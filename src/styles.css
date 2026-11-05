@@ -11,6 +11,20 @@ body {
     font-family: var(--tao-font-family);
 }
 
+/* Fast Sans (на основе Inter, SIL OFL; см. src/assets/fonts/LICENSE.txt): подмножество латиницы и кириллицы, грузится, только когда шрифт включён */
+@font-face {
+    font-family: 'Fast Sans';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('./assets/fonts/fast-sans.woff') format('woff');
+}
+
+/* настройка «Шрифт для быстрого чтения»: только текст заметок (строка ленты, чтение), не интерфейс */
+.nu-fast-text .nu-text {
+    font-family: 'Fast Sans', var(--tao-font-family);
+}
+
 /* подсказка клавиши в поле: на сенсорном экране не показывается */
 .nu-kbd {
     display: inline-flex;
