@@ -28,6 +28,7 @@ npm install
 npm run dev              # разработка
 npm run build            # vue-tsc + vite build (в dist/ лежат и service worker с офлайн-кешем)
 npm test                 # vitest
+npm run apk              # приложение для Android: release/next-up.apk (см. «Приложение для Android» ниже)
 npm run example:server   # демо-сервер синхронизации, см. examples/README.md
 ```
 
@@ -72,7 +73,24 @@ npm run example:server   # демо-сервер синхронизации, с�
 npm run apk              # соберёт release/next-up.apk (отладочная сборка, подписана автоматическим ключом)
 ```
 
-Нужны Android SDK и JDK 17 или 21 (оба идут с Android Studio; скрипт находит их сам, иначе задайте `ANDROID_HOME` и `NEXTUP_JAVA_HOME`). Взят Capacitor 6: он собирается на JDK 17 и SDK 34. Идентификатор приложения лежит в `capacitor.config.ts`. Некоторые производители телефонов убивают фоновые задачи: если оповещение не приходит, разрешите приложению работать без ограничений по батарее.
+**Сборка.** Нужны Android SDK и JDK 17 или 21 (оба идут с Android Studio; `scripts/apk.mjs` находит их сам, иначе задайте `ANDROID_HOME` и `NEXTUP_JAVA_HOME`). Скрипт собирает веб-часть (`dist/`), переносит её в проект Android (`npx cap sync android`) и запускает Gradle (`android/gradlew assembleDebug`). Первая сборка скачивает Gradle и идёт несколько минут. Взят Capacitor 6: он собирается на JDK 17 и SDK 34.
+
+**Где файл.** `release/next-up.apk` (папки нет в git: соберите сами). Собственная копия Gradle лежит в `android/app/build/outputs/apk/debug/app-debug.apk`.
+
+**Установка.** Скопируйте `release/next-up.apk` на телефон и откройте его (разрешите установку из этого источника; телефон может назвать отладочную сборку небезопасной: ставьте всё равно). Или по USB с включённой отладкой: `adb install -r release/next-up.apk`. Новый файл поверх старого сохраняет заметки. Заметки из браузера сами не переезжают: скачайте JSON в браузере и импортируйте в приложении (или используйте синхронизацию).
+
+**Где что лежит.**
+
+```
+capacitor.config.ts      идентификатор приложения, название, значок оповещений
+scripts/apk.mjs          скрипт `npm run apk`
+android/                 проект Android (Gradle); значки и заставка в android/app/src/main/res
+src/app/native.ts        «мы внутри оболочки Android?»
+src/app/schedule.ts      план оповещений вперёд (30 дней, с началом каждого дня с заметками)
+src/app/notify.ts        разрешение и показ: браузер или Android, один интерфейс
+```
+
+Идентификатор приложения (`app.nextup.notes`) лежит в `capacitor.config.ts`; меняйте его до первой установки, иначе это будет другое приложение. Некоторые производители телефонов убивают фоновые задачи: если оповещение не приходит, разрешите приложению работать без ограничений по батарее.
 
 ## Внешний вид
 
@@ -102,6 +120,8 @@ src/app/       стор заметок, хранилище, настройки, 
 src/ui/        оболочка (TaoNav + TaoSplit), список, строка, редактор и чтение, настройки
 src/i18n/      словари ru / en (типизированные, на createI18n из TaoUX)
 build/         плагин сборки для офлайн-кеша
+scripts/       скрипт сборки Android (npm run apk)
+android/       проект Android (Capacitor); готовый файл попадает в release/
 examples/      демо-сервер синхронизации
 tests/         vitest: ядро, стор, редактор, синхронизация (в том числе на настоящем сервере), миграции на замороженных файлах
 ```

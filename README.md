@@ -28,6 +28,7 @@ npm install
 npm run dev              # development
 npm run build            # vue-tsc + vite build (dist/ holds the service worker with the offline cache too)
 npm test                 # vitest
+npm run apk              # Android app: release/next-up.apk (see «Android app» below)
 npm run example:server   # demo sync server, see examples/README.md
 ```
 
@@ -72,7 +73,24 @@ The same web app in an Android shell ([Capacitor](https://capacitorjs.com)). It 
 npm run apk              # builds release/next-up.apk (a debug build, signed with the automatic debug key)
 ```
 
-Needs the Android SDK and JDK 17 or 21 (both come with Android Studio; the script finds them, or set `ANDROID_HOME` and `NEXTUP_JAVA_HOME`). Capacitor 6 is used because it builds on JDK 17 and SDK 34. The app id is in `capacitor.config.ts`. Some phone makers kill background work: allow the app to run without battery limits if a notification does not come.
+**Build.** Needs the Android SDK and JDK 17 or 21 (both come with Android Studio; `scripts/apk.mjs` finds them, or set `ANDROID_HOME` and `NEXTUP_JAVA_HOME`). The script builds the web part (`dist/`), copies it into the Android project (`npx cap sync android`) and runs Gradle (`android/gradlew assembleDebug`). The first build downloads Gradle and takes a few minutes. Capacitor 6 is used because it builds on JDK 17 and SDK 34.
+
+**Where the file is.** `release/next-up.apk` (the folder is not in git: build it yourself). Gradle's own copy is `android/app/build/outputs/apk/debug/app-debug.apk`.
+
+**Install.** Copy `release/next-up.apk` to the phone and open it (allow installing from that source; the phone may call a debug build unsafe: install anyway). Or over USB with debugging on: `adb install -r release/next-up.apk`. Installing a new file over the old one keeps the notes. Notes from the browser do not move by themselves: download JSON in the browser, import it in the app (or use sync).
+
+**Where things are.**
+
+```
+capacitor.config.ts      app id, name, notification icon
+scripts/apk.mjs          the `npm run apk` script
+android/                 the Android project (Gradle); icons and splash are in android/app/src/main/res
+src/app/native.ts        «are we inside the Android shell»
+src/app/schedule.ts      the plan of notifications ahead (30 days, at the start of each day with notes)
+src/app/notify.ts        permission and showing: browser or Android, one interface
+```
+
+The app id (`app.nextup.notes`) is in `capacitor.config.ts`; change it before the first install, otherwise it is another app. Some phone makers kill background work: allow the app to run without battery limits if a notification does not come.
 
 ## Look
 
@@ -102,6 +120,8 @@ src/app/       the notes store, storage, settings, sync, notifications
 src/ui/        the shell (TaoNav + TaoSplit), the list, the row, the editor and the reader, the settings
 src/i18n/      ru / en dictionaries (typed, on createI18n from TaoUX)
 build/         the build plugin for the offline cache
+scripts/       the Android build script (npm run apk)
+android/       the Android project (Capacitor); the built file ends up in release/
 examples/      the demo sync server
 tests/         vitest: core, store, editor, sync (also against a real server), migrations on frozen files
 ```
