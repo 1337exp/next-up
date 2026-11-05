@@ -185,7 +185,21 @@ export default {
         notify: {
             label: 'Notify about notes due today',
             hint: 'Once a day, when the date changes, if the tab is in the background.',
-            hintNative: 'Every day at 9:00, if there are notes for that day. Arrives even when the app is closed.',
+            hintNative: 'As the day with notes begins (at midnight). Arrives even when the app is closed.',
+            deniedNative: 'Notifications are blocked in the phone settings: Settings → Apps → Next Up → Notifications.',
+            more: 'How it works',
+            infoNative: {
+                time: 'The notification comes when the day of a note begins, around 00:00. The system may move it by up to an hour.',
+                sleep: 'At night it comes with a sound. To avoid waking you, turn on Do Not Disturb or mute the "Notes due today" channel in the app settings.',
+                today: 'A note created today for today gives no notification: the day has already begun.',
+                window: 'Notifications are scheduled 30 days ahead and recalculated on every change of the notes. If the app is not opened for over a month, later ones will not come.',
+                battery: 'Some phones (Xiaomi, Huawei, Oppo and others) kill background work: allow the app to run without battery limits and turn on autostart.',
+            },
+            infoWeb: {
+                when: 'A notification comes once a day, when the date changes, and only if the tab is open in the background.',
+                closed: 'If the browser or the tab is closed there is no notification: for that you need the Android app.',
+                secure: 'An https or localhost address is needed; the permission is asked when the switch is turned on.',
+            },
             denied: 'Notifications are blocked in the browser settings.',
             unsupported: 'This browser does not support notifications (https or localhost is required).',
         },

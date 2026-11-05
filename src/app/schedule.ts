@@ -8,8 +8,8 @@ import { notifySupport } from '@/app/notify';
 import { useSettingsStore } from '@/app/settings';
 import { useI18n } from '@/i18n';
 
-/** Час, в который приходит оповещение «на сегодня есть заметки». */
-export const NOTICE_HOUR = 9;
+/** Час, в который приходит оповещение «на сегодня есть заметки»: с началом дня (у заметки нет времени, только день, и событие может быть ночью). */
+export const NOTICE_HOUR = 0;
 /** На сколько дней вперёд оповещения ставятся заранее (приложение может долго не открываться). */
 const WINDOW_DAYS = 30;
 const CHANNEL = 'today';
@@ -24,6 +24,7 @@ const idOf = (iso: string): number => {
  * В оболочке Android приложение может быть закрыто, и некому проверить, что сменилась дата, поэтому оповещения ставятся
  * заранее: по одному на ближайшие дни с заметками, на {@link NOTICE_HOUR}:00. План пересчитывается при каждом изменении
  * заметок, языка и настройки; пока план не изменился, система не трогается. Вызывать один раз, из корня приложения.
+ * Система может сдвинуть оповещение на час: точное время Android даёт не каждому приложению.
  */
 export function useNativeSchedule(): void {
     if (!isNative()) return;
@@ -34,7 +35,7 @@ export function useNativeSchedule(): void {
     const plan = computed<LocalNotificationSchema[]>(() => {
         if (!settings.notifyToday || notifySupport() !== 'granted') return [];
         const now = Date.now();
-        // сегодняшний час уже прошёл: окно начинается с завтра
+        // час оповещения сегодня уже прошёл (в полночь это всегда так): окно начинается с завтра
         const from = new Date(now).getHours() >= NOTICE_HOUR ? addDays(notes.today, 1) : notes.today;
         return upcomingDigests(notes.notes, from, WINDOW_DAYS).map((digest) => {
             const { year, month, day } = isoParts(digest.date);

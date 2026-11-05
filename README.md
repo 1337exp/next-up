@@ -66,7 +66,7 @@ Settings → Sync: the address of a document and, if needed, an `Authorization` 
 
 ## Android app
 
-The same web app in an Android shell ([Capacitor](https://capacitorjs.com)). It adds what a browser cannot do: a notification at 9:00 on every day that has notes, even when the app is closed. The notifications are scheduled ahead (30 days) and recalculated on every change, so no server is needed.
+The same web app in an Android shell ([Capacitor](https://capacitorjs.com)). It adds what a browser cannot do: a notification as every day that has notes begins (at midnight), even when the app is closed. The notifications are scheduled ahead (30 days) and recalculated on every change, so no server is needed.
 
 ```bash
 npm run apk              # builds release/next-up.apk (a debug build, signed with the automatic debug key)
