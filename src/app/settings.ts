@@ -13,6 +13,8 @@ export interface Settings {
     palette: string;
     /** Недельная лента над списком «Скоро». */
     showWeek: boolean;
+    /** Телефон под левую руку: меню и кнопка быстрого ввода зеркально, на левый край. */
+    leftHand: boolean;
     /** Текст заметок шрифтом Fast Sans (начала слов выделены, читается быстрее). */
     fastFont: boolean;
     /** Длинный свайп влево сразу запускает последнее действие строки («Изменить»). */
@@ -30,7 +32,7 @@ export interface Settings {
 export const SETTINGS_KEY = 'nextup.settings';
 
 export function defaultSettings(): Settings {
-    return { mode: 'dark', palette: '', showWeek: true, fastFont: false, fullSwipe: true, exactSearch: false, notifyToday: false, lastNotified: '', sync: { enabled: false, url: '', authorization: '' } };
+    return { mode: 'dark', palette: '', showWeek: true, fastFont: false, leftHand: false, fullSwipe: true, exactSearch: false, notifyToday: false, lastNotified: '', sync: { enabled: false, url: '', authorization: '' } };
 }
 
 const isMode = (v: unknown): v is Mode => typeof v === 'string' && (MODES as readonly string[]).includes(v);
@@ -44,6 +46,7 @@ export function parseSettings(raw: unknown): Settings {
     if (isMode(record.mode)) result.mode = record.mode;
     if (isPalette(record.palette)) result.palette = record.palette;
     if (typeof record.showWeek === 'boolean') result.showWeek = record.showWeek;
+    if (typeof record.leftHand === 'boolean') result.leftHand = record.leftHand;
     if (typeof record.fastFont === 'boolean') result.fastFont = record.fastFont;
     if (typeof record.fullSwipe === 'boolean') result.fullSwipe = record.fullSwipe;
     if (typeof record.exactSearch === 'boolean') result.exactSearch = record.exactSearch;

@@ -2,6 +2,7 @@
 import { computed, nextTick, ref } from 'vue';
 import { TaoButton, TaoIcon, TaoInput, toast } from '@1337exp/taoui';
 import { useNotesStore } from '@/app/notes';
+import { useSettingsStore } from '@/app/settings';
 import { diffDays } from '@/core/date';
 import { newId } from '@/core/id';
 import { parseQuick } from '@/core/quick';
@@ -21,6 +22,7 @@ const { t, locale } = useI18n();
 const store = useNotesStore();
 const editor = useEditor();
 const phone = usePhone();
+const { settings } = useSettingsStore();
 
 const text = ref('');
 const open = ref(false);
@@ -105,7 +107,7 @@ function submit(): void {
 </script>
 
 <template>
-    <form ref="form" class="quick" :class="{ phone, open: expanded }" @submit.prevent="submit" @keydown.esc="collapse" @focusout="onFocusOut">
+    <form ref="form" class="quick" :class="{ phone, open: expanded, left: settings.leftHand }" @submit.prevent="submit" @keydown.esc="collapse" @focusout="onFocusOut">
         <!-- телефон: одна таблетка, ширина которой меняется от кнопки до всего ряда -->
         <div v-if="phone" class="pill tao-size-large" :class="{ open }">
             <div class="pill-field" :inert="!open">
@@ -271,6 +273,17 @@ function submit(): void {
     border-radius: var(--tao-radius-md) var(--tao-radius-md) 0 0;
     box-shadow: 0 -6px 16px rgb(0 0 0 / 0.22);
     transform: translateY(-100%);
+}
+
+/* левая рука: таблетка прижата влево, кнопка в ней слева, ярлык с датой тоже слева */
+.quick.phone.left .pill {
+    align-self: flex-start;
+    flex-direction: row-reverse;
+}
+
+.quick.phone.left .preview {
+    right: auto;
+    left: calc(var(--tao-space-4) * 2);
 }
 
 /* кнопка в широком поле — тихий ghost: приглушённая, при наведении светлеет, с текстом (готово к добавлению) — цвет акцента */

@@ -175,6 +175,7 @@ export default {
         appearance: 'Appearance',
         notifications: 'Notifications',
         showWeek: 'Week above the list',
+        leftHand: { label: 'Left-handed', hint: 'On a phone the menu and the quick-add button move to the left side.' },
         fastFont: { label: 'Fast reading font', hint: 'Fast Sans: the start of each word is bold, so the eye has something to catch on. Applies to the text of notes.' },
         listGroup: 'List and search',
         fullSwipe: { label: 'Long swipe left', hint: 'Opens editing. When off, a long swipe only opens the actions.' },

@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { confirm, TaoButton, TaoIcon, TaoSegmented, TaoSegmentedOption, TaoSelect, TaoSwitch, taoPalettes } from '@1337exp/taoui';
 import { buildDemoNotes } from '@/app/demo';
 import { isNative } from '@/app/native';
+import { usePhone } from '@/ui/shell/useWide';
 import { notifySupport, requestNotifications, showTodayNotice, type NotifySupport } from '@/app/notify';
 import { isDevMode } from '@/app/dev';
 import { useNotesStore } from '@/app/notes';
@@ -29,6 +30,7 @@ const dev = isDevMode();
 const support = ref<NotifySupport>(notifySupport());
 const asking = ref(false);
 const native = isNative();
+const phone = usePhone();
 const notifyHint = computed(() => {
     if (support.value === 'unsupported') return t('settings.notify.unsupported');
     if (support.value === 'denied') return t(native ? 'settings.notify.deniedNative' : 'settings.notify.denied');
@@ -76,6 +78,11 @@ async function fillDemo(): Promise<void> {
                 <div class="nu-row">
                     <span>{{ t('settings.palette.title') }}</span>
                     <TaoSelect v-model="palette" class="palette" :options="palettes" :clearable="false" :aria-label="t('settings.palette.title')" />
+                </div>
+                <!-- раскладка зеркалится только на телефоне: на широком экране меню и так сбоку -->
+                <div v-if="phone" class="nu-row nu-row--col">
+                    <TaoSwitch v-model="settings.leftHand" class="nu-switch" :label="t('settings.leftHand.label')" />
+                    <p class="nu-hint">{{ t('settings.leftHand.hint') }}</p>
                 </div>
                 <div class="nu-row nu-row--col">
                     <TaoSwitch v-model="settings.fastFont" class="nu-switch" :label="t('settings.fastFont.label')" />

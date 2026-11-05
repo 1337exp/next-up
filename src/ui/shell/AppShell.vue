@@ -5,6 +5,7 @@ import { createCommands, historyCommands } from '@1337exp/taoux/commands';
 import { useNotesStore } from '@/app/notes';
 import { useDayNotifier } from '@/app/notify';
 import { useNativeSchedule } from '@/app/schedule';
+import { useSettingsStore } from '@/app/settings';
 import { APP_VERSION } from '@/app/version';
 import { useSyncStore } from '@/app/sync';
 import { useI18n } from '@/i18n';
@@ -26,6 +27,7 @@ const store = useNotesStore();
 const sync = useSyncStore();
 useDayNotifier();
 useNativeSchedule();
+const { settings } = useSettingsStore();
 const editor = useEditor();
 const wide = useWide();
 const phone = usePhone();
@@ -36,12 +38,19 @@ const settingsOpen = ref(false);
 const listWidth = ref(480);
 
 // счётчики в навигации показывают найденное, пока идёт поиск
-const items = computed<TaoNavItem[]>(() => [
-    { id: 'active', label: t('nav.active'), icon: 'tao-file', badge: found.value.active.length || undefined },
-    { id: 'archive', label: t('nav.archive'), icon: 'tao-folder', badge: found.value.archive.length || undefined },
-    { id: 'trash', label: t('nav.trash'), icon: 'tao-trash', badge: store.trash.length || undefined },
-    { id: 'settings', label: t('nav.settings'), icon: 'tao-settings', badge: sync.status === 'error' ? true : undefined },
-]);
+const items = computed<TaoNavItem[]>(() => {
+    const all: Record<Section | 'settings', TaoNavItem> = {
+        active: { id: 'active', label: t('nav.active'), icon: 'tao-file', badge: found.value.active.length || undefined },
+        archive: { id: 'archive', label: t('nav.archive'), icon: 'tao-folder', badge: found.value.archive.length || undefined },
+        trash: { id: 'trash', label: t('nav.trash'), icon: 'tao-trash', badge: store.trash.length || undefined },
+        settings: { id: 'settings', label: t('nav.settings'), icon: 'tao-settings', badge: sync.status === 'error' ? true : undefined },
+    };
+    // телефон: «+» и главный раздел под большим пальцем (правая рука — справа), редкое («Настройки», «Корзина») на дальнем краю,
+    // иначе при тапе по «+» палец задевает «Настройки»; левая рука — зеркально. Широкий экран: меню сверху вниз как обычно
+    if (!phone.value) return [all.active, all.archive, all.trash, all.settings];
+    const order = [all.settings, all.trash, all.archive, all.active];
+    return settings.leftHand ? order.reverse() : order;
+});
 
 // Настройки: на ПК и планшете — раздел рядом с меню (выезжающая справа панель была бы на другом краю широкого экрана),
 // на телефоне — нижний лист у большого пальца, где и меню.
@@ -114,6 +123,11 @@ watch(
             <a class="about" href="https://github.com/1337exp/next-up" target="_blank" rel="noopener noreferrer">{{ t('app.name') }} v{{ APP_VERSION }}</a>
         </template>
 
+        <!-- подпись пунктов в нижней панели: на пиксель крупнее и жирная; своим слотом, не правкой внутренностей TaoNav -->
+        <template #label="{ item }">
+            <span :class="{ 'nav-label': phone }">{{ item.label }}</span>
+        </template>
+
         <template v-if="!phone" #action>
             <TaoButton icon="tao-plus" shortcut="N" @click="editor.openCreate()"><span class="tao-nav__action-label">{{ t('nav.create') }}</span></TaoButton>
         </template>
@@ -164,6 +178,11 @@ watch(
 </template>
 
 <style scoped>
+.nav-label {
+    font-size: calc(var(--tao-font-size-xs) + 1px);
+    font-weight: 700;
+}
+
 /* обёртка без коробки: нужна только чтобы передать нижней полосе редактора цвет окна */
 .modal-body {
     display: contents;
