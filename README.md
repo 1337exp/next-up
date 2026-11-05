@@ -40,13 +40,16 @@ npm run example:server   # demo sync server, see examples/README.md
 - **Repeats** are «every N days / weeks / months / years» (presets and your own period). Every repeat is a separate record with an id like `series@date`, so two devices create the same records, not duplicates. Archived repeats of one series in a row fold into one line.
 - **Tags** are `#word` right in the text; a click on a tag searches by it; over the list are chips of the five latest tags, and the rest, with the number of notes, are behind the «All tags…» chip (it shows up only when there is something to show).
 - **Search** takes all words in any order, does not tell «е» from «ё», forgives typos (`mlik` finds `milk`); `#tag` is matched exactly; «Exact match» is in the settings.
-- **The week.** Over the list are the seven days of the current week (the arrows turn the weeks), the dots show where the notes are, today is marked with a line; a tap on a day leaves only that day in the list, another tap clears it. It can be switched off in the settings.
+- **The week.** Over the list are seven days in a row starting with today (the arrows turn by seven days, back only as far as today), the dots show where the notes are; a tap on a day leaves only that day in the list and marks it with a line and a light fill, another tap clears it. It can be switched off in the settings.
 - **Keyboard in the list.** One `Tab` stop for the whole list: the arrows move between rows, `Home` / `End` go to the start and the end, `Enter` opens, `Space` finishes, `Delete` deletes (with undo), the menu key opens the row's actions.
 - **Reading.** A click on a row (or `Enter`) opens the note for reading: the text is drawn as a document, you can select and copy it, links and tags are clickable, goals are ticked right there. `E` or «Edit» is editing, `Esc` from editing goes back to reading. Finishing, copying and deleting a note happen in the list.
 - **Swipes** (TaoUX `swiperow`, touch screens): right to finish (in the archive, to bring back), left for a copy, delete and edit. A long swipe to the left runs «Edit» (not delete); it can be turned off in the settings.
 - **The editor** has no «Save» button: a change goes by itself after a short pause, and «Saved» shows at the bottom. The text comes first with the Markdown bar over it (`Ctrl+B` / `Ctrl+I` / `Ctrl+K`). The date and the repeat are one block: «Today», «Tomorrow», an «Add» button (+1, +7, +30, +90 days to the date) and the date. Goals have checkboxes, reordering by drag (or the keyboard) and delete by `Backspace` in an empty one. On a desktop the editor is to the right of the list, on a tablet a window over the list, on a phone the full screen.
 - **Undo instead of confirmations.** Delete, finish and import happen at once, with «Undo» at the bottom; `Ctrl+Z` / `Ctrl+Shift+Z` go by records, not by snapshots of the list. The only dialog is «Delete everything».
 - **The trash** keeps deleted notes for 30 days: restore or delete for good.
+- **Addresses and Back.** The section and the open note live in the address (`#/archive`, `#/note/<id>`, `#/new`), and the menu items are real links. Back (the button, the swipe, the system button of the Android app) closes the note or the settings and returns to the previous section instead of leaving the app; a reload brings you to the same place; a link to a note that is gone gives the list and a «Note not found» message.
+- **Phone layout.** The bottom menu is Settings · Trash · Archive · Upcoming, so the main section is under the thumb next to the «+» and the rarely used ones are far from it. Settings → «Left-handed» mirrors it (the menu, the quick input and its date label go to the left side).
+- **Fast reading font.** Settings → «Fast reading font» (off by default): the text of notes in Fast Sans, which makes the start of each word bold.
 
 Keys (global): `N` is a new note (the full form), `/` is search, `Ctrl+,` is the settings, `Enter` on a row opens it, `Esc` in the note text closes the editor (the focus goes back to the row).
 
@@ -95,23 +98,24 @@ android/                 the Android project (Gradle); icons and splash are in a
 src/app/native.ts        «are we inside the Android shell»
 src/app/schedule.ts      the plan of notifications ahead (30 days, at the start of each day with notes)
 src/app/notify.ts        permission and showing: browser or Android, one interface
+src/app/route.ts         the route in the address and the history (Back); src/core/route.ts parses it
 ```
 
 The app id (`app.nextup.notes`) is in `capacitor.config.ts`; change it before the first install, otherwise it is another app.
 
 ## Look
 
-The dark theme is the default; in the settings it changes to light or «as in the system», and there are the palette and the interface size (small / medium / large). It is all done by TaoUI contexts (`data-tao-mode`, `data-tao-theme`, `tao-size-*`), with no multipliers of our own.
+The dark theme is the default; in the settings it changes to light or «as in the system», and there is the palette. The size is one (the zoom is the browser's and the system's). It is all done by TaoUI contexts (`data-tao-mode`, `data-tao-theme`), with no multipliers of our own.
 
 The layout is picked by width: on a phone a floating glass bar (the quick input is pinned above it), a rail on a tablet, a side panel and the editor beside the list on a desktop. The app is capped at 1320 px (`--nu-app-max`) and stands in the centre on a very wide monitor. The side menu and the note window have a light grain (`surface="grain"`); glass goes off with «reduce transparency» in the system, the grain with «more contrast». Secondary text keeps the contrast of at least 4.5:1 in the light and the dark themes, and the current section in the menu differs not by colour alone but by weight as well.
 
-The font is Roboto, variable (weight 100–900), Latin and Cyrillic: `src/assets/font` (the SIL OFL 1.1 licence is next to it).
+The font is Roboto, variable (weight 100–900), Latin and Cyrillic: `src/assets/font` (the SIL OFL 1.1 licence is next to it). The optional reading font is Fast Sans (a subset of it, 107 KB): `src/assets/fonts`, with its own licence file.
 
 ## Versions and releases
 
 The version lives in one place: `version` in `package.json`. The interface (the line under the menu) and the Android build (`versionName`, and `versionCode` = major·10000 + minor·100 + patch) read it from there, and `npm run apk` puts it in the file name.
 
-To release: raise `version` in `package.json`, run `npm run apk`, commit, then tag with the same number (`git tag -a v3.1.0 -m "…"`, `git push origin v3.1.0`) and attach `release/next-up-<version>.apk` to the release on GitHub. Android takes a new APK as an update only when its `versionCode` is higher, so never lower the version.
+To release: raise `version` in `package.json`, run `npm run apk`, commit, then tag with the same number (`git tag -a v3.2.0 -m "…"`, `git push origin v3.2.0`) and attach `release/next-up-<version>.apk` to the release on GitHub. Android takes a new APK as an update only when its `versionCode` is higher, so never lower the version.
 
 ## Development mode
 
@@ -128,7 +132,7 @@ In development mode the service worker is not registered (its cache would get in
 ## Structure
 
 ```
-src/core/      plain TypeScript: model, dates, repeats, merge, undo, search, tags, Markdown formatting, import and sync (no Vue, no DOM)
+src/core/      plain TypeScript: model, dates, repeats, merge, undo, search, tags, Markdown formatting, import, sync and the address parser (no Vue, no DOM)
 src/app/       the notes store, storage, settings, sync, notifications, the route (#/archive, #/note/<id>: Back closes a note or settings)
 src/ui/        the shell (TaoNav + TaoSplit), the list, the row, the editor and the reader, the settings
 src/i18n/      ru / en dictionaries (typed, on createI18n from TaoUX)
