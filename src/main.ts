@@ -10,14 +10,18 @@ import '@/styles.css';
 
 import App from '@/App.vue';
 import { registerAppIcons } from '@/app/icons';
+import { isNative } from '@/app/native';
+import { initNativeNotifications } from '@/app/notify';
 import { initLocale } from '@/i18n';
 
 registerAppIcons();
 initLocale();
 
 // офлайн-оболочка и оповещения; в режиме разработки worker не регистрируем: кеш мешал бы правкам
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+if (import.meta.env.PROD && !isNative() && 'serviceWorker' in navigator) {
     window.addEventListener('load', () => void navigator.serviceWorker.register(new URL('sw.js', document.baseURI)).catch(() => {}));
 }
+
+void initNativeNotifications();
 
 createApp(App).use(createPinia()).use(TaoUI).mount('#app');

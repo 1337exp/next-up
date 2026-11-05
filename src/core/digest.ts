@@ -1,4 +1,4 @@
-import type { IsoDate } from './date';
+import { addDays, type IsoDate } from './date';
 import type { Note } from './model';
 import { noteTitle } from './notes';
 
@@ -15,6 +15,15 @@ export function todayDigest(notes: readonly Note[], today: IsoDate): Digest {
         .filter((note) => note.deletedAt === null && note.doneAt === null && note.due === today)
         .map((note) => noteTitle(note).replace(/\s+/g, ' ').trim());
     return { date: today, count: lines.length, lines };
+}
+
+/**
+ * Оповещения вперёд, для телефона: приложение может быть закрыто, и дату «сегодня» уже некому проверить, поэтому оповещения
+ * ставятся заранее. По одному на день, у которого есть заметки; пустые дни пропускаются. `from` — первый день окна
+ * (сегодня, а если время оповещения сегодня уже прошло, то завтра), `days` — размер окна.
+ */
+export function upcomingDigests(notes: readonly Note[], from: IsoDate, days: number): Digest[] {
+    return Array.from({ length: days }, (_, i) => todayDigest(notes, addDays(from, i))).filter((digest) => digest.count > 0);
 }
 
 export interface NoticeInput {

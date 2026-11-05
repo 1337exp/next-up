@@ -10,3 +10,6 @@ old-code
 examples/server/data
 
 .idea
+
+# собранные APK
+release

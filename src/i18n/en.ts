@@ -147,7 +147,7 @@ export default {
 
     toast: { removed: 'Note deleted', done: 'Note completed', reopened: 'Back in progress', itemOn: 'Goal checked', itemOff: 'Check removed', undo: 'Undo', redo: 'Redo', nothingToUndo: 'Nothing to undo', nothingToRedo: 'Nothing to redo' },
 
-    notify: { today: 'Notes due today: {0}' },
+    notify: { today: 'Notes due today: {0}', channel: 'Notes due today' },
 
     read: {
         done: 'Done',
@@ -185,6 +185,7 @@ export default {
         notify: {
             label: 'Notify about notes due today',
             hint: 'Once a day, when the date changes, if the tab is in the background.',
+            hintNative: 'Every day at 9:00, if there are notes for that day. Arrives even when the app is closed.',
             denied: 'Notifications are blocked in the browser settings.',
             unsupported: 'This browser does not support notifications (https or localhost is required).',
         },

@@ -64,6 +64,16 @@ Settings → Sync: the address of a document and, if needed, an `Authorization` 
 - **Offline.** After the first load the app opens without a network: the service worker (`public/sw.js`) caches the shell, and the file list and the version are put in by the build (`build/precache.ts`). It can be put on the home screen of a phone or a tablet.
 - **Notifications.** Settings → «Notify about notes due today»: once a day, when the date changes, if the tab is in the background. The permission is asked on the click of the switch; `https` or `localhost` is needed. Notifications with the app fully closed would need a push server, which is not here.
 
+## Android app
+
+The same web app in an Android shell ([Capacitor](https://capacitorjs.com)). It adds what a browser cannot do: a notification at 9:00 on every day that has notes, even when the app is closed. The notifications are scheduled ahead (30 days) and recalculated on every change, so no server is needed.
+
+```bash
+npm run apk              # builds release/next-up.apk (a debug build, signed with the automatic debug key)
+```
+
+Needs the Android SDK and JDK 17 or 21 (both come with Android Studio; the script finds them, or set `ANDROID_HOME` and `NEXTUP_JAVA_HOME`). Capacitor 6 is used because it builds on JDK 17 and SDK 34. The app id is in `capacitor.config.ts`. Some phone makers kill background work: allow the app to run without battery limits if a notification does not come.
+
 ## Look
 
 The dark theme is the default; in the settings it changes to light or «as in the system», and there are the palette and the interface size (small / medium / large). It is all done by TaoUI contexts (`data-tao-mode`, `data-tao-theme`, `tao-size-*`), with no multipliers of our own.

@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 import { confirm, TaoButton, TaoSegmented, TaoSegmentedOption, TaoSelect, TaoSwitch, taoPalettes } from '@1337exp/taoui';
 import { buildDemoNotes } from '@/app/demo';
+import { isNative } from '@/app/native';
 import { notifySupport, requestNotifications, showTodayNotice, type NotifySupport } from '@/app/notify';
 import { isDevMode } from '@/app/dev';
 import { useNotesStore } from '@/app/notes';
@@ -27,7 +28,7 @@ const dev = isDevMode();
 // --- оповещения: разрешение просим по клику на переключатель, иначе браузер его не покажет ---
 const support = ref<NotifySupport>(notifySupport());
 const asking = ref(false);
-const notifyHint = computed(() => (support.value === 'unsupported' ? t('settings.notify.unsupported') : support.value === 'denied' ? t('settings.notify.denied') : t('settings.notify.hint')));
+const notifyHint = computed(() => (support.value === 'unsupported' ? t('settings.notify.unsupported') : support.value === 'denied' ? t('settings.notify.denied') : t(isNative() ? 'settings.notify.hintNative' : 'settings.notify.hint')));
 
 async function onNotify(on: boolean): Promise<void> {
     if (!on) {

@@ -4,6 +4,7 @@ import { TaoButton, TaoModal, TaoNav, TaoScrollTop, TaoSplit, toast, type TaoNav
 import { createCommands, historyCommands } from '@1337exp/taoux/commands';
 import { useNotesStore } from '@/app/notes';
 import { useDayNotifier } from '@/app/notify';
+import { useNativeSchedule } from '@/app/schedule';
 import { useSyncStore } from '@/app/sync';
 import { useI18n } from '@/i18n';
 import EmptyState from '@/ui/components/EmptyState.vue';
@@ -23,6 +24,7 @@ const store = useNotesStore();
 // стор синхронизации живёт всё время работы приложения: сам следит за правками, сетью и возвратом на вкладку
 const sync = useSyncStore();
 useDayNotifier();
+useNativeSchedule();
 const editor = useEditor();
 const wide = useWide();
 const phone = usePhone();
