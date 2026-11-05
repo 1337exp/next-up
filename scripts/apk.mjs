@@ -1,10 +1,10 @@
-// Сборка APK для Android: `npm run apk` кладёт отладочный файл в release/next-up.apk.
+// Сборка APK для Android: `npm run apk` кладёт отладочный файл в release/next-up-<версия>.apk (версия — из package.json).
 //
 // Что делает: собирает веб-часть (vue-tsc + vite), переносит её в проект Android (cap sync) и запускает Gradle.
 // Нужны Android SDK и JDK 17 или 21. Пути ищутся сами; если не нашлись, задайте переменные ANDROID_HOME и NEXTUP_JAVA_HOME.
 // Отладочный APK подписан автоматическим ключом: его можно ставить на свой телефон. Для Google Play нужна своя подпись.
 import { spawnSync } from 'node:child_process';
-import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -60,6 +60,7 @@ run('Сборка APK (Gradle)', `"${gradle}"`, ['assembleDebug'], join(root, 'a
 const built = join(root, 'android/app/build/outputs/apk/debug/app-debug.apk');
 if (!existsSync(built)) fail('Gradle отработал, но app-debug.apk не найден.');
 mkdirSync(join(root, 'release'), { recursive: true });
-const target = join(root, 'release/next-up.apk');
+const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+const target = join(root, `release/next-up-${version}.apk`);
 copyFileSync(built, target);
 console.log(`\nГотово: ${target}`);

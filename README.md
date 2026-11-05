@@ -28,7 +28,7 @@ npm install
 npm run dev              # development
 npm run build            # vue-tsc + vite build (dist/ holds the service worker with the offline cache too)
 npm test                 # vitest
-npm run apk              # Android app: release/next-up.apk (see «Android app» below)
+npm run apk              # Android app: release/next-up-<version>.apk (see «Android app» below)
 npm run example:server   # demo sync server, see examples/README.md
 ```
 
@@ -70,14 +70,14 @@ Settings → Sync: the address of a document and, if needed, an `Authorization` 
 The same web app in an Android shell ([Capacitor](https://capacitorjs.com)). It adds what a browser cannot do: a notification as every day that has notes begins (at midnight), even when the app is closed. The notifications are scheduled ahead (30 days) and recalculated on every change, so no server is needed.
 
 ```bash
-npm run apk              # builds release/next-up.apk (a debug build, signed with the automatic debug key)
+npm run apk              # builds release/next-up-<version>.apk (a debug build, signed with the automatic debug key)
 ```
 
 **Build.** Needs the Android SDK and JDK 17 or 21 (both come with Android Studio; `scripts/apk.mjs` finds them, or set `ANDROID_HOME` and `NEXTUP_JAVA_HOME`). The script builds the web part (`dist/`), copies it into the Android project (`npx cap sync android`) and runs Gradle (`android/gradlew assembleDebug`). The first build downloads Gradle and takes a few minutes. Capacitor 6 is used because it builds on JDK 17 and SDK 34.
 
-**Where the file is.** `release/next-up.apk` (the folder is not in git: build it yourself). Gradle's own copy is `android/app/build/outputs/apk/debug/app-debug.apk`.
+**Where the file is.** `release/next-up-<version>.apk` (the folder is not in git: build it yourself). Gradle's own copy is `android/app/build/outputs/apk/debug/app-debug.apk`.
 
-**Install.** Copy `release/next-up.apk` to the phone and open it (allow installing from that source; the phone may call a debug build unsafe: install anyway). Or over USB with debugging on: `adb install -r release/next-up.apk`. Installing a new file over the old one keeps the notes. Notes from the browser do not move by themselves: download JSON in the browser, import it in the app (or use sync).
+**Install.** Copy `release/next-up-<version>.apk` to the phone and open it (allow installing from that source; the phone may call a debug build unsafe: install anyway). Or over USB with debugging on: `adb install -r release/next-up-<version>.apk`. Installing a new file over the old one keeps the notes. Notes from the browser do not move by themselves: download JSON in the browser, import it in the app (or use sync).
 
 **Where things are.**
 
@@ -99,6 +99,12 @@ The dark theme is the default; in the settings it changes to light or «as in th
 The layout is picked by width: on a phone a floating glass bar (the quick input is pinned above it), a rail on a tablet, a side panel and the editor beside the list on a desktop. The app is capped at 1320 px (`--nu-app-max`) and stands in the centre on a very wide monitor. The side menu and the note window have a light grain (`surface="grain"`); glass goes off with «reduce transparency» in the system, the grain with «more contrast». Secondary text keeps the contrast of at least 4.5:1 in the light and the dark themes, and the current section in the menu differs not by colour alone but by weight as well.
 
 The font is Roboto, variable (weight 100–900), Latin and Cyrillic: `src/assets/font` (the SIL OFL 1.1 licence is next to it).
+
+## Versions and releases
+
+The version lives in one place: `version` in `package.json`. The interface (the line under the menu) and the Android build (`versionName`, and `versionCode` = major·10000 + minor·100 + patch) read it from there, and `npm run apk` puts it in the file name.
+
+To release: raise `version` in `package.json`, run `npm run apk`, commit, then tag with the same number (`git tag -a v3.1.0 -m "…"`, `git push origin v3.1.0`) and attach `release/next-up-<version>.apk` to the release on GitHub. Android takes a new APK as an update only when its `versionCode` is higher, so never lower the version.
 
 ## Development mode
 

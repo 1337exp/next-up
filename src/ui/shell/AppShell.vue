@@ -5,6 +5,7 @@ import { createCommands, historyCommands } from '@1337exp/taoux/commands';
 import { useNotesStore } from '@/app/notes';
 import { useDayNotifier } from '@/app/notify';
 import { useNativeSchedule } from '@/app/schedule';
+import { APP_VERSION } from '@/app/version';
 import { useSyncStore } from '@/app/sync';
 import { useI18n } from '@/i18n';
 import EmptyState from '@/ui/components/EmptyState.vue';
@@ -110,7 +111,7 @@ watch(
     <TaoNav :model-value="section" class="nav" :floating="phone" :surface="phone ? 'glass' : 'grain'" badge-tone="neutral" :items="items" :aria-label="t('nav.label')" :more-label="t('nav.more')" @update:model-value="onNav">
         <!-- на телефоне главное действие — поле ввода внизу списка, круглая «+» не нужна -->
         <template #footer>
-            <a class="about" href="https://github.com/1337exp/next-up" target="_blank" rel="noopener noreferrer">{{ t('app.name') }} v3</a>
+            <a class="about" href="https://github.com/1337exp/next-up" target="_blank" rel="noopener noreferrer">{{ t('app.name') }} v{{ APP_VERSION }}</a>
         </template>
 
         <template v-if="!phone" #action>
