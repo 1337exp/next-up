@@ -69,6 +69,13 @@ Settings → Sync: the address of a document and, if needed, an `Authorization` 
 
 The same web app in an Android shell ([Capacitor](https://capacitorjs.com)). It adds what a browser cannot do: a notification as every day that has notes begins (at midnight), even when the app is closed. The notifications are scheduled ahead (30 days) and recalculated on every change, so no server is needed.
 
+> **If a notification does not come.** Some phone makers (Huawei, Xiaomi, Oppo and others) kill background work, and then nothing arrives while the app is closed. Allow the app to run in the background once:
+>
+> - **Huawei / EMUI:** Settings → Apps → App launch → Next Up → turn off «Manage automatically» and switch on all three: auto-launch, secondary launch and run in background. Also Settings → Battery: take Next Up out of battery optimization.
+> - **Other phones:** allow autostart for the app and set its battery use to «unrestricted» (the names differ by maker).
+>
+> The app also says this in Settings → Notifications → «How it works».
+
 ```bash
 npm run apk              # builds release/next-up-<version>.apk (a debug build, signed with the automatic debug key)
 ```
@@ -90,7 +97,7 @@ src/app/schedule.ts      the plan of notifications ahead (30 days, at the start 
 src/app/notify.ts        permission and showing: browser or Android, one interface
 ```
 
-The app id (`app.nextup.notes`) is in `capacitor.config.ts`; change it before the first install, otherwise it is another app. Some phone makers kill background work: allow the app to run without battery limits if a notification does not come.
+The app id (`app.nextup.notes`) is in `capacitor.config.ts`; change it before the first install, otherwise it is another app.
 
 ## Look
 
