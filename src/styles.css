@@ -54,9 +54,9 @@ body {
     --tao-radius-lg: 14px;
     --tao-radius-control: 10px;
     --tao-radius-panel: 18px;
-    /* «утопленный» тон: на ступень яркости темнее страницы, одинаково в обеих темах; им окрашены меню и окна (на нём текст выразительнее) */
-    --nu-sunken: color-mix(in srgb, var(--tao-color-bg) 94%, black);
-    --nu-sunken: oklch(from var(--tao-color-bg) calc(l - 0.04) c h);
+    /* «утопленный» тон: на ступень яркости темнее страницы, одинаково в обеих темах; им окрашены меню и окна (на нём текст выразительнее).
+       Запасные значения идут через @supports (ниже): у пользовательских переменных строка, которую браузер не понимает, не пропускается, а обнуляет переменную, и подложка окна становилась прозрачной (старый WebView в APK) */
+    --nu-sunken: var(--tao-color-surface);
     /* карточки внутри окна редактора («Цели», «Срок и повтор»): в тёмной теме чуть светлее панели, в светлой — тон полей (--tao-color-input-bg), а не белый, иначе они выбиваются из полей рядом */
     --nu-card-bg: var(--tao-color-surface);
     --nu-app-max: 1320px;
@@ -64,6 +64,18 @@ body {
     --nu-row-min: 3.6rem;
     /* нижняя плавающая плашка навигации на телефоне (TaoNav floating: 64 px и 12 px от края) и зазор над ней: выше липнет поле быстрого ввода */
     --nu-bar-h: 88px;
+}
+
+@supports (color: color-mix(in srgb, red, blue)) {
+    :root {
+        --nu-sunken: color-mix(in srgb, var(--tao-color-bg) 94%, black);
+    }
+}
+
+@supports (color: oklch(from red l c h)) {
+    :root {
+        --nu-sunken: oklch(from var(--tao-color-bg) calc(l - 0.04) c h);
+    }
 }
 
 /* окно заметки и нижний лист настроек: заливка панели — утопленный тон (TaoUI читает её из --tao-surface-fill) */
