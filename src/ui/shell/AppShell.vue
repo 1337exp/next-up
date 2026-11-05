@@ -2,7 +2,9 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { TaoButton, TaoModal, TaoNav, TaoScrollTop, TaoSplit, toast, type TaoNavItem } from '@1337exp/taoui';
 import { createCommands, historyCommands } from '@1337exp/taoux/commands';
+import { bindBackButton } from '@/app/native';
 import { useNotesStore } from '@/app/notes';
+import { useRoute } from '@/app/route';
 import { useDayNotifier } from '@/app/notify';
 import { useNativeSchedule } from '@/app/schedule';
 import { useSettingsStore } from '@/app/settings';
@@ -12,14 +14,14 @@ import { useI18n } from '@/i18n';
 import EmptyState from '@/ui/components/EmptyState.vue';
 import NoteEditor from '@/ui/editor/NoteEditor.vue';
 import NoteView from '@/ui/editor/NoteView.vue';
-import { useEditor } from '@/ui/editor/useEditor';
+import { bindEditorToRoute, useEditor } from '@/ui/editor/useEditor';
 import { useSearch } from '@/ui/notes/useNotes';
 import ListColumn from './ListColumn.vue';
 import SettingsDrawer from './SettingsDrawer.vue';
 import SettingsForm from './SettingsForm.vue';
 import { usePhone, useWide } from './useWide';
 
-type Section = 'active' | 'archive' | 'trash' | 'settings';
+import type { Section } from '@/core/route';
 
 const { t } = useI18n();
 const store = useNotesStore();
@@ -33,17 +35,23 @@ const wide = useWide();
 const phone = usePhone();
 const { found } = useSearch();
 
-const section = ref<Section>('active');
-const settingsOpen = ref(false);
+// раздел и открытая заметка живут в адресе (#/archive, #/note/<id>): «назад» закрывает окно, а не выходит из приложения
+const { route, listSection, go, back, previous, replace, canGoBack } = useRoute();
+bindBackButton(canGoBack);
+bindEditorToRoute((id) => store.notes.find((n) => n.id === id && n.deletedAt === null));
+const section = computed(() => route.value.section);
+// на телефоне настройки — нижний лист поверх списка, и меню подсвечивает список под ним
+const navValue = computed(() => (phone.value ? listSection.value : section.value));
 const listWidth = ref(480);
 
 // счётчики в навигации показывают найденное, пока идёт поиск
 const items = computed<TaoNavItem[]>(() => {
-    const all: Record<Section | 'settings', TaoNavItem> = {
-        active: { id: 'active', label: t('nav.active'), icon: 'tao-file', badge: found.value.active.length || undefined },
-        archive: { id: 'archive', label: t('nav.archive'), icon: 'tao-folder', badge: found.value.archive.length || undefined },
-        trash: { id: 'trash', label: t('nav.trash'), icon: 'tao-trash', badge: store.trash.length || undefined },
-        settings: { id: 'settings', label: t('nav.settings'), icon: 'tao-settings', badge: sync.status === 'error' ? true : undefined },
+    // у пунктов настоящие адреса: правая кнопка, «открыть в новой вкладке» и подсказка в углу браузера работают
+    const all: Record<Section, TaoNavItem> = {
+        active: { id: 'active', label: t('nav.active'), icon: 'tao-file', href: '#/', badge: found.value.active.length || undefined },
+        archive: { id: 'archive', label: t('nav.archive'), icon: 'tao-folder', href: '#/archive', badge: found.value.archive.length || undefined },
+        trash: { id: 'trash', label: t('nav.trash'), icon: 'tao-trash', href: '#/trash', badge: store.trash.length || undefined },
+        settings: { id: 'settings', label: t('nav.settings'), icon: 'tao-settings', href: '#/settings', badge: sync.status === 'error' ? true : undefined },
     };
     // телефон: «+» и главный раздел под большим пальцем (правая рука — справа), редкое («Настройки», «Корзина») на дальнем краю,
     // иначе при тапе по «+» палец задевает «Настройки»; левая рука — зеркально. Широкий экран: меню сверху вниз как обычно
@@ -53,16 +61,28 @@ const items = computed<TaoNavItem[]>(() => {
 });
 
 // Настройки: на ПК и планшете — раздел рядом с меню (выезжающая справа панель была бы на другом краю широкого экрана),
-// на телефоне — нижний лист у большого пальца, где и меню.
+// на телефоне — нижний лист у большого пальца, где и меню. Адрес один и тот же (#/settings), различает их ширина экрана.
 function openSettings(): void {
-    if (phone.value) settingsOpen.value = true;
-    else section.value = 'settings';
+    go({ section: 'settings', editor: null });
 }
 
-function onNav(id: string): void {
-    if (id === 'settings') openSettings();
-    else section.value = id as Section;
+// пункт меню — ссылка: переход делаем сами, записью в историю; открытая заметка при смене раздела на широком экране остаётся
+function onSelect(id: string, event: Event): void {
+    event.preventDefault();
+    const next = id as Section;
+    go({ section: next, editor: next === 'settings' ? null : route.value.editor });
 }
+
+// нижний лист настроек закрывается так же, как заметка: шагом назад, если до него был список
+const settingsOpen = computed({
+    get: () => phone.value && section.value === 'settings',
+    set: (open: boolean) => {
+        if (open) return openSettings();
+        const before = previous();
+        if (before && before.section !== 'settings') back();
+        else replace({ section: listSection.value, editor: null });
+    },
+});
 
 // из правки возвращаемся к чтению той же заметки: «Готово» и Esc не выбрасывают из неё совсем
 function currentNote() {
@@ -71,7 +91,7 @@ function currentNote() {
 }
 function closeEditor(): void {
     const note = editor.state.value?.mode === 'edit' ? currentNote() : undefined;
-    if (note) editor.openRead(note);
+    if (note) editor.leaveEdit(note);
     else editor.close();
 }
 
@@ -117,7 +137,7 @@ watch(
 </script>
 
 <template>
-    <TaoNav :model-value="section" class="nav" :floating="phone" :surface="phone ? 'glass' : 'grain'" badge-tone="neutral" :items="items" :aria-label="t('nav.label')" :more-label="t('nav.more')" @update:model-value="onNav">
+    <TaoNav :model-value="navValue" class="nav" :floating="phone" :surface="phone ? 'glass' : 'grain'" badge-tone="neutral" :items="items" :aria-label="t('nav.label')" :more-label="t('nav.more')" @select="onSelect">
         <!-- на телефоне главное действие — поле ввода внизу списка, круглая «+» не нужна -->
         <template #footer>
             <a class="about" href="https://github.com/1337exp/next-up" target="_blank" rel="noopener noreferrer">{{ t('app.name') }} v{{ APP_VERSION }}</a>
@@ -133,7 +153,7 @@ watch(
         </template>
 
         <!-- Настройки: страница рядом с меню (на телефоне вместо неё нижний лист) -->
-        <main v-if="section === 'settings'" class="settings-page" :class="{ scroll: wide }">
+        <main v-if="section === 'settings' && !phone" class="settings-page" :class="{ scroll: wide }">
             <h2 class="tao-heading-5">{{ t('settings.title') }}</h2>
             <SettingsForm />
         </main>
@@ -142,7 +162,7 @@ watch(
         <main v-else-if="wide" class="wide">
             <TaoSplit v-model="listWidth" unit="px" :min="360" :max="760" :min-end="360">
                 <template #start>
-                    <div class="pane"><ListColumn :section="section" /></div>
+                    <div class="pane"><ListColumn :section="listSection" /></div>
                 </template>
                 <template #end>
                     <div class="pane">
@@ -163,7 +183,7 @@ watch(
         </main>
 
         <!-- телефон и планшет: список на всю ширину, редактор поверх -->
-        <main v-else class="narrow"><ListColumn :section="section" /></main>
+        <main v-else class="narrow"><ListColumn :section="listSection" /></main>
     </TaoNav>
 
     <TaoModal v-if="!wide" fullscreen="narrow" surface="grain" :model-value="!!editor.state.value" :title="editorTitle" @update:model-value="(open: boolean) => !open && editor.close()">

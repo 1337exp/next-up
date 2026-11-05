@@ -6,9 +6,12 @@ import { useNotesStore } from '@/app/notes';
 import { addDays, todayIso } from '@/core/date';
 import { setLocale } from '@/i18n';
 import NoteView from '@/ui/editor/NoteView.vue';
-import { useEditor } from '@/ui/editor/useEditor';
+import { bindEditorToRoute, useEditor } from '@/ui/editor/useEditor';
 
 const today = todayIso();
+
+// в приложении это делает AppShell: состояние редактора следует за адресом
+bindEditorToRoute((id) => useNotesStore().notes.find((n) => n.id === id && n.deletedAt === null));
 
 beforeEach(() => {
     vi.useFakeTimers();

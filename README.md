@@ -129,7 +129,7 @@ In development mode the service worker is not registered (its cache would get in
 
 ```
 src/core/      plain TypeScript: model, dates, repeats, merge, undo, search, tags, Markdown formatting, import and sync (no Vue, no DOM)
-src/app/       the notes store, storage, settings, sync, notifications
+src/app/       the notes store, storage, settings, sync, notifications, the route (#/archive, #/note/<id>: Back closes a note or settings)
 src/ui/        the shell (TaoNav + TaoSplit), the list, the row, the editor and the reader, the settings
 src/i18n/      ru / en dictionaries (typed, on createI18n from TaoUX)
 build/         the build plugin for the offline cache
