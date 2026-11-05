@@ -62,7 +62,7 @@ Settings → Sync: the address of a document and, if needed, an `Authorization` 
 ## Notifications and offline
 
 - **Offline.** After the first load the app opens without a network: the service worker (`public/sw.js`) caches the shell, and the file list and the version are put in by the build (`build/precache.ts`). It can be put on the home screen of a phone or a tablet.
-- **Notifications.** Settings → «Notify about notes due today»: once a day, when the date changes, if the tab is in the background. The permission is asked on the click of the switch; `https` or `localhost` is needed. Notifications with the app fully closed would need a push server, which is not here.
+- **Notifications.** Settings → «Notify about notes due today»: once a day, when the date changes, if the tab is in the background. The permission is asked on the click of the switch; `https` or `localhost` is needed. Notifications with the app fully closed would need a push server, which is not here; the [Android app](#android-app) does it without one.
 
 ## Android app
 
