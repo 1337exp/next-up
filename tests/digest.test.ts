@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { decideTodayNotice, todayDigest } from '@/core/digest';
+import { decideTodayNotice, todayDigest, upcomingDigests } from '@/core/digest';
 import { removeNote } from '@/core/notes';
 import { note } from './helpers';
 
@@ -23,6 +23,26 @@ describe('состав оповещения', () => {
 
     it('пусто — нулевой состав', () => {
         expect(todayDigest([], TODAY)).toEqual({ date: TODAY, count: 0, lines: [] });
+    });
+});
+
+describe('оповещения вперёд', () => {
+    it('по одному на день с заметками, пустые дни и дни вне окна пропускаются', () => {
+        const notes = [
+            note({ id: 'a', due: TODAY, body: 'сегодня' }),
+            note({ id: 'b', due: '2026-10-12', body: 'через два дня 1' }),
+            note({ id: 'c', due: '2026-10-12', body: 'через два дня 2' }),
+            note({ id: 'd', due: '2026-10-20', body: 'далеко' }),
+            note({ id: 'e', due: '2026-10-11', body: 'готово', doneAt: 5 }),
+        ];
+        expect(upcomingDigests(notes, TODAY, 5)).toEqual([
+            { date: TODAY, count: 1, lines: ['сегодня'] },
+            { date: '2026-10-12', count: 2, lines: ['через два дня 1', 'через два дня 2'] },
+        ]);
+    });
+
+    it('окно начинается с `from`: более ранние дни не берутся', () => {
+        expect(upcomingDigests([note({ id: 'a', due: TODAY, body: 'x' })], '2026-10-11', 3)).toEqual([]);
     });
 });
 

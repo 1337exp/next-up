@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { confirm, TaoButton, TaoSegmented, TaoSegmentedOption, TaoSelect, TaoSwitch, taoPalettes } from '@1337exp/taoui';
+import { confirm, TaoButton, TaoIcon, TaoSegmented, TaoSegmentedOption, TaoSelect, TaoSwitch, taoPalettes } from '@1337exp/taoui';
 import { buildDemoNotes } from '@/app/demo';
+import { isNative } from '@/app/native';
 import { notifySupport, requestNotifications, showTodayNotice, type NotifySupport } from '@/app/notify';
 import { isDevMode } from '@/app/dev';
 import { useNotesStore } from '@/app/notes';
@@ -27,7 +28,16 @@ const dev = isDevMode();
 // --- оповещения: разрешение просим по клику на переключатель, иначе браузер его не покажет ---
 const support = ref<NotifySupport>(notifySupport());
 const asking = ref(false);
-const notifyHint = computed(() => (support.value === 'unsupported' ? t('settings.notify.unsupported') : support.value === 'denied' ? t('settings.notify.denied') : t('settings.notify.hint')));
+const native = isNative();
+const notifyHint = computed(() => {
+    if (support.value === 'unsupported') return t('settings.notify.unsupported');
+    if (support.value === 'denied') return t(native ? 'settings.notify.deniedNative' : 'settings.notify.denied');
+    return t(native ? 'settings.notify.hintNative' : 'settings.notify.hint');
+});
+// нюансы под спойлером: в приложении и в браузере они разные
+const infoKeys = native
+    ? (['settings.notify.infoNative.time', 'settings.notify.infoNative.sleep', 'settings.notify.infoNative.today', 'settings.notify.infoNative.window', 'settings.notify.infoNative.battery'] as const)
+    : (['settings.notify.infoWeb.when', 'settings.notify.infoWeb.closed', 'settings.notify.infoWeb.secure'] as const);
 
 async function onNotify(on: boolean): Promise<void> {
     if (!on) {
@@ -98,6 +108,15 @@ async function fillDemo(): Promise<void> {
                     <TaoSwitch :model-value="settings.notifyToday" class="nu-switch" :label="t('settings.notify.label')" :loading="asking" :disabled="support === 'unsupported' || support === 'denied'" @update:model-value="onNotify" />
                     <p class="nu-hint">{{ notifyHint }}</p>
                 </div>
+                <details class="more">
+                    <summary class="nu-row summary">
+                        <span>{{ t('settings.notify.more') }}</span>
+                        <TaoIcon name="tao-chevron-down" class="chevron" />
+                    </summary>
+                    <ul class="info">
+                        <li v-for="key in infoKeys" :key="key">{{ t(key) }}</li>
+                    </ul>
+                </details>
             </div>
         </section>
 
@@ -125,6 +144,44 @@ async function fillDemo(): Promise<void> {
 .palette {
     flex: 0 1 11rem;
     min-width: 8rem;
+}
+
+.more {
+    border-top: 1px solid var(--tao-color-border);
+}
+
+.summary {
+    cursor: pointer;
+    list-style: none;
+    color: var(--tao-color-text-muted);
+}
+
+.summary::-webkit-details-marker {
+    display: none;
+}
+
+.chevron {
+    transition: transform 0.16s ease;
+}
+
+.more[open] .chevron {
+    transform: rotate(180deg);
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tao-space-2);
+    margin: 0;
+    padding: 0 var(--tao-space-4) var(--tao-space-4) calc(var(--tao-space-4) + var(--tao-space-4));
+    color: var(--tao-color-text-muted);
+    font-size: var(--tao-font-size-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .chevron {
+        transition: none;
+    }
 }
 
 .dev-buttons {

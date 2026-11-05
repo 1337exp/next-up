@@ -1,5 +1,7 @@
-import { watch } from 'vue';
+import { ref, watch } from 'vue';
+import { LocalNotifications } from '@capacitor/local-notifications';
 import { decideTodayNotice, todayDigest } from '@/core/digest';
+import { isNative } from '@/app/native';
 import { useNotesStore } from '@/app/notes';
 import { useSettingsStore } from '@/app/settings';
 import { useI18n } from '@/i18n';
@@ -16,7 +18,26 @@ export type NotifySupport = 'unsupported' | 'denied' | 'default' | 'granted';
 /** Тег один на все оповещения: новое заменяет старое, а не копится стопкой. */
 export const NOTICE_TAG = 'nextup-today';
 
+/** Разрешение в оболочке Android: спрашивать приходится асинхронно, поэтому держим последнее известное значение. */
+const nativePermission = ref<NotifySupport>('default');
+const CHANNEL = 'today';
+
+const fromNative = (display: string): NotifySupport => (display === 'granted' ? 'granted' : display === 'denied' ? 'denied' : 'default');
+
+/** В оболочке Android: узнаёт текущее разрешение и заводит канал оповещений. Вызывать один раз при запуске. */
+export async function initNativeNotifications(): Promise<void> {
+    if (!isNative()) return;
+    try {
+        nativePermission.value = fromNative((await LocalNotifications.checkPermissions()).display);
+        const { t } = useI18n();
+        await LocalNotifications.createChannel({ id: CHANNEL, name: t('notify.channel'), importance: 4, visibility: 1 });
+    } catch {
+        nativePermission.value = 'unsupported';
+    }
+}
+
 export function notifySupport(): NotifySupport {
+    if (isNative()) return nativePermission.value;
     if (typeof window === 'undefined' || !('Notification' in window)) return 'unsupported';
     if (!window.isSecureContext || !('serviceWorker' in navigator)) return 'unsupported';
     return Notification.permission;
@@ -34,6 +55,14 @@ async function registration(): Promise<ServiceWorkerRegistration | null> {
 
 /** Просит разрешение (вызывать из действия пользователя) и готовит service worker. */
 export async function requestNotifications(): Promise<NotifySupport> {
+    if (isNative()) {
+        try {
+            nativePermission.value = fromNative((await LocalNotifications.requestPermissions()).display);
+        } catch {
+            nativePermission.value = 'unsupported';
+        }
+        return nativePermission.value;
+    }
     if (notifySupport() === 'unsupported') return 'unsupported';
     const permission = await Notification.requestPermission();
     if (permission === 'granted' && !(await registration())) return 'unsupported';
@@ -43,6 +72,14 @@ export async function requestNotifications(): Promise<NotifySupport> {
 /** Показывает оповещение; `false`, если не удалось (нет разрешения или service worker). */
 export async function showNotice(title: string, body: string): Promise<boolean> {
     if (notifySupport() !== 'granted') return false;
+    if (isNative()) {
+        try {
+            await LocalNotifications.schedule({ notifications: [{ id: 1, title, body, largeBody: body, channelId: CHANNEL }] });
+            return true;
+        } catch {
+            return false;
+        }
+    }
     const reg = await registration();
     if (!reg) return false;
     try {
@@ -66,6 +103,8 @@ export async function showTodayNotice(): Promise<boolean> {
  * скрыта). Вызывать один раз, из корня приложения.
  */
 export function useDayNotifier(): void {
+    // в оболочке Android оповещения ставятся заранее (app/schedule.ts): проверять дату в открытом приложении не нужно
+    if (isNative()) return;
     const { settings } = useSettingsStore();
     const notes = useNotesStore();
     const { t } = useI18n();
