@@ -1,6 +1,8 @@
 import { nextTick, ref, watch } from 'vue';
+import { toast } from '@1337exp/taoui';
 import { useRoute } from '@/app/route';
 import type { Note } from '@/core/model';
+import { useI18n } from '@/i18n';
 import { editorKey, type EditorRoute } from '@/core/route';
 
 export type EditorMode = 'read' | 'create' | 'edit' | 'clone';
@@ -33,10 +35,11 @@ function hide(): void {
 
 /**
  * Связывает состояние редактора с адресом; вызывать один раз, из корня приложения. `find` отдаёт живую заметку по идентификатору:
- * если её нет (удалена, чужая ссылка), адрес очищается, а не показывается пустое окно.
+ * если её нет (удалена, старая ссылка из истории), адрес очищается и приложение говорит об этом, а не показывает пустое окно.
  */
 export function bindEditorToRoute(find: (id: string) => Note | undefined): void {
     const { route, replace } = useRoute();
+    const { t } = useI18n();
     let shown = '';
     watch(
         () => route.value,
@@ -50,7 +53,10 @@ export function bindEditorToRoute(find: (id: string) => Note | undefined): void 
             const note = find(editor.id);
             if (!note) {
                 shown = '';
-                return replace({ section: current.section, editor: null });
+                replace({ section: current.section, editor: null });
+                // при запуске по ссылке окно уведомлений ещё не готово: показываем чуть позже
+                window.setTimeout(() => toast.info(t('toast.noteMissing')), 300);
+                return;
             }
             show(editor.mode, note);
         },

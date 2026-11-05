@@ -145,7 +145,7 @@ export default {
         },
     },
 
-    toast: { removed: 'Note deleted', done: 'Note completed', reopened: 'Back in progress', itemOn: 'Goal checked', itemOff: 'Check removed', undo: 'Undo', redo: 'Redo', nothingToUndo: 'Nothing to undo', nothingToRedo: 'Nothing to redo' },
+    toast: { noteMissing: 'Note not found: it may have been deleted', removed: 'Note deleted', done: 'Note completed', reopened: 'Back in progress', itemOn: 'Goal checked', itemOff: 'Check removed', undo: 'Undo', redo: 'Redo', nothingToUndo: 'Nothing to undo', nothingToRedo: 'Nothing to redo' },
 
     notify: { today: 'Notes due today: {0}', channel: 'Notes due today' },
 

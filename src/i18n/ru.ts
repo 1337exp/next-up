@@ -143,7 +143,7 @@ export default {
         },
     },
 
-    toast: { removed: 'Заметка удалена', done: 'Заметка завершена', reopened: 'Возвращена в работу', itemOn: 'Цель отмечена', itemOff: 'Отметка снята', undo: 'Отменить', redo: 'Повторить', nothingToUndo: 'Отменять нечего', nothingToRedo: 'Повторять нечего' },
+    toast: { noteMissing: 'Заметка не найдена: возможно, её удалили', removed: 'Заметка удалена', done: 'Заметка завершена', reopened: 'Возвращена в работу', itemOn: 'Цель отмечена', itemOff: 'Отметка снята', undo: 'Отменить', redo: 'Повторить', nothingToUndo: 'Отменять нечего', nothingToRedo: 'Повторять нечего' },
 
     notify: { today: 'На сегодня есть заметки: {0}', channel: 'Заметки на сегодня' },
 
